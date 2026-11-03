@@ -34,7 +34,8 @@ No cookies, so no consent banner. Works with React and Next.js.
 
 [Hillcrest Home](https://hilcrest.vercel.app) (Dubai real estate) ·
 [Talentico](https://talentico-sepia.vercel.app) (recruitment, Canada) ·
-[MontivoHR](https://montivo-hr.vercel.app) (tech recruitment)
+[MontivoHR](https://montivo-hr.vercel.app) (tech recruitment) ·
+[Todin](https://todin.app) (shopping cashback paid in crypto tokens)
 
 ## Tools for AI agents
 
