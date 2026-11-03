@@ -20,6 +20,16 @@ No cookies, so no consent banner. Works with React and Next.js.
 
 [Try it](https://www.getmoxel.com) · [npm package](https://www.npmjs.com/package/getmoxel)
 
+### Latest from the Moxel blog
+
+<!-- BLOG:START -->
+- [Google Analytics users are not people. Here is what GA4 counts](https://www.getmoxel.com/blog/ga4-users-are-not-people) <sub>2026-11-02</sub>
+- [What an engaged session means in GA4 (it is 10 seconds)](https://www.getmoxel.com/blog/what-engaged-sessions-mean) <sub>2026-11-01</sub>
+- [Running a site alone? You can skip Google Analytics](https://www.getmoxel.com/blog/skip-google-analytics-if-you-run-a-site-alone) <sub>2026-10-31</sub>
+<!-- BLOG:END -->
+
+[All posts](https://www.getmoxel.com/blog)
+
 ## Things I've shipped
 
 | Project | What it does |
@@ -49,3 +59,10 @@ I spend a lot of time making coding agents more useful.
 [![Stack](https://skillicons.dev/icons?i=nextjs,react,ts,tailwind,nodejs,python,vercel,git&theme=dark)](https://skillicons.dev)
 
 Plus Convex for realtime backends. Studying Software Engineering, with a side interest in machine learning.
+
+## Commits
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/A5harib/A5harib/output/snake-dark.svg">
+  <img alt="Contribution graph being eaten by a snake" src="https://raw.githubusercontent.com/A5harib/A5harib/output/snake.svg">
+</picture>
