@@ -39,13 +39,19 @@ No cookies, so no consent banner. Works with React and Next.js.
 | [A5 Stocks](https://a5stocks-seven.vercel.app) | Live crypto and stock charts with an order book and trade feed. |
 | [A5 Jobs](https://a5jobs.vercel.app) | Job tracker that parses Indeed and LinkedIn postings and sends applications from Gmail. |
 | [Royale Upgrade Planner](https://cr-upgrader.vercel.app) | Reads your Clash Royale account and tells you what to upgrade next. |
+| [WeNote](https://wenote-workspace.vercel.app) | Real-time collaborative notes on Next.js, Convex and Clerk. A team project I contributed to. |
 
 ## Client sites
 
-[Hillcrest Home](https://hilcrest.vercel.app) (Dubai real estate) ·
-[Talentico](https://talentico-sepia.vercel.app) (recruitment, Canada) ·
-[MontivoHR](https://montivo-hr.vercel.app) (tech recruitment) ·
-[Todin](https://todin.app) (shopping cashback paid in crypto tokens)
+| Site | What it is |
+| --- | --- |
+| [Todin](https://todin.app) | Shopping cashback paid in crypto tokens |
+| [MontivoHR](https://montivohr.com) | Technical recruitment |
+| [Elite Stay](https://elitestay.ca) | Premium vacation rentals |
+| [Hillcrest Home](https://hilcrest.vercel.app) | Dubai real estate |
+| [Talentico](https://talentico-sepia.vercel.app) | Recruitment across Canada |
+| [Talentfyx](https://talentfyx.com) | Recruitment and staffing |
+| [Blackstone Shield](https://blackstoneshield.ca) | Security services |
 
 ## Tools for AI agents
 
