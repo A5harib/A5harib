@@ -2,12 +2,13 @@
 
 Steps:
   1. Speak every line with HyperFrames' local TTS (Kokoro) - one voice per character.
-  2. Measure each clip so the scenes are timed to the speech, and bake a
-     loudness envelope that drives each character's mouth (lip sync).
-  3. Synthesize background music + sound effects.
-  4. Write index.html (HyperFrames composition animated with GSAP).
+  2. Measure each clip: scene timing follows the speech, a loudness envelope
+     drives each character's mouth (lip sync), and word timings (estimated from
+     the pauses in the audio) drive karaoke captions and pop-ups.
+  3. Synthesize music + sound effects (audio.py).
+  4. Write index.html (HyperFrames composition, animated with GSAP in page.tpl).
 
-Run:  HYPERFRAMES_PYTHON=/path/to/venv/python  python build.py
+Run:  HYPERFRAMES_PYTHON=/path/to/venv/python  /path/to/venv/python build.py
 (the venv needs: kokoro-onnx soundfile numpy)
 """
 import hashlib
@@ -21,32 +22,51 @@ import sys
 import numpy as np
 import soundfile as sf
 
+from audio import make_music, make_sfx
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 VOICE_DIR = os.path.join(ROOT, "assets", "voice")
-SFX_DIR = os.path.join(ROOT, "assets", "sfx")
-SR = 24000
 FPS_MOUTH = 15
 
 # ---------------------------------------------------------------- characters
 CHARS = {
-    "noun":    {"label": "NOUN",    "voice": "af_heart",   "speed": 0.95, "color": "#8e5cf5", "dark": "#6a3fd1", "shape": "block"},
-    "teacher": {"label": "Teacher", "voice": "am_michael", "speed": 0.95, "color": "#21b6a8", "dark": "#14897e", "shape": "block"},
-    "school":  {"label": "School",  "voice": "bf_emma",    "speed": 0.95, "color": "#f2683c", "dark": "#c94d26", "shape": "school"},
-    "cat":     {"label": "Cat",     "voice": "af_sky",     "speed": 1.0,  "color": "#ffa62b", "dark": "#e08410", "shape": "cat"},
-    "apple":   {"label": "Apple",   "voice": "af_nova",    "speed": 0.95, "color": "#ef3b3b", "dark": "#c42323", "shape": "round"},
-    "ball":    {"label": "Ball",    "voice": "am_adam",    "speed": 1.0,  "color": "#2f8cff", "dark": "#1c68cc", "shape": "ball"},
+    "noun":    {"label": "NOUN",    "voice": "af_heart",   "speed": 0.8, "color": "#8e5cf5", "light": "#c4a6ff", "dark": "#6a3fd1", "shape": "block"},
+    "teacher": {"label": "Teacher", "voice": "am_michael", "speed": 0.8, "color": "#21b6a8", "light": "#7fe6dc", "dark": "#0f7f75", "shape": "block"},
+    "school":  {"label": "School",  "voice": "bf_emma",    "speed": 0.8, "color": "#f2683c", "light": "#ffaa85", "dark": "#c2471f", "shape": "school"},
+    "cat":     {"label": "Cat",     "voice": "af_sky",     "speed": 0.85,  "color": "#ffa62b", "light": "#ffd28a", "dark": "#cf7406", "shape": "cat"},
+    "apple":   {"label": "Apple",   "voice": "af_nova",    "speed": 0.8, "color": "#ef3b3b", "light": "#ff8f8f", "dark": "#b81d1d", "shape": "round"},
+    "ball":    {"label": "Ball",    "voice": "am_adam",    "speed": 0.85,  "color": "#2f8cff", "light": "#8cc2ff", "dark": "#1559b8", "shape": "ball"},
 }
 NAMES = {"noun": "Noun", "teacher": "Teacher", "school": "School", "cat": "Cat",
          "apple": "Apple", "ball": "Ball", "all": "Everyone"}
 
+# sky top / sky bottom / hill colours per theme
+THEMES = {
+    "sky":    ("#3fb8ff", "#bfeaff", "#7ddc6a", "#5cc451"),
+    "sunny":  ("#ff9f43", "#ffe39a", "#8fdc5e", "#69c447"),
+    "mint":   ("#2ec4b6", "#c9f7ec", "#86e07a", "#5fc65a"),
+    "candy":  ("#ff6fb5", "#ffd6ec", "#8fe08a", "#6cc96b"),
+    "lilac":  ("#7b8cff", "#dfe4ff", "#7fdb8c", "#58c46c"),
+}
+CAT_COLORS = {"person": "#e8317f", "place": "#10995a", "animal": "#f07c00", "thing": "#1f6fe0"}
+
 # ---------------------------------------------------------------- script
 # line: (speaker, text, options)
-#   pops: [(keyword_in_text, emoji, label)] cards that pop in when the word is said
-#   act:  wave | jump
-SCENES = [
-    {"id": "title", "fixed": 4.2, "bg": "#7fd3ff", "lines": []},
-    {"id": "intro", "bg": "#7fd3ff",
-     "chars": [("noun", 960, 1.05)],
+#   pops:  [(keyword, emoji, label)]  picture cards that pop in as the word is said
+#   big:   same, large recap cards
+#   act:   wave | jump        enter: character bounces in just before the line
+#   show:  [element ids]      pop in at line start
+#   opts:  [(keyword, id)]    pop in as the word is said (from: start searching after this word)
+#   marks: [(id, keyword|None)] mark as correct (None = at line start)
+#   dim:   [ids]              fade wrong answers   star: n  fill star n
+# ("pause", seconds, {"timer": True}) = thinking time with a countdown ring
+S = [
+    {"id": "title", "kind": "title", "theme": "sky", "fixed": 5.6, "rainbow": True,
+     "chars": [("teacher", 330, 0.5), ("school", 590, 0.5), ("cat", 850, 0.5),
+               ("apple", 1110, 0.5), ("ball", 1370, 0.5), ("noun", 1630, 0.5)],
+     "lines": []},
+    {"id": "intro", "theme": "sky", "rainbow": True,
+     "chars": [("noun", 960, 1.0)],
      "lines": [
         ("noun", "Hello, friends! I am Noun!", {"act": "wave"}),
         ("noun", "A noun is a naming word.", {}),
@@ -55,7 +75,7 @@ SCENES = [
                    ("animal", "🐶", "animal"), ("thing", "⚽", "thing")]}),
         ("noun", "Let's meet my noun friends!", {"act": "jump"}),
      ]},
-    {"id": "person", "bg": "#ffd36e", "badge": ("👩‍🏫", "PERSON"),
+    {"id": "person", "theme": "sunny", "badge": ("👩‍🏫", "PERSON", "person"),
      "chars": [("teacher", 470, 1.0), ("noun", 1560, 0.78)],
      "lines": [
         ("teacher", "Good morning, class! I am Teacher.", {"act": "wave"}),
@@ -63,7 +83,7 @@ SCENES = [
         ("noun", "Yes! People are nouns. Like mom, dad, baby, and you!",
          {"pops": [("mom", "👩", "mom"), ("dad", "👨", "dad"), ("baby", "👶", "baby"), ("you", "🧒", "you")]}),
      ]},
-    {"id": "place", "bg": "#9be59b", "badge": ("🏫", "PLACE"),
+    {"id": "place", "theme": "mint", "badge": ("🏫", "PLACE", "place"),
      "chars": [("school", 470, 1.0), ("noun", 1560, 0.78)],
      "lines": [
         ("school", "Hello! I am School.", {"act": "wave"}),
@@ -71,7 +91,7 @@ SCENES = [
         ("noun", "Places are nouns too! Like park, home, and zoo!",
          {"pops": [("park", "🌳", "park"), ("home", "🏠", "home"), ("zoo", "🦒", "zoo")]}),
      ]},
-    {"id": "animal", "bg": "#ffb3d1", "badge": ("🐾", "ANIMAL"),
+    {"id": "animal", "theme": "candy", "badge": ("🐾", "ANIMAL", "animal"),
      "chars": [("cat", 470, 1.0), ("noun", 1560, 0.78)],
      "lines": [
         ("cat", "Meow! Meow! I am Cat!", {"act": "jump"}),
@@ -79,7 +99,7 @@ SCENES = [
         ("noun", "Animals are nouns! Like dog, cow, and fish!",
          {"pops": [("dog", "🐶", "dog"), ("cow", "🐮", "cow"), ("fish", "🐟", "fish")]}),
      ]},
-    {"id": "thing", "bg": "#a9c8ff", "badge": ("🎁", "THING"),
+    {"id": "thing", "theme": "lilac", "badge": ("🎁", "THING", "thing"),
      "chars": [("apple", 470, 1.0), ("noun", 1560, 0.78)],
      "lines": [
         ("apple", "Yummy! I am Apple!", {"act": "wave"}),
@@ -87,7 +107,7 @@ SCENES = [
         ("noun", "Things are nouns too! Like ball, book, and car!",
          {"pops": [("ball", "⚽", "ball"), ("book", "📘", "book"), ("car", "🚗", "car")]}),
      ]},
-    {"id": "recap", "bg": "#7fd3ff", "badge": ("⭐", "REMEMBER"),
+    {"id": "recap", "theme": "sky", "rainbow": True, "badge": ("⭐", "REMEMBER", "person"),
      "chars": [("noun", 960, 0.85)],
      "lines": [
         ("noun", "Let's remember!", {"act": "jump"}),
@@ -95,32 +115,97 @@ SCENES = [
          {"big": [("person", "👩", "person"), ("place", "🏫", "place"),
                   ("animal", "🐶", "animal"), ("thing", "⚽", "thing")]}),
      ]},
-    {"id": "quiz", "bg": "#ffd36e", "badge": ("❓", "QUIZ TIME"),
-     "chars": [("noun", 1600, 0.78), ("ball", 960, 0.85)],
+
+    # ------------------------------------------------------------ quiz show
+    {"id": "qintro", "kind": "quiz", "badge": ("🎮", "NOUN GAME", "person"), "stars": 0,
+     "chars": [("noun", 1450, 0.9)],
+     "q": {"type": "intro"},
      "lines": [
-        ("noun", "Quiz time! Which word is a noun?", {"quiz": True}),
-        ("pause", 3.6, {}),
-        ("noun", "Ball! Yes! Ball is a thing. So, ball is a noun!", {"answer": True}),
-        ("ball", "Boing! Boing! I am Ball. I am a noun!", {"act": "jump", "enter": True}),
+        ("noun", "Now, let's play the Noun Game!", {"act": "jump", "show": ["qtext"]}),
+        ("noun", "You get a star for every right answer. Are you ready?", {"act": "wave", "show": ["meterhi"]}),
      ]},
-    {"id": "outro", "bg": "#7fd3ff",
+    {"id": "r1", "kind": "quiz", "badge": ("1️⃣", "ROUND 1", "animal"), "stars": 0,
+     "chars": [("noun", 1660, 0.72)],
+     "q": {"type": "pick", "question": "Which one is a noun?",
+           "options": [("run", "🏃"), ("dog", "🐶"), ("happy", "😊")]},
+     "lines": [
+        ("noun", "Round one! Which one is a noun? Run, dog, or happy?",
+         {"show": ["qtext"], "opts": [("run", "opt0"), ("dog", "opt1"), ("happy", "opt2")], "from": "noun"}),
+        ("pause", 4.6, {"timer": True}),
+        ("noun", "Dog! A dog is an animal. So, dog is a noun!",
+         {"marks": [("opt1", None)], "dim": ["opt0", "opt2"], "star": 1}),
+     ]},
+    {"id": "r2a", "kind": "quiz", "badge": ("2️⃣", "ROUND 2", "place"), "stars": 1,
+     "chars": [("teacher", 1660, 0.72)],
+     "q": {"type": "group", "question": "Person, place, animal, or thing?", "item": ("doctor", "👩‍⚕️")},
+     "lines": [
+        ("teacher", "Round two! Look, a doctor! Is a doctor a person, a place, an animal, or a thing?",
+         {"show": ["qtext", "item"], "opts": [("person", "opt0"), ("place", "opt1"), ("animal", "opt2"), ("thing", "opt3")], "from": "doctor?"}),
+        ("pause", 4.6, {"timer": True}),
+        ("teacher", "A person! A doctor is a person. So, doctor is a noun!",
+         {"marks": [("opt0", None)], "dim": ["opt1", "opt2", "opt3"], "star": 2}),
+     ]},
+    {"id": "r2b", "kind": "quiz", "badge": ("2️⃣", "ROUND 2", "place"), "stars": 2,
+     "chars": [("school", 1660, 0.72)],
+     "q": {"type": "group", "question": "Person, place, animal, or thing?", "item": ("park", "🎠")},
+     "lines": [
+        ("school", "Now, what about a park? Is a park a person, a place, an animal, or a thing?",
+         {"show": ["qtext", "item"], "opts": [("person", "opt0"), ("place", "opt1"), ("animal", "opt2"), ("thing", "opt3")], "from": "park?"}),
+        ("pause", 4.6, {"timer": True}),
+        ("school", "A place! We play at the park. So, park is a noun!",
+         {"marks": [("opt1", None)], "dim": ["opt0", "opt2", "opt3"], "star": 3}),
+     ]},
+    {"id": "r3", "kind": "quiz", "badge": ("3️⃣", "ROUND 3", "thing"), "stars": 3,
+     "chars": [("cat", 1660, 0.72)],
+     "q": {"type": "sentence", "question": "Find the noun in the sentence!",
+           "words": ["The", "bird", "can", "fly."], "pic": "🐦"},
+     "lines": [
+        ("cat", "Round three! Find the noun in this sentence. The bird can fly.",
+         {"show": ["qtext"], "opts": [("the", "w0"), ("bird", "w1"), ("can", "w2"), ("fly", "w3")], "from": "sentence."}),
+        ("pause", 4.6, {"timer": True}),
+        ("cat", "Bird! A bird is an animal. So, bird is the noun!",
+         {"marks": [("w1", None)], "dim": ["w0", "w2", "w3"], "star": 4, "show_at": [("pic", "animal.")]}),
+     ]},
+    {"id": "r4", "kind": "quiz", "badge": ("4️⃣", "LAST ROUND", "person"), "stars": 4,
+     "chars": [("apple", 1660, 0.72)],
+     "q": {"type": "count", "question": "How many nouns?", "words": ["The", "boy", "has", "a", "kite."],
+           "nums": [1, 2, 3], "pics": [(1, "👦"), (4, "🪁")]},
+     "lines": [
+        ("apple", "Last round! How many nouns are in this sentence? The boy has a kite.",
+         {"show": ["qtext"], "opts": [("the", "w0"), ("boy", "w1"), ("has", "w2"), ("a", "w3"), ("kite", "w4")],
+          "from": "sentence?", "show_end": ["n0", "n1", "n2"]}),
+        ("pause", 4.6, {"timer": True}),
+        ("apple", "Two! Boy is a person, and kite is a thing. Two nouns!",
+         {"marks": [("n1", None), ("w1", "boy"), ("w4", "kite.")], "dim": ["n0", "n2", "w0", "w2", "w3"], "star": 5,
+          "show_at": [("pic1", "boy"), ("pic4", "kite.")]}),
+     ]},
+    {"id": "result", "kind": "result", "badge": ("🏆", "GREAT JOB", "place"), "stars": 5,
+     "chars": [("noun", 1530, 0.85)],
+     "lines": [
+        ("noun", "Wow! You got five stars!", {"act": "jump", "allstars": True}),
+        ("noun", "You are a Noun Star! Hooray!", {"act": "wave", "show": ["medal"]}),
+     ]},
+    {"id": "outro", "theme": "sky", "rainbow": True,
      "chars": [("teacher", 260, 0.66), ("school", 540, 0.66), ("cat", 820, 0.66),
                ("noun", 1100, 0.66), ("apple", 1380, 0.66), ("ball", 1660, 0.66)],
      "lines": [
-        ("noun", "Great job, friends! Now you know nouns!", {}),
+        ("noun", "Thank you for playing, friends! Now you know nouns!", {}),
         ("all", "Bye bye!", {"act": "wave"}),
      ]},
 ]
 
-GAP = 0.45        # silence between lines
-LEAD_IN = 1.1     # before the first line of a scene (entrance)
-TAIL = 1.1        # after the last line of a scene
+GAP = 0.45
+LEAD_IN = 1.2
+TAIL = 1.1
 
 
-def tts(text, voice, speed, out):
-    key = hashlib.md5(f"{text}|{voice}|{speed}".encode()).hexdigest()[:10]
-    path = os.path.join(VOICE_DIR, f"{out}-{key}.wav")
+# ---------------------------------------------------------------- speech
+def _synth(text, voice, speed):
+    """One phrase through HyperFrames TTS (cached), edges trimmed."""
+    key = hashlib.md5(f"{text}|{voice}|{speed}".encode()).hexdigest()[:12]
+    path = os.path.join(VOICE_DIR, "parts", f"{key}.wav")
     if not os.path.exists(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         print("tts:", voice, text)
         r = subprocess.run(["npx", "hyperframes", "tts", text, "-v", voice, "-s", str(speed),
                             "-o", path, "--json"], capture_output=True, text=True, cwd=ROOT)
@@ -129,183 +214,55 @@ def tts(text, voice, speed, out):
     data, sr = sf.read(path)
     if data.ndim > 1:
         data = data.mean(axis=1)
-    # trim silence at the edges so mouths line up with the sound
-    thr = 0.01 * np.max(np.abs(data))
+    thr = 0.02 * np.max(np.abs(data))
     idx = np.where(np.abs(data) > thr)[0]
-    a, b = max(0, idx[0] - int(0.03 * sr)), min(len(data), idx[-1] + int(0.08 * sr))
-    data = data[a:b]
+    return data[max(0, idx[0] - int(0.02 * sr)):min(len(data), idx[-1] + int(0.05 * sr))], sr
+
+
+def tts(text, voice, speed, out):
+    """Speak a line phrase by phrase with child-friendly pauses in between.
+    Returns (wav path, duration, mouth envelope, start time of every word)."""
+    phrases = [p.strip() for p in re.findall(r"[^,.!?]+[,.!?]*", text) if p.strip()]
+    pieces, word_t, t = [], [], 0.0
+    sr = 24000
+    for i, ph in enumerate(phrases):
+        data, sr = _synth(ph, voice, speed)
+        words = ph.split()
+        weight = [len(re.sub(r"\W", "", w)) + 2 for w in words]
+        dur = len(data) / sr
+        acc = 0
+        for w in weight:
+            word_t.append(round(t + dur * acc / sum(weight), 3))
+            acc += w
+        pieces.append(data)
+        t += dur
+        if i < len(phrases) - 1:
+            gap = 0.22 if ph.endswith(",") else 0.38
+            pieces.append(np.zeros(int(sr * gap)))
+            t += gap
+    data = np.concatenate(pieces)
+    key = hashlib.md5(f"{text}|{voice}|{speed}".encode()).hexdigest()[:10]
+    path = os.path.join(VOICE_DIR, f"{out}-{key}.wav")
     sf.write(path, data, sr)
     win = sr // FPS_MOUTH
     env = [float(np.sqrt(np.mean(data[i:i + win] ** 2))) for i in range(0, len(data), win)]
     ref = np.percentile(env, 90) or 1
     env = [round(min(1.0, e / ref), 2) for e in env]
-    return os.path.relpath(path, ROOT), len(data) / sr, env
+    return os.path.relpath(path, ROOT), len(data) / sr, env, word_t
 
 
-# ---------------------------------------------------------------- audio synth
-def env_adsr(n, a=0.005, r=0.2):
-    t = np.arange(n) / SR
-    return np.minimum(1, t / a) * np.exp(-t / r)
-
-
-def write(name, y, vol=0.9):
-    y = y / (np.max(np.abs(y)) or 1) * vol
-    sf.write(os.path.join(SFX_DIR, name), y.astype(np.float32), SR)
-    return f"assets/sfx/{name}"
-
-
-def pluck(freq, dur, decay=0.996):
-    n = int(SR * dur)
-    p = max(2, int(SR / freq))
-    rng = np.random.default_rng(int(freq * 10))
-    buf = rng.uniform(-1, 1, p)
-    out = np.zeros(n)
-    for i in range(n):
-        out[i] = buf[i % p]
-        buf[i % p] = decay * 0.5 * (buf[i % p] + buf[(i + 1) % p])
-    return out
-
-
-def make_sfx():
-    t = lambda d: np.arange(int(SR * d)) / SR
-    s = {}
-    tt = t(0.18)
-    s["pop"] = write("pop.wav", np.sin(2 * np.pi * (500 + 1400 * tt) * tt) * env_adsr(len(tt), 0.002, 0.04), 0.6)
-    tt = t(1.2)
-    s["ding"] = write("ding.wav", (np.sin(2 * np.pi * 1318.5 * tt) + 0.6 * np.sin(2 * np.pi * 1975.5 * tt)
-                                   + 0.3 * np.sin(2 * np.pi * 2637 * tt)) * env_adsr(len(tt), 0.003, 0.35), 0.7)
-    tt = t(0.1)
-    s["tick"] = write("tick.wav", np.sin(2 * np.pi * 1000 * tt) * env_adsr(len(tt), 0.001, 0.02), 0.5)
-    tt = t(0.55)
-    rng = np.random.default_rng(7)
-    noise = rng.uniform(-1, 1, len(tt))
-    k = np.convolve(noise, np.ones(12) / 12, mode="same")
-    s["whoosh"] = write("whoosh.wav", k * np.sin(np.pi * tt / tt[-1]) ** 2, 0.35)
-    tt = t(0.45)
-    s["boing"] = write("boing.wav", np.sin(2 * np.pi * (180 + 120 * np.sin(2 * np.pi * 9 * tt)) * tt)
-                       * env_adsr(len(tt), 0.003, 0.18), 0.5)
-    # title jingle: C E G C' arpeggio + chord
-    notes = [523.25, 659.25, 783.99, 1046.5]
-    y = np.zeros(int(SR * 2.4))
-    for i, f in enumerate(notes):
-        st = int(SR * 0.16 * i)
-        p = pluck(f, 1.6, 0.997)
-        y[st:st + len(p)] += p
-    st = int(SR * 0.7)
-    for f in notes[:3]:
-        p = pluck(f * 2, 1.6, 0.998) * 0.6
-        y[st:st + len(p)] += p
-    s["jingle"] = write("jingle.wav", y, 0.6)
-    return s
-
-
-def make_music(total, scenes):
-    """Bouncy kids' tune at 112 bpm: marimba melody + bass + light drums.
-    The track is ducked (made quieter) while anyone is speaking."""
-    bpm = 112
-    beat = 60 / bpm
-    e8 = beat / 2
-    n = int(SR * (total + 3))
-    y = np.zeros(n)
-    rng = np.random.default_rng(3)
-
-    def add(sig, at, gain=1.0):
-        st = int(SR * at)
-        if st >= n:
-            return
-        seg = sig[: n - st]
-        y[st:st + len(seg)] += seg * gain
-
-    def marimba(f, d=0.6):
-        tt = np.arange(int(SR * d)) / SR
-        w = np.sin(2 * np.pi * f * tt) + 0.25 * np.sin(2 * np.pi * 4 * f * tt) * np.exp(-tt / 0.03)
-        return w * np.minimum(1, tt / 0.003) * np.exp(-tt / 0.22)
-
-    def glock(f, d=1.0):
-        tt = np.arange(int(SR * d)) / SR
-        w = np.sin(2 * np.pi * f * tt) + 0.4 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt / 0.1)
-        return w * np.minimum(1, tt / 0.002) * np.exp(-tt / 0.45)
-
-    def bassnote(f, d=0.5):
-        tt = np.arange(int(SR * d)) / SR
-        w = np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(2 * np.pi * 2 * f * tt)
-        return w * np.minimum(1, tt / 0.005) * np.exp(-tt / 0.25)
-
-    tt = np.arange(int(SR * 0.3)) / SR
-    kick = np.sin(2 * np.pi * (50 + 110 * np.exp(-tt / 0.04)) * tt) * np.exp(-tt / 0.12)
-    tt = np.arange(int(SR * 0.2)) / SR
-    noise = rng.uniform(-1, 1, len(tt))
-    clap = (noise - np.convolve(noise, np.ones(6) / 6, "same")) * np.exp(-tt / 0.05)
-    tt = np.arange(int(SR * 0.06)) / SR
-    nz = rng.uniform(-1, 1, len(tt))
-    shaker = (nz - np.convolve(nz, np.ones(3) / 3, "same")) * np.exp(-tt / 0.015)
-
-    N = {"C4": 261.63, "D4": 293.66, "E4": 329.63, "F4": 349.23, "G4": 392.0, "A4": 440.0, "B4": 493.88,
-         "C5": 523.25, "D5": 587.33, "E5": 659.25, "F5": 698.46, "G5": 783.99, "A5": 880.0}
-    # C - Am - F - G, a simple sing-song melody (one note per eighth, None = rest)
-    prog = [(130.81, "C"), (110.0, "Am"), (87.31, "F"), (98.0, "G")]
-    melody = [
-        ["E5", None, "G5", "E5", "C5", None, "D5", "E5"],
-        ["C5", None, "A4", "C5", "E5", None, "C5", None],
-        ["F5", None, "A5", "F5", "C5", None, "A4", "C5"],
-        ["D5", None, "B4", "D5", "G5", None, None, None],
-        ["E5", "E5", "G5", None, "E5", "D5", "C5", None],
-        ["A4", None, "C5", "E5", "A5", None, "E5", None],
-        ["F5", "E5", "D5", "C5", "A4", None, "C5", None],
-        ["B4", None, "D5", None, "G4", None, None, None],
-    ]
-    chord_tones = {"C": ["C4", "E4", "G4"], "Am": ["A4", "C5", "E5"], "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"]}
-
-    pos, bar = 0.0, 0
-    while pos < total + 1:
-        broot, name = prog[bar % 4]
-        mel = melody[bar % 8]
-        # bass: root on 1 and 3, fifth on the "and" of 4
-        add(bassnote(broot), pos, 0.9)
-        add(bassnote(broot), pos + 2 * beat, 0.8)
-        add(bassnote(broot * 1.5, 0.3), pos + 3.5 * beat, 0.6)
-        # drums
-        for b4 in range(4):
-            add(kick if b4 % 2 == 0 else clap, pos + b4 * beat, 0.9 if b4 % 2 == 0 else 0.35)
-        for k in range(8):
-            add(shaker, pos + k * e8, 0.18 if k % 2 else 0.1)
-        # soft chord stabs on the off-beats
-        for k in (1, 3, 5, 7):
-            for nt in chord_tones[name]:
-                add(marimba(N[nt], 0.3), pos + k * e8, 0.12)
-        # melody
-        for k, nt in enumerate(mel):
-            if nt:
-                add(marimba(N[nt]), pos + k * e8, 0.55)
-        # sparkle every 4 bars
-        if bar % 4 == 0:
-            add(glock(N["C5"] * 2), pos, 0.25)
-        pos += 8 * e8
-        bar += 1
-
-    y = y[: int(SR * total)]
-    # ducking: quieter under speech, smooth 0.2 s ramps
-    gain = np.ones(len(y))
-    for sc in scenes:
-        for ln in sc["lines"]:
-            if ln["speaker"] == "pause":
-                continue
-            a, b = int(SR * (ln["start"] - 0.15)), int(SR * (ln["start"] + ln["dur"] + 0.1))
-            gain[max(0, a):min(len(y), b)] = 0.32
-    k = int(SR * 0.2)
-    gain = np.convolve(gain, np.ones(k) / k, "same")
-    y *= gain
-    y[: int(SR * 0.5)] *= np.linspace(0, 1, int(SR * 0.5))
-    fade = int(SR * 2.5)
-    y[-fade:] *= np.linspace(1, 0, fade)
-    return write("music.wav", y, 0.85)
+def find_word(words, kw, start=0):
+    for i in range(start, len(words)):
+        if re.sub(r"[^\w']", "", words[i].lower()) == re.sub(r"[^\w']", "", kw.lower()):
+            return i
+    return None
 
 
 # ---------------------------------------------------------------- layout
 def build_timeline():
     t = 0.0
     out = []
-    for sc in SCENES:
+    for sc in S:
         start = t
         lines = []
         if sc.get("fixed"):
@@ -314,77 +271,90 @@ def build_timeline():
             t += LEAD_IN
             for i, (spk, text, opt) in enumerate(sc["lines"]):
                 if spk == "pause":
-                    lines.append({"speaker": "pause", "start": round(t, 3), "dur": text})
+                    lines.append({"speaker": "pause", "start": round(t, 3), "dur": text, **opt})
                     t += text
                     continue
                 if opt.get("enter"):
-                    t += 0.9  # time for the character to bounce in
+                    t += 0.9
                 if spk == "all":
                     clips = []
                     for name, _x, _s in sc["chars"]:
                         c = CHARS[name]
-                        p, d, e = tts(text, c["voice"], c["speed"], f"{sc['id']}-{i}-{name}")
+                        p, d, e, wt = tts(text, c["voice"], c["speed"], f"{sc['id']}-{i}-{name}")
                         clips.append({"who": name, "src": p, "dur": d, "env": e})
                     dur = max(c["dur"] for c in clips)
                 else:
                     c = CHARS[spk]
-                    p, d, e = tts(text, c["voice"], c["speed"], f"{sc['id']}-{i}")
+                    p, d, e, wt = tts(text, c["voice"], c["speed"], f"{sc['id']}-{i}")
                     clips = [{"who": spk, "src": p, "dur": d, "env": e}]
                     dur = d
+                words = text.split()
+                abs_wt = [round(t + w, 3) for w in wt]
                 line = {"speaker": spk, "text": text, "start": round(t, 3), "dur": round(dur, 3),
-                        "clips": clips, **{k: v for k, v in opt.items()}}
-                # keyword timing for pop cards (by position in the sentence)
+                        "clips": clips, "wt": abs_wt}
+                for k in ("act", "enter", "show", "dim", "star", "allstars", "show_end"):
+                    if k in opt:
+                        line[k] = opt[k]
+
+                def at_word(kw, frm=0):
+                    wi = find_word(words, kw, frm)
+                    return (abs_wt[wi] if wi is not None else t), (wi if wi is not None else frm)
+
                 for key in ("pops", "big"):
                     if key in opt:
-                        line[key] = []
-                        low = text.lower()
-                        search_from = 0
+                        line[key], pos = [], 0
                         for kw, emoji, label in opt[key]:
-                            m = re.search(r"\b" + re.escape(kw) + r"\b", low[search_from:])
-                            at = (search_from + m.start()) if m else 0
-                            search_from = at + len(kw)
-                            line[key].append({"emoji": emoji, "label": label,
-                                              "at": round(t + dur * at / len(text) - 0.05, 3)})
-                # give young readers time: ~0.5s + 0.3s per word on screen
-                hold = max(dur + GAP, 0.6 + 0.3 * len(text.split()) + 0.2)
+                            at, wi = at_word(kw, pos)
+                            pos = wi + 1
+                            line[key].append({"emoji": emoji, "label": label, "at": round(at - 0.05, 3)})
+                if "opts" in opt:
+                    pos = (find_word(words, opt["from"]) + 1) if opt.get("from") else 0
+                    line["opts"] = []
+                    for kw, oid in opt["opts"]:
+                        at, wi = at_word(kw, pos)
+                        pos = wi + 1
+                        line["opts"].append({"id": oid, "at": round(at - 0.05, 3)})
+                if "marks" in opt:
+                    line["marks"] = [{"id": mid, "at": round((at_word(kw)[0] - 0.05) if kw else t - 0.25, 3)}
+                                     for mid, kw in opt["marks"]]
+                if "show_at" in opt:
+                    line["show_at"] = [{"id": sid_, "at": round(at_word(kw)[0], 3)} for sid_, kw in opt["show_at"]]
+                hold = max(dur + GAP, 0.6 + 0.3 * len(words) + 0.2)
                 line["hold"] = round(hold - 0.15, 3)
                 lines.append(line)
                 t += hold
             t += TAIL - GAP
-        out.append({**{k: v for k, v in sc.items() if k != "lines"},
-                    "start": round(start, 3), "dur": round(t - start, 3), "lines": lines})
+        meta = {k: v for k, v in sc.items() if k not in ("lines",)}
+        out.append({**meta, "start": round(start, 3), "dur": round(t - start, 3), "lines": lines})
     return out, round(t, 3)
 
 
-# ---------------------------------------------------------------- html
+# ---------------------------------------------------------------- html pieces
 def char_html(name, x, scale, sid, facing):
     c = CHARS[name]
     shape = c["shape"]
-    extra = ""
-    if name == "noun":
-        extra = '<div class="antenna"></div><div class="star"></div>'
-    elif name == "teacher":
-        extra = '<div class="hair"></div><div class="bun"></div>'
-    elif shape == "school":
-        extra = '<div class="roof"></div><div class="bell"></div><div class="door"></div>'
-    elif shape == "cat":
-        extra = '<div class="tail"></div><div class="ear l"><i></i></div><div class="ear r"><i></i></div>'
-    elif name == "apple":
-        extra = '<div class="stem"></div><div class="leaf"></div>'
-    elif name == "ball":
-        extra = '<div class="stripe"></div><div class="shine"></div>'
+    extra = {
+        "noun": '<div class="antenna"></div><div class="star"></div>',
+        "teacher": '<div class="hair"></div><div class="bun"></div>',
+        "school": '<div class="roof"><i></i></div><div class="bell"></div><div class="flag"></div>',
+        "cat": '<div class="tail"></div><div class="ear l"><i></i></div><div class="ear r"><i></i></div>',
+        "apple": '<div class="stem"></div><div class="leaf"></div>',
+        "ball": '<div class="shine"></div>',
+    }[name]
     glasses = '<div class="glasses"><b></b><b></b></div>' if name == "teacher" else ""
-    whiskers = '<div class="whiskers l"><s></s><s></s></div><div class="whiskers r"><s></s><s></s></div><div class="nose"></div>' if shape == "cat" else ""
-    cid = f"{sid}-{name}"
+    whiskers = ('<div class="whiskers l"><s></s><s></s></div><div class="whiskers r"><s></s><s></s></div>'
+                '<div class="nose"></div>') if shape == "cat" else ""
     return f'''
-      <div class="char-pos" style="left:{x}px; --sz:{scale}; --c:{c['color']}; --d:{c['dark']};">
-        <div class="char-in" id="{cid}">
+      <div class="char-pos" style="left:{x}px; --sz:{scale}; --c:{c['color']}; --l:{c['light']}; --d:{c['dark']};">
+        <div class="shadow" id="{sid}-{name}-sh"></div>
+        <div class="char-in" id="{sid}-{name}">
           <div class="char-bob shape-{shape}">
             <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
             <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
             {extra}
-            <div class="body">
+            <div class="body"><div class="gloss"></div>
               <div class="face" data-facing="{facing}">
+                <div class="brow l"></div><div class="brow r"></div>
                 <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
                 <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
                 {glasses}{whiskers}
@@ -398,99 +368,213 @@ def char_html(name, x, scale, sid, facing):
       </div>'''
 
 
+KEYWORDS = r"^(nouns?|person|people|place|places|animal|animals|thing|things)$"
+
+
 def caption_html(text):
-    def repl(m):
-        w = m.group(0)
-        lw = w.lower()
-        cls = "hl-noun" if lw.startswith("noun") else "hl-kind"
-        return f'<span class="{cls}">{w}</span>'
-    esc = html.escape(text)
-    return re.sub(r"\b(nouns?|person|people|place|places|animal|animals|thing|things)\b", repl, esc, flags=re.I)
+    out = []
+    for w in text.split():
+        core = re.sub(r"[^\w']", "", w).lower()
+        cls = "w"
+        if re.match(KEYWORDS, core):
+            cls += " kw-noun" if core.startswith("noun") else " kw-kind"
+        out.append(f'<span class="{cls}">{html.escape(w)}</span>')
+    return " ".join(out)
+
+
+def outdoor_bg(theme, rainbow, rng):
+    top, bot, h1, h2 = THEMES[theme]
+    trees = "".join(
+        f'<div class="tree" style="left:{x}px; bottom:{b}px; --s:{s}"><i></i></div>'
+        for x, b, s in [(150, 330, 0.8), (310, 300, 1.0), (1290, 320, 0.9), (1430, 345, 0.7), (1780, 300, 1.05)])
+    sparkles = "".join(
+        f'<i class="spk" style="left:{int(rng.uniform(60, 1860))}px; top:{int(rng.uniform(60, 520))}px; --s:{rng.uniform(0.6, 1.2):.2f}"></i>'
+        for _ in range(12))
+    flowers = "".join(
+        f'<span data-layout-allow-occlusion style="left:{int(x)}px">{f}</span>'
+        for x, f in zip(np.linspace(40, 1860, 11), "🌼🌷🌸🌼🌻🌷🌸🌼🌻🌷🌸"))
+    rb = '<div class="rainbow"></div>' if rainbow else ""
+    return f'''
+      <div class="sky" style="--top:{top}; --bot:{bot}"></div>
+      {rb}
+      <div class="sun"><div class="rays"></div><div class="sun-core"><b class="se l"></b><b class="se r"></b><b class="sm"></b></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="sparkles">{sparkles}</div>
+      <div class="hill h1" style="--h:{h1}"></div><div class="hill h2" style="--h:{h2}"></div>
+      {trees}
+      <div class="ground"><div class="grass"></div></div>
+      <div class="bfly b1" data-layout-allow-overlap data-layout-allow-occlusion>🦋</div><div class="bfly b2" data-layout-allow-overlap data-layout-allow-occlusion>🦋</div>
+      <div class="flowers" data-layout-allow-occlusion>{flowers}</div>'''
+
+
+def stage_bg(rng):
+    bulbs = "".join(f'<i style="left:{int(x)}px"></i>' for x in np.linspace(30, 1890, 32))
+    sparkles = "".join(
+        f'<i class="spk" style="left:{int(rng.uniform(60, 1860))}px; top:{int(rng.uniform(60, 700))}px; --s:{rng.uniform(0.5, 1.1):.2f}"></i>'
+        for _ in range(16))
+    return f'''
+      <div class="stage-bg"></div>
+      <div class="beams"></div>
+      <div class="sparkles">{sparkles}</div>
+      <div class="curtain l"></div><div class="curtain r"></div>
+      <div class="valance"></div>
+      <div class="bulbs">{bulbs}</div>
+      <div class="floor"></div>'''
+
+
+def star_meter(sid, filled):
+    stars = "".join(f'<div class="ms{" on" if i < filled else ""}" id="{sid}-ms{i + 1}"><b>★</b></div>' for i in range(5))
+    return f'<div class="meter" id="{sid}-meter">{stars}</div>'
+
+
+def burst():
+    return '<div class="burst" data-layout-allow-occlusion>' + "".join(f'<i style="--a:{a}deg"><b></b></i>' for a in range(0, 360, 45)) + "</div>"
+
+
+def quiz_html(sc):
+    sid, q = sc["id"], sc["q"]
+    h = []
+    if q["type"] == "intro":
+        h.append(f'<div class="qtext big-q" id="{sid}-qtext">🎉 The Noun Game 🎉</div>')
+        h.append(f'<div class="meter-hint" id="{sid}-meterhi">⭐ ⭐ ⭐ ⭐ ⭐<span>Win 5 stars!</span></div>')
+        return "".join(h)
+    h.append(f'<div class="qtext" id="{sid}-qtext">{html.escape(q["question"])}</div>')
+    if q["type"] == "pick":
+        cards = "".join(
+            f'<div class="opt pick" data-layout-allow-occlusion id="{sid}-opt{k}"><div class="em">{em}</div><div class="lb">{w}</div><div class="chk">✓</div>{burst()}</div>'
+            for k, (w, em) in enumerate(q["options"]))
+        h.append(f'<div class="qarea pick-row">{cards}</div>')
+    elif q["type"] == "group":
+        w, em = q["item"]
+        cats = [("person", "🧑"), ("place", "🏡"), ("animal", "🐾"), ("thing", "🎁")]
+        btns = "".join(
+            f'<div class="opt cat" data-layout-allow-occlusion id="{sid}-opt{k}" style="--cc:{CAT_COLORS[c]}"><span class="em">{e}</span><span class="lb">{c}</span><div class="chk">✓</div>{burst()}</div>'
+            for k, (c, e) in enumerate(cats))
+        h.append(f'''<div class="qarea group">
+          <div class="item" id="{sid}-item"><div class="em">{em}</div><div class="lb">{w}</div></div>
+          <div class="arrow">➜</div>
+          <div class="cat-grid">{btns}</div></div>''')
+    elif q["type"] in ("sentence", "count"):
+        tiles = "".join(f'<div class="opt tile" data-layout-allow-occlusion id="{sid}-w{k}">{html.escape(w)}<div class="chk">✓</div>{burst()}</div>'
+                        for k, w in enumerate(q["words"]))
+        pics = ""
+        if q.get("pic"):
+            pics = f'<div class="pic" data-layout-allow-occlusion id="{sid}-pic">{q["pic"]}</div>'
+        for wi, em in q.get("pics", []):
+            pics += f'<div class="pic small" data-layout-allow-occlusion id="{sid}-pic{wi}" data-w="{wi}">{em}</div>'
+        nums = ""
+        if q.get("nums"):
+            nums = '<div class="nums">' + "".join(
+                f'<div class="opt num" data-layout-allow-occlusion id="{sid}-n{k}">{n}<div class="chk">✓</div>{burst()}</div>' for k, n in enumerate(q["nums"])) + "</div>"
+        h.append(f'<div class="qarea sent {q["type"]}"><div class="pics" data-layout-allow-occlusion>{pics}</div><div class="tiles">{tiles}</div>{nums}</div>')
+    # countdown timer
+    h.append(f'''<div class="timer" id="{sid}-timer">
+        <svg viewBox="0 0 200 200"><circle class="tr-bg" cx="100" cy="100" r="84"/><circle class="tr" cx="100" cy="100" r="84"/></svg>
+        {''.join(f'<div class="tn" id="{sid}-tn{n}">{n}</div>' for n in (4, 3, 2, 1))}
+      </div>
+      <div class="sayit" id="{sid}-sayit">🗣️ Say it out loud!</div>''')
+    return "".join(h)
+
+
+def result_html(sid):
+    stars = "".join(f'<div class="rs" id="{sid}-rs{i + 1}">★</div>' for i in range(5))
+    return f'''
+      <div class="trophy-wrap"><div class="trophy-rays"></div><div class="trophy">🏆</div></div>
+      <div class="rstars">{stars}</div>
+      <div class="medal" id="{sid}-medal"><span>⭐ NOUN STAR ⭐</span></div>'''
+
+
+def confetti(rng, n=80):
+    cols = ["#ff5fa2", "#ffd23f", "#3bceac", "#2f8cff", "#8e5cf5", "#ef3b3b", "#ff9f1c"]
+    out = []
+    for k in range(n):
+        shape = "border-radius:50%;" if k % 3 == 0 else ""
+        w = int(rng.uniform(14, 26))
+        out.append(f'<i class="cf" style="left:{int(rng.uniform(0, 1920))}px; background:{cols[k % 7]}; width:{w}px; height:{w if shape else int(rng.uniform(22, 38))}px; {shape}" '
+                   f'data-dx="{int(rng.uniform(-160, 160))}" data-r="{int(rng.uniform(-720, 720))}" data-d="{rng.uniform(0, 1.8):.2f}" data-sp="{rng.uniform(2.6, 4.2):.2f}"></i>')
+    return f'<div class="confetti">{"".join(out)}</div>'
 
 
 def build_html(scenes, total, sfx, music):
     parts, audio, caps = [], [], []
     rng = np.random.default_rng(42)
-    for si, sc in enumerate(scenes):
-        sid = sc["id"]
+    for sc in scenes:
+        sid, kind = sc["id"], sc.get("kind", "lesson")
         inner = []
-        # background
-        inner.append(f'''
-      <div class="sky" style="--sky:{sc['bg']}"></div>
-      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
-      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
-      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
-      <div class="flowers">{''.join(f'<span style="left:{int(x)}px">{f}</span>' for x, f in zip(np.linspace(40, 1860, 9), "🌼🌷🌼🌸🌼🌷🌸🌼🌷"))}</div>''')
-        if sid == "title":
-            word = "".join(f'<span class="tl" style="--i:{i}">{ch}</span>' for i, ch in enumerate("NOUNS"))
+        if kind in ("quiz", "result"):
+            inner.append(stage_bg(rng))
+        else:
+            inner.append(outdoor_bg(sc["theme"], sc.get("rainbow"), rng))
+        if kind == "title":
+            letters = "".join(f'<span class="tl">{ch}</span>' for ch in "NOUN")
             inner.append(f'''
       <div class="title-wrap">
-        <div class="title-top">Let's learn about</div>
-        <div class="title-word">{word}</div>
-        <div class="title-sub">🍎 🐱 🏫 👩‍🏫</div>
+        <div class="logo"><div class="logo-word">{letters}</div><div class="logo-sub">Friends</div></div>
+        <div class="title-pill">What is a noun? 🤔</div>
       </div>''')
         if sc.get("badge"):
-            em, txt = sc["badge"]
-            inner.append(f'<div class="badge"><span class="b-em">{em}</span><span class="b-tx">{txt}</span></div>')
-        for idx, (name, x, s) in enumerate(sc.get("chars", [])):
-            facing = 1 if x < 960 else (-1 if x > 960 else 0)
-            if sid == "outro":
-                facing = 0
+            em, txt, cat = sc["badge"]
+            inner.append(f'<div class="badge" style="--bc:{CAT_COLORS[cat]}"><span class="b-em">{em}</span><span class="b-tx">{txt}</span></div>')
+        if kind == "quiz":
+            inner.append(quiz_html(sc))
+        if kind in ("quiz", "result") and sc["id"] != "qintro":
+            inner.append(star_meter(sid, sc.get("stars", 0)))
+        if kind == "result":
+            inner.append(result_html(sid))
+        for name, x, s in sc.get("chars", []):
+            facing = 0 if sid in ("outro", "title", "qintro") else (1 if x < 960 else -1)
             inner.append(char_html(name, x, s, sid, facing))
         for li, ln in enumerate(sc["lines"]):
             if ln["speaker"] == "pause":
-                for k in range(3):
-                    inner.append(f'<div class="count" id="{sid}-count{k}">{3 - k}</div>')
                 continue
             for pk, key in (("pops", "pop"), ("big", "big")):
                 if pk in ln:
-                    cards = "".join(f'<div class="{key}-card" id="{sid}-{li}-{key}{k}"><div class="em">{p["emoji"]}</div><div class="lb">{p["label"]}</div></div>'
-                                    for k, p in enumerate(ln[pk]))
-                    inner.append(f'<div class="{key}-row" id="{sid}-{li}-{key}row">{cards}</div>')
-            if ln.get("quiz"):
-                inner.append('''<div class="quiz-row">
-          <div class="qcard" id="q-jump">jump</div><div class="qcard" id="q-ball">ball</div><div class="qcard" id="q-happy">happy</div></div>''')
-            # audio + caption
+                    cards = "".join(
+                        f'<div class="{key}-card" id="{sid}-{li}-{key}{k}" style="--cc:{CAT_COLORS.get(p["label"], CAT_COLORS.get(sc.get("badge", ("", "", "person"))[2]))}">'
+                        f'<div class="em" data-layout-allow-occlusion>{p["emoji"]}</div><div class="lb">{p["label"]}</div></div>'
+                        for k, p in enumerate(ln[pk]))
+                    inner.append(f'<div class="{key}-row">{cards}</div>')
             for ci, cl in enumerate(ln["clips"]):
                 audio.append(f'<audio id="vo-{sid}-{li}-{ci}" src="{cl["src"]}" data-start="{ln["start"]}" data-duration="{round(cl["dur"], 3)}" data-volume="1" data-track-index="{10 + ci}"></audio>')
-            cap_id = f"cap-{sid}-{li}"
             spk = ln["speaker"]
             col = CHARS[spk]["dark"] if spk in CHARS else "#d6246f"
-            caps.append(f'''<div class="clip caption" id="{cap_id}" data-start="{ln['start']}" data-duration="{ln['hold']:.3f}" data-track-index="3">
-        <div class="cap-in"><div class="who" style="background:{col}">{NAMES[spk]}</div><div class="cap-text">{caption_html(ln['text'])}</div></div></div>''')
+            caps.append(f'''<div class="clip caption" id="cap-{sid}-{li}" data-start="{ln['start']}" data-duration="{ln['hold']:.3f}" data-track-index="3">
+        <div class="cap-in" style="--sc:{col}"><div class="who">{NAMES[spk]}</div><div class="cap-text">{caption_html(ln['text'])}</div></div></div>''')
+        if sid in ("outro", "result"):
+            inner.append(confetti(rng))
         if sid == "outro":
-            conf = []
-            cols = ["#ff5fa2", "#ffd23f", "#3bceac", "#2f8cff", "#8e5cf5", "#ef3b3b"]
-            for k in range(70):
-                conf.append(f'<i class="cf" style="left:{int(rng.uniform(0, 1920))}px; background:{cols[k % 6]}; width:{int(rng.uniform(14, 26))}px; height:{int(rng.uniform(22, 38))}px" data-dx="{int(rng.uniform(-160, 160))}" data-r="{int(rng.uniform(-720, 720))}" data-d="{rng.uniform(0, 1.6):.2f}" data-sp="{rng.uniform(2.6, 4.2):.2f}"></i>')
-            inner.append(f'<div class="confetti">{"".join(conf)}</div>')
-            inner.append('<div class="end-text">You did it! ⭐</div>')
+            inner.append('<div class="end-text">See you next time! 👋</div>')
         parts.append(f'''
-    <div class="clip scene" id="scene-{sid}" data-start="{sc['start']}" data-duration="{sc['dur']}" data-track-index="1">{''.join(inner)}
+    <div class="clip scene {'stage' if kind in ('quiz', 'result') else 'outdoor'}" id="scene-{sid}" data-start="{sc['start']}" data-duration="{sc['dur']}" data-track-index="1">{''.join(inner)}
     </div>''')
 
-    # sfx placement
-    sfx_list = [("jingle", 0.25, 2.4, 0.8)]
+    # ---- sound effects
+    fx = [("jingle", 0.3, 2.4, 0.8)]
     for sc in scenes[1:]:
-        sfx_list.append(("whoosh", sc["start"] - 0.3, 0.55, 0.7))
+        fx.append(("whoosh", sc["start"] - 0.3, 0.55, 0.7))
         for ln in sc["lines"]:
-            for key in ("pops", "big"):
+            for key in ("pops", "big", "opts"):
                 for p in ln.get(key, []):
-                    sfx_list.append(("pop", p["at"], 0.18, 0.7))
+                    fx.append(("pop", p["at"], 0.18, 0.6))
+            for p in ln.get("show_at", []):
+                fx.append(("pop", p["at"], 0.18, 0.6))
             if ln["speaker"] == "pause":
-                for k in range(3):
-                    sfx_list.append(("tick", ln["start"] + 0.2 + k * 1.1, 0.1, 0.8))
-            if ln.get("answer"):
-                sfx_list.append(("ding", ln["start"] - 0.25, 1.2, 0.6))
+                for k in range(4):
+                    fx.append(("tick", ln["start"] + 0.3 + k, 0.1, 0.8))
+            if ln.get("marks"):
+                fx.append(("tada", ln["start"] - 0.3, 1.6, 0.7))
+            if ln.get("star"):
+                fx.append(("chime", ln["start"] + ln["dur"] * 0.5, 1.4, 0.6))
+            if ln.get("allstars"):
+                fx.append(("fanfare", ln["start"] - 0.4, 3.0, 0.75))
             if ln.get("act") == "jump":
-                sfx_list.append(("boing", ln["start"] + 0.05, 0.45, 0.5))
-            if ln.get("enter"):
-                sfx_list.append(("boing", ln["start"] - 0.85, 0.45, 0.5))
-    for i, (k, st, d, v) in enumerate(sfx_list):
+                fx.append(("boing", ln["start"] + 0.05, 0.45, 0.45))
+    for i, (k, st, d, v) in enumerate(fx):
         audio.append(f'<audio id="sfx-{i}" src="{sfx[k]}" data-start="{max(0, round(st, 3))}" data-duration="{d}" data-volume="{v}" data-track-index="20"></audio>')
     audio.append(f'<audio id="music" src="{music}" data-start="0" data-duration="{total}" data-volume="0.55" data-track-index="30"></audio>')
 
-    data = json.dumps({"total": total, "scenes": scenes}, ensure_ascii=False)
+    slim = [{k: v for k, v in sc.items() if k not in ("q",)} for sc in scenes]
+    data = json.dumps({"total": total, "scenes": slim, "chars": {k: v["color"] for k, v in CHARS.items()}}, ensure_ascii=False)
     tpl = open(os.path.join(ROOT, "page.tpl"), encoding="utf-8").read()
     out = (tpl.replace("{{TOTAL}}", str(total))
               .replace("{{SCENES}}", "".join(parts))
@@ -502,7 +586,6 @@ def build_html(scenes, total, sfx, music):
 
 if __name__ == "__main__":
     os.makedirs(VOICE_DIR, exist_ok=True)
-    os.makedirs(SFX_DIR, exist_ok=True)
     scenes, total = build_timeline()
     sfx = make_sfx()
     music = make_music(total, scenes)

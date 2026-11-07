@@ -1,7 +1,9 @@
 # Noun Friends 🍎🐱🏫👩‍🏫
 
-A ~1.5 minute cartoon video that teaches children what a **noun** is.
-Word-characters with eyes, hands and feet introduce themselves in their own voices:
+A ~3¾ minute cartoon video that teaches children (ages 6–7) what a **noun** is.
+Word-characters with eyes, eyebrows, hands and feet introduce themselves in their own voices.
+
+## Lesson
 
 | Character | Says | Teaches |
 |-----------|------|---------|
@@ -10,19 +12,38 @@ Word-characters with eyes, hands and feet introduce themselves in their own voic
 | **School** | "I am a place." | place |
 | **Cat** | "I am an animal." | animal |
 | **Apple** | "I am a thing. You can eat me!" | thing |
-| **Ball** | "I am Ball. I am a noun!" | quiz answer |
 
-Then a recap, a 3-2-1 quiz (*jump / ball / happy*), and a goodbye with everyone.
+Then a recap with big picture cards.
+
+## The Noun Game (quiz show)
+
+On a game-show stage with curtains, lights and a 5-star meter. Each question has a
+4-second countdown ring and a "Say it out loud!" prompt so children answer before the reveal.
+
+| Round | Host | Question | Answer |
+|-------|------|----------|--------|
+| 1 | Noun | Which one is a noun? *run / dog / happy* | dog |
+| 2 | Teacher | Is a doctor a person, place, animal or thing? | person |
+| 2 | School | Is a park a person, place, animal or thing? | place |
+| 3 | Cat | Find the noun: *The bird can fly.* | bird |
+| 4 | Apple | How many nouns? *The boy has a kite.* | 2 (boy, kite) |
+
+Every right answer lights a star; the finale awards a trophy and the "Noun Star" medal.
+
+## How it's made
 
 Built with [HyperFrames](https://hyperframes.heygen.com) (HTML → video) and GSAP.
-Voices come from HyperFrames' local Kokoro TTS; mouths are lip-synced to each voice's loudness.
-Background music (a bouncy marimba + drums tune that gets quieter while characters speak) and sound effects are synthesized in `build.py`.
+
+- Voices: HyperFrames' local Kokoro TTS, spoken phrase by phrase at a slower, child-friendly pace.
+- Mouths are lip-synced to each voice; captions highlight each word as it is spoken.
+- Music (marimba + bass + light drums, ducked under speech) and sound effects are synthesized in `audio.py`.
 
 ## Files
 
 - `noun-friends.mp4` – the rendered video
-- `build.py` – the script (all lines live in `SCENES`), TTS, timing, music, writes `index.html`
-- `page.tpl` – HTML/CSS characters + GSAP animation
+- `build.py` – the script (all lines and quiz rounds live in `S`), TTS, timing, writes `index.html`
+- `audio.py` – music and sound effects
+- `page.tpl` – characters, backgrounds and GSAP animation
 - `index.html` – generated HyperFrames composition
 
 ## Rebuild
@@ -35,4 +56,4 @@ npx hyperframes check
 npx hyperframes render -o noun-friends.mp4
 ```
 
-To make a new lesson (verbs, adjectives…), edit the `SCENES` list in `build.py` and rebuild.
+To make a new lesson (verbs, adjectives…), edit the `S` list in `build.py` and rebuild.
