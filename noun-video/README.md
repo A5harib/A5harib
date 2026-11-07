@@ -16,7 +16,7 @@ Then a recap, a 3-2-1 quiz (*jump / ball / happy*), and a goodbye with everyone.
 
 Built with [HyperFrames](https://hyperframes.heygen.com) (HTML → video) and GSAP.
 Voices come from HyperFrames' local Kokoro TTS; mouths are lip-synced to each voice's loudness.
-Music and sound effects are synthesized in `build.py`.
+Background music (a bouncy marimba + drums tune that gets quieter while characters speak) and sound effects are synthesized in `build.py`.
 
 ## Files
 

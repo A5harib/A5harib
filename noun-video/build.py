@@ -199,40 +199,106 @@ def make_sfx():
     return s
 
 
-def make_music(total):
-    """Gentle plucked arpeggio loop: C - G - Am - F at 100 bpm."""
-    beat = 60 / 100
-    eighth = beat / 2
-    chords = [[261.63, 329.63, 392.0], [196.0, 246.94, 293.66],
-              [220.0, 261.63, 329.63], [174.61, 220.0, 261.63]]
-    bass = [130.81, 98.0, 110.0, 87.31]
-    n = int(SR * (total + 2))
+def make_music(total, scenes):
+    """Bouncy kids' tune at 112 bpm: marimba melody + bass + light drums.
+    The track is ducked (made quieter) while anyone is speaking."""
+    bpm = 112
+    beat = 60 / bpm
+    e8 = beat / 2
+    n = int(SR * (total + 3))
     y = np.zeros(n)
-    cache = {}
+    rng = np.random.default_rng(3)
 
-    def note(f, d, dec):
-        k = (f, d, dec)
-        if k not in cache:
-            cache[k] = pluck(f, d, dec)
-        return cache[k]
+    def add(sig, at, gain=1.0):
+        st = int(SR * at)
+        if st >= n:
+            return
+        seg = sig[: n - st]
+        y[st:st + len(seg)] += seg * gain
+
+    def marimba(f, d=0.6):
+        tt = np.arange(int(SR * d)) / SR
+        w = np.sin(2 * np.pi * f * tt) + 0.25 * np.sin(2 * np.pi * 4 * f * tt) * np.exp(-tt / 0.03)
+        return w * np.minimum(1, tt / 0.003) * np.exp(-tt / 0.22)
+
+    def glock(f, d=1.0):
+        tt = np.arange(int(SR * d)) / SR
+        w = np.sin(2 * np.pi * f * tt) + 0.4 * np.sin(2 * np.pi * 2.76 * f * tt) * np.exp(-tt / 0.1)
+        return w * np.minimum(1, tt / 0.002) * np.exp(-tt / 0.45)
+
+    def bassnote(f, d=0.5):
+        tt = np.arange(int(SR * d)) / SR
+        w = np.sin(2 * np.pi * f * tt) + 0.3 * np.sin(2 * np.pi * 2 * f * tt)
+        return w * np.minimum(1, tt / 0.005) * np.exp(-tt / 0.25)
+
+    tt = np.arange(int(SR * 0.3)) / SR
+    kick = np.sin(2 * np.pi * (50 + 110 * np.exp(-tt / 0.04)) * tt) * np.exp(-tt / 0.12)
+    tt = np.arange(int(SR * 0.2)) / SR
+    noise = rng.uniform(-1, 1, len(tt))
+    clap = (noise - np.convolve(noise, np.ones(6) / 6, "same")) * np.exp(-tt / 0.05)
+    tt = np.arange(int(SR * 0.06)) / SR
+    nz = rng.uniform(-1, 1, len(tt))
+    shaker = (nz - np.convolve(nz, np.ones(3) / 3, "same")) * np.exp(-tt / 0.015)
+
+    N = {"C4": 261.63, "D4": 293.66, "E4": 329.63, "F4": 349.23, "G4": 392.0, "A4": 440.0, "B4": 493.88,
+         "C5": 523.25, "D5": 587.33, "E5": 659.25, "F5": 698.46, "G5": 783.99, "A5": 880.0}
+    # C - Am - F - G, a simple sing-song melody (one note per eighth, None = rest)
+    prog = [(130.81, "C"), (110.0, "Am"), (87.31, "F"), (98.0, "G")]
+    melody = [
+        ["E5", None, "G5", "E5", "C5", None, "D5", "E5"],
+        ["C5", None, "A4", "C5", "E5", None, "C5", None],
+        ["F5", None, "A5", "F5", "C5", None, "A4", "C5"],
+        ["D5", None, "B4", "D5", "G5", None, None, None],
+        ["E5", "E5", "G5", None, "E5", "D5", "C5", None],
+        ["A4", None, "C5", "E5", "A5", None, "E5", None],
+        ["F5", "E5", "D5", "C5", "A4", None, "C5", None],
+        ["B4", None, "D5", None, "G4", None, None, None],
+    ]
+    chord_tones = {"C": ["C4", "E4", "G4"], "Am": ["A4", "C5", "E5"], "F": ["F4", "A4", "C5"], "G": ["G4", "B4", "D5"]}
 
     pos, bar = 0.0, 0
-    while pos < total:
-        ch = chords[bar % 4]
-        pattern = [ch[0], ch[1], ch[2], ch[1] * 2, ch[2], ch[1], ch[0] * 2, ch[1]]
-        st = int(SR * pos)
-        b = note(bass[bar % 4], 1.8, 0.998) * 0.8
-        y[st:st + len(b)] += b[:max(0, n - st)]
-        for i, f in enumerate(pattern):
-            s2 = int(SR * (pos + i * eighth))
-            p = note(f, 0.9, 0.994) * 0.45
-            y[s2:s2 + len(p)] += p[:max(0, n - s2)]
-        pos += 8 * eighth
+    while pos < total + 1:
+        broot, name = prog[bar % 4]
+        mel = melody[bar % 8]
+        # bass: root on 1 and 3, fifth on the "and" of 4
+        add(bassnote(broot), pos, 0.9)
+        add(bassnote(broot), pos + 2 * beat, 0.8)
+        add(bassnote(broot * 1.5, 0.3), pos + 3.5 * beat, 0.6)
+        # drums
+        for b4 in range(4):
+            add(kick if b4 % 2 == 0 else clap, pos + b4 * beat, 0.9 if b4 % 2 == 0 else 0.35)
+        for k in range(8):
+            add(shaker, pos + k * e8, 0.18 if k % 2 else 0.1)
+        # soft chord stabs on the off-beats
+        for k in (1, 3, 5, 7):
+            for nt in chord_tones[name]:
+                add(marimba(N[nt], 0.3), pos + k * e8, 0.12)
+        # melody
+        for k, nt in enumerate(mel):
+            if nt:
+                add(marimba(N[nt]), pos + k * e8, 0.55)
+        # sparkle every 4 bars
+        if bar % 4 == 0:
+            add(glock(N["C5"] * 2), pos, 0.25)
+        pos += 8 * e8
         bar += 1
+
     y = y[: int(SR * total)]
-    fade = int(SR * 2)
+    # ducking: quieter under speech, smooth 0.2 s ramps
+    gain = np.ones(len(y))
+    for sc in scenes:
+        for ln in sc["lines"]:
+            if ln["speaker"] == "pause":
+                continue
+            a, b = int(SR * (ln["start"] - 0.15)), int(SR * (ln["start"] + ln["dur"] + 0.1))
+            gain[max(0, a):min(len(y), b)] = 0.32
+    k = int(SR * 0.2)
+    gain = np.convolve(gain, np.ones(k) / k, "same")
+    y *= gain
+    y[: int(SR * 0.5)] *= np.linspace(0, 1, int(SR * 0.5))
+    fade = int(SR * 2.5)
     y[-fade:] *= np.linspace(1, 0, fade)
-    return write("music.wav", y, 0.8)
+    return write("music.wav", y, 0.85)
 
 
 # ---------------------------------------------------------------- layout
@@ -422,7 +488,7 @@ def build_html(scenes, total, sfx, music):
                 sfx_list.append(("boing", ln["start"] - 0.85, 0.45, 0.5))
     for i, (k, st, d, v) in enumerate(sfx_list):
         audio.append(f'<audio id="sfx-{i}" src="{sfx[k]}" data-start="{max(0, round(st, 3))}" data-duration="{d}" data-volume="{v}" data-track-index="20"></audio>')
-    audio.append(f'<audio id="music" src="{music}" data-start="0" data-duration="{total}" data-volume="0.16" data-fade-in="1" data-fade-out="2" data-track-index="30"></audio>')
+    audio.append(f'<audio id="music" src="{music}" data-start="0" data-duration="{total}" data-volume="0.55" data-track-index="30"></audio>')
 
     data = json.dumps({"total": total, "scenes": scenes}, ensure_ascii=False)
     tpl = open(os.path.join(ROOT, "page.tpl"), encoding="utf-8").read()
@@ -439,6 +505,6 @@ if __name__ == "__main__":
     os.makedirs(SFX_DIR, exist_ok=True)
     scenes, total = build_timeline()
     sfx = make_sfx()
-    music = make_music(total)
+    music = make_music(total, scenes)
     build_html(scenes, total, sfx, music)
     print(f"built index.html  total={total}s  scenes={len(scenes)}")
