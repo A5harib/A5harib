@@ -1,0 +1,813 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=block" rel="stylesheet" />
+    <script src="assets/gsap.min.js"></script>
+    <style>
+      :root {
+        --ink: #2b2140;
+        --pink: #d6246f;
+        --yellow: #ffd23f;
+        --font: "Fredoka", sans-serif;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #7fd3ff; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; font-family: var(--font); color: var(--ink); }
+      .scene { position: absolute; inset: 0; overflow: hidden; }
+
+      /* ---------- background ---------- */
+      .sky { position: absolute; inset: 0; background: linear-gradient(180deg, var(--sky) 0%, #ffffff 115%); }
+      .sun { position: absolute; top: 70px; right: 110px; width: 160px; height: 160px; }
+      .rays { position: absolute; inset: -60px; border-radius: 50%;
+        background: repeating-conic-gradient(rgba(255, 224, 102, .75) 0 10deg, transparent 10deg 20deg); }
+      .sun-core { position: absolute; inset: 0; border-radius: 50%; background: #ffd23f; border: 7px solid #f2a900; }
+      .cloud { position: absolute; width: 230px; height: 74px; background: #fff; border-radius: 60px; opacity: .95; }
+      .cloud::before, .cloud::after { content: ""; position: absolute; background: #fff; border-radius: 50%; }
+      .cloud::before { width: 110px; height: 110px; left: 34px; top: -54px; }
+      .cloud::after { width: 84px; height: 84px; left: 118px; top: -36px; }
+      .c1 { top: 150px; left: 90px; } .c2 { top: 380px; left: 1240px; transform: scale(.8); } .c3 { top: 90px; left: 700px; transform: scale(.65); }
+      .hill { position: absolute; border-radius: 50%; }
+      .h1 { left: -260px; bottom: 120px; width: 1300px; height: 480px; background: #79d66f; }
+      .h2 { right: -320px; bottom: 100px; width: 1450px; height: 540px; background: #63c45c; }
+      .ground { position: absolute; left: 0; right: 0; bottom: 0; height: 225px; background: #4cae4c; border-top: 14px solid #8fe07f; }
+      .flowers span { position: absolute; bottom: 160px; font-size: 46px; z-index: 6; }
+      .flowers { position: absolute; inset: 0; z-index: 6; }
+
+      /* ---------- characters ---------- */
+      .char-pos { position: absolute; bottom: 200px; width: 320px; height: 470px; margin-left: -160px;
+        transform: scale(var(--sz)); transform-origin: 50% 100%; z-index: 5; }
+      .char-in, .char-bob { position: absolute; inset: 0; }
+      .char-bob > * { position: absolute; }
+      .body { top: 70px; left: 0; width: 320px; height: 300px; background: var(--c); border: 7px solid var(--ink);
+        border-radius: 60px; z-index: 3;
+        box-shadow: inset -20px -20px 0 rgba(0,0,0,.12), inset 16px 16px 0 rgba(255,255,255,.22); }
+      .leg { top: 345px; width: 48px; height: 95px; background: var(--d); border: 7px solid var(--ink); border-radius: 0 0 22px 22px; z-index: 1; }
+      .leg.l { left: 86px; } .leg.r { right: 86px; }
+      .shoe { position: absolute; bottom: -26px; left: -26px; width: 86px; height: 42px; background: var(--ink); border-radius: 44px 44px 18px 18px; }
+      .leg.r .shoe { left: -12px; }
+      .arm { top: 185px; width: 44px; height: 150px; background: var(--c); border: 7px solid var(--ink); border-radius: 22px; z-index: 2; transform-origin: 50% 16px; }
+      .arm.l { left: -20px; } .arm.r { right: -20px; }
+      .hand { position: absolute; bottom: -30px; left: -16px; width: 62px; height: 62px; background: #fff; border: 7px solid var(--ink); border-radius: 50%; }
+      .face { position: absolute; top: 44px; left: 0; right: 0; height: 180px; }
+      .eye { position: absolute; top: 0; width: 80px; height: 94px; background: #fff; border: 6px solid var(--ink); border-radius: 50%; overflow: hidden; }
+      .eye.l { left: 70px; } .eye.r { right: 70px; }
+      .pupil { position: absolute; left: 50%; top: 50%; width: 38px; height: 44px; margin: -20px 0 0 -19px; background: var(--ink); border-radius: 50%; }
+      .pupil i { position: absolute; top: 7px; left: 8px; width: 13px; height: 13px; background: #fff; border-radius: 50%; }
+      .face[data-facing="1"] .pupil { transform: translateX(11px); }
+      .face[data-facing="-1"] .pupil { transform: translateX(-11px); }
+      .lid { position: absolute; inset: -2px; background: var(--c); transform-origin: 50% 0; transform: scaleY(0); }
+      .cheek { position: absolute; top: 108px; width: 46px; height: 28px; background: #ff8fb1; border-radius: 50%; opacity: .75; }
+      .cheek.l { left: 26px; } .cheek.r { right: 26px; }
+      .mouth { position: absolute; top: 108px; left: 50%; width: 104px; height: 66px; margin-left: -52px; background: #7a1f3d;
+        border: 6px solid var(--ink); border-radius: 8px 8px 60px 60px; overflow: hidden; transform-origin: 50% 0; }
+      .tongue { position: absolute; bottom: -16px; left: 18px; width: 58px; height: 38px; background: #ff7b9c; border-radius: 50%; }
+      .label { position: absolute; bottom: 10px; left: 0; right: 0; text-align: center; font-weight: 700; font-size: 58px; color: #fff;
+        -webkit-text-stroke: 3px var(--ink); text-shadow: 0 5px 0 rgba(0,0,0,.25); letter-spacing: 1px; }
+
+      /* noun */
+      .antenna { top: 4px; left: 153px; width: 14px; height: 76px; background: var(--ink); border-radius: 7px; z-index: 1; }
+      .star { top: -42px; left: 116px; width: 88px; height: 88px; background: var(--yellow); z-index: 4;
+        clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+      /* teacher */
+      .hair { top: 64px; left: -2px; width: 324px; height: 54px; background: #5b3a29; border: 7px solid var(--ink); border-bottom: none; border-radius: 64px 64px 0 0; z-index: 4; }
+      .bun { top: 6px; left: 112px; width: 96px; height: 90px; background: #5b3a29; border: 7px solid var(--ink); border-radius: 50%; z-index: 2; }
+      .glasses b { position: absolute; top: -10px; width: 112px; height: 116px; border: 7px solid var(--ink); border-radius: 50%; }
+      .glasses b:first-child { left: 54px; } .glasses b:last-child { right: 54px; }
+      .glasses::after { content: ""; position: absolute; top: 40px; left: 152px; width: 16px; height: 7px; background: var(--ink); }
+      /* school */
+      .shape-school .body { border-radius: 18px; }
+      .roof { top: -44px; left: -34px; width: 388px; height: 128px; background: #8b2d2d; z-index: 4; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+      .bell { top: -86px; left: 140px; width: 40px; height: 46px; background: var(--yellow); border: 6px solid var(--ink); border-radius: 50% 50% 10px 10px; z-index: 4; }
+      .door { display: none; }
+      /* cat */
+      .ear { top: 18px; width: 110px; height: 110px; background: var(--c); z-index: 2; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+      .ear.l { left: 14px; transform: rotate(-14deg); } .ear.r { right: 14px; transform: rotate(14deg); }
+      .ear i { position: absolute; left: 30px; top: 34px; width: 50px; height: 60px; background: #ff9cbc; clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+      .tail { top: 210px; right: -120px; width: 170px; height: 170px; border: 30px solid transparent; border-right-color: var(--d); border-bottom-color: var(--d);
+        border-radius: 50%; transform: rotate(-30deg); z-index: 0; }
+      .whiskers { position: absolute; top: 100px; width: 74px; }
+      .whiskers s { display: block; height: 5px; background: var(--ink); border-radius: 3px; margin: 12px 0; }
+      .whiskers.l { left: -6px; } .whiskers.l s:first-child { transform: rotate(8deg); } .whiskers.l s:last-child { transform: rotate(-8deg); }
+      .whiskers.r { right: -6px; } .whiskers.r s:first-child { transform: rotate(-8deg); } .whiskers.r s:last-child { transform: rotate(8deg); }
+      .nose { position: absolute; top: 90px; left: 50%; width: 30px; height: 20px; margin-left: -15px; background: #ff6f9a; border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%; z-index: 2; }
+      .shape-cat .mouth { top: 116px; }
+      /* apple + ball */
+      .shape-round .body, .shape-ball .body { border-radius: 50%; height: 320px; top: 56px; }
+      .shape-round .face, .shape-ball .face { top: 58px; }
+      .shape-round .label, .shape-ball .label { bottom: 26px; }
+      .stem { top: 6px; left: 150px; width: 24px; height: 66px; background: #6b3b1f; border: 6px solid var(--ink); border-radius: 12px; transform: rotate(8deg); z-index: 2; }
+      .leaf { top: 14px; left: 176px; width: 88px; height: 46px; background: #4fc94f; border: 6px solid var(--ink); border-radius: 0 80px 0 80px; transform: rotate(-12deg); z-index: 4; }
+      .shape-ball .body { background: radial-gradient(circle at 50% 50%, transparent 0 0), linear-gradient(170deg, var(--c) 0 64%, var(--yellow) 64% 76%, var(--c) 76%); }
+      .stripe { display: none; }
+      .shine { top: 92px; left: 52px; width: 70px; height: 40px; background: #fff; opacity: .55; border-radius: 50%; transform: rotate(-35deg); z-index: 4; }
+
+      /* ---------- text & cards ---------- */
+      .badge { position: absolute; top: 34px; left: 50%; display: flex; align-items: center; gap: 18px; padding: 10px 44px 14px;
+        background: #fff; border: 7px solid var(--ink); border-radius: 60px; box-shadow: 0 10px 0 rgba(0,0,0,.18); z-index: 20; white-space: nowrap; }
+      .b-em { font-size: 64px; line-height: 1; }
+      .b-tx { font-size: 64px; font-weight: 700; color: var(--pink); letter-spacing: 3px; }
+      .pop-row, .big-row, .quiz-row { position: absolute; left: 0; right: 0; display: flex; justify-content: center; z-index: 15; }
+      .pop-row { top: 160px; gap: 26px; padding-left: 100px; }
+      #scene-intro .pop-row { top: 130px; padding-left: 0; }
+      .pop-card, .big-card { background: #fff; border: 7px solid var(--ink); border-radius: 36px; text-align: center; box-shadow: 0 10px 0 rgba(0,0,0,.18); }
+      .pop-card { width: 190px; padding: 12px 0 10px; }
+      .pop-card .em { font-size: 104px; line-height: 1.15; }
+      .pop-card .lb { font-size: 42px; font-weight: 700; }
+      .big-row { top: 150px; gap: 40px; }
+      .big-card { width: 300px; padding: 14px 0 12px; }
+      .big-card .em { font-size: 150px; line-height: 1.12; }
+      .big-card .lb { font-size: 54px; font-weight: 700; color: var(--pink); }
+      .quiz-row { top: 170px; gap: 60px; }
+      .qcard { font-size: 96px; font-weight: 700; padding: 18px 64px 26px; background: #fff; border: 8px solid var(--ink); border-radius: 44px; box-shadow: 0 12px 0 rgba(0,0,0,.18); }
+      .count { position: absolute; left: 0; right: 0; top: 380px; text-align: center; font-size: 300px; font-weight: 700; color: #fff;
+        -webkit-text-stroke: 10px var(--ink); z-index: 30; opacity: 0; }
+
+      .caption { position: absolute; left: 0; right: 0; bottom: 26px; display: flex; justify-content: center; z-index: 50; }
+      .cap-in { position: relative; max-width: 1760px; padding: 16px 44px 20px; background: #fff; border: 7px solid var(--ink); border-radius: 44px;
+        font-size: 52px; font-weight: 600; text-align: center; box-shadow: 0 10px 0 rgba(0,0,0,.18); }
+      .who { position: absolute; top: -40px; left: 32px; padding: 2px 24px 6px; font-size: 32px; font-weight: 700; color: #fff; border: 5px solid var(--ink); border-radius: 22px; }
+      .hl-noun { color: #8e5cf5; font-weight: 700; }
+      .hl-kind { color: var(--pink); font-weight: 700; }
+
+      /* title */
+      .title-wrap { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 120px; z-index: 10; }
+      .title-top { font-size: 92px; font-weight: 700; color: #fff; -webkit-text-stroke: 4px var(--ink); }
+      .title-word { display: flex; gap: 8px; margin: -10px 0 0; }
+      .tl { display: inline-block; font-size: 280px; font-weight: 700; line-height: 1.05; color: #fff; -webkit-text-stroke: 10px var(--ink); text-shadow: 0 16px 0 rgba(0,0,0,.2); }
+      .tl:nth-child(1) { color: #8e5cf5; } .tl:nth-child(2) { color: #ff5fa2; } .tl:nth-child(3) { color: #ffd23f; } .tl:nth-child(4) { color: #3bceac; } .tl:nth-child(5) { color: #2f8cff; }
+      .title-sub { font-size: 110px; letter-spacing: 30px; }
+
+      /* outro */
+      .confetti { position: absolute; inset: 0; z-index: 25; pointer-events: none; }
+      .cf { position: absolute; top: -60px; border-radius: 4px; }
+      .end-text { position: absolute; left: 0; right: 0; top: 170px; text-align: center; font-size: 140px; font-weight: 700; color: #fff; -webkit-text-stroke: 7px var(--ink); z-index: 20; }
+
+      #wipe { position: absolute; left: 50%; top: 50%; width: 2400px; height: 2400px; margin: -1200px 0 0 -1200px; border-radius: 50%;
+        background: var(--yellow); border: 60px solid var(--pink); z-index: 100; transform: scale(0); }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="93.929" data-width="1920" data-height="1080">
+
+    <div class="clip scene" id="scene-title" data-start="0.0" data-duration="4.2" data-track-index="1">
+      <div class="sky" style="--sky:#7fd3ff"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div>
+      <div class="title-wrap">
+        <div class="title-top">Let's learn about</div>
+        <div class="title-word"><span class="tl" style="--i:0">N</span><span class="tl" style="--i:1">O</span><span class="tl" style="--i:2">U</span><span class="tl" style="--i:3">N</span><span class="tl" style="--i:4">S</span></div>
+        <div class="title-sub">🍎 🐱 🏫 👩‍🏫</div>
+      </div>
+    </div>
+    <div class="clip scene" id="scene-intro" data-start="4.2" data-duration="13.65" data-track-index="1">
+      <div class="sky" style="--sky:#7fd3ff"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div>
+      <div class="char-pos" style="left:960px; --sz:1.05; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="intro-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="pop-row" id="intro-2-poprow"><div class="pop-card" id="intro-2-pop0"><div class="em">👩</div><div class="lb">person</div></div><div class="pop-card" id="intro-2-pop1"><div class="em">🏫</div><div class="lb">place</div></div><div class="pop-card" id="intro-2-pop2"><div class="em">🐶</div><div class="lb">animal</div></div><div class="pop-card" id="intro-2-pop3"><div class="em">⚽</div><div class="lb">thing</div></div></div>
+    </div>
+    <div class="clip scene" id="scene-person" data-start="17.85" data-duration="11.755" data-track-index="1">
+      <div class="sky" style="--sky:#ffd36e"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div><div class="badge"><span class="b-em">👩‍🏫</span><span class="b-tx">PERSON</span></div>
+      <div class="char-pos" style="left:470px; --sz:1.0; --c:#21b6a8; --d:#14897e;">
+        <div class="char-in" id="person-teacher">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="hair"></div><div class="bun"></div>
+            <div class="body">
+              <div class="face" data-facing="1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="glasses"><b></b><b></b></div>
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Teacher</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1560px; --sz:0.78; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="person-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="-1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="pop-row" id="person-2-poprow"><div class="pop-card" id="person-2-pop0"><div class="em">👩</div><div class="lb">mom</div></div><div class="pop-card" id="person-2-pop1"><div class="em">👨</div><div class="lb">dad</div></div><div class="pop-card" id="person-2-pop2"><div class="em">👶</div><div class="lb">baby</div></div><div class="pop-card" id="person-2-pop3"><div class="em">🧒</div><div class="lb">you</div></div></div>
+    </div>
+    <div class="clip scene" id="scene-place" data-start="29.605" data-duration="11.05" data-track-index="1">
+      <div class="sky" style="--sky:#9be59b"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div><div class="badge"><span class="b-em">🏫</span><span class="b-tx">PLACE</span></div>
+      <div class="char-pos" style="left:470px; --sz:1.0; --c:#f2683c; --d:#c94d26;">
+        <div class="char-in" id="place-school">
+          <div class="char-bob shape-school">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="roof"></div><div class="bell"></div><div class="door"></div>
+            <div class="body">
+              <div class="face" data-facing="1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">School</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1560px; --sz:0.78; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="place-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="-1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="pop-row" id="place-2-poprow"><div class="pop-card" id="place-2-pop0"><div class="em">🌳</div><div class="lb">park</div></div><div class="pop-card" id="place-2-pop1"><div class="em">🏠</div><div class="lb">home</div></div><div class="pop-card" id="place-2-pop2"><div class="em">🦒</div><div class="lb">zoo</div></div></div>
+    </div>
+    <div class="clip scene" id="scene-animal" data-start="40.655" data-duration="10.903" data-track-index="1">
+      <div class="sky" style="--sky:#ffb3d1"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div><div class="badge"><span class="b-em">🐾</span><span class="b-tx">ANIMAL</span></div>
+      <div class="char-pos" style="left:470px; --sz:1.0; --c:#ffa62b; --d:#e08410;">
+        <div class="char-in" id="animal-cat">
+          <div class="char-bob shape-cat">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="tail"></div><div class="ear l"><i></i></div><div class="ear r"><i></i></div>
+            <div class="body">
+              <div class="face" data-facing="1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="whiskers l"><s></s><s></s></div><div class="whiskers r"><s></s><s></s></div><div class="nose"></div>
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Cat</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1560px; --sz:0.78; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="animal-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="-1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="pop-row" id="animal-2-poprow"><div class="pop-card" id="animal-2-pop0"><div class="em">🐶</div><div class="lb">dog</div></div><div class="pop-card" id="animal-2-pop1"><div class="em">🐮</div><div class="lb">cow</div></div><div class="pop-card" id="animal-2-pop2"><div class="em">🐟</div><div class="lb">fish</div></div></div>
+    </div>
+    <div class="clip scene" id="scene-thing" data-start="51.558" data-duration="11.957" data-track-index="1">
+      <div class="sky" style="--sky:#a9c8ff"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div><div class="badge"><span class="b-em">🎁</span><span class="b-tx">THING</span></div>
+      <div class="char-pos" style="left:470px; --sz:1.0; --c:#ef3b3b; --d:#c42323;">
+        <div class="char-in" id="thing-apple">
+          <div class="char-bob shape-round">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="stem"></div><div class="leaf"></div>
+            <div class="body">
+              <div class="face" data-facing="1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Apple</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1560px; --sz:0.78; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="thing-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="-1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="pop-row" id="thing-2-poprow"><div class="pop-card" id="thing-2-pop0"><div class="em">⚽</div><div class="lb">ball</div></div><div class="pop-card" id="thing-2-pop1"><div class="em">📘</div><div class="lb">book</div></div><div class="pop-card" id="thing-2-pop2"><div class="em">🚗</div><div class="lb">car</div></div></div>
+    </div>
+    <div class="clip scene" id="scene-recap" data-start="63.515" data-duration="7.584" data-track-index="1">
+      <div class="sky" style="--sky:#7fd3ff"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div><div class="badge"><span class="b-em">⭐</span><span class="b-tx">REMEMBER</span></div>
+      <div class="char-pos" style="left:960px; --sz:0.85; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="recap-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="big-row" id="recap-1-bigrow"><div class="big-card" id="recap-1-big0"><div class="em">👩</div><div class="lb">person</div></div><div class="big-card" id="recap-1-big1"><div class="em">🏫</div><div class="lb">place</div></div><div class="big-card" id="recap-1-big2"><div class="em">🐶</div><div class="lb">animal</div></div><div class="big-card" id="recap-1-big3"><div class="em">⚽</div><div class="lb">thing</div></div></div>
+    </div>
+    <div class="clip scene" id="scene-quiz" data-start="71.099" data-duration="16.75" data-track-index="1">
+      <div class="sky" style="--sky:#ffd36e"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div><div class="badge"><span class="b-em">❓</span><span class="b-tx">QUIZ TIME</span></div>
+      <div class="char-pos" style="left:1600px; --sz:0.78; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="quiz-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="-1">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:960px; --sz:0.85; --c:#2f8cff; --d:#1c68cc;">
+        <div class="char-in" id="quiz-ball">
+          <div class="char-bob shape-ball">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="stripe"></div><div class="shine"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Ball</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="quiz-row">
+          <div class="qcard" id="q-jump">jump</div><div class="qcard" id="q-ball">ball</div><div class="qcard" id="q-happy">happy</div></div><div class="count" id="quiz-count0">3</div><div class="count" id="quiz-count1">2</div><div class="count" id="quiz-count2">1</div>
+    </div>
+    <div class="clip scene" id="scene-outro" data-start="87.849" data-duration="6.08" data-track-index="1">
+      <div class="sky" style="--sky:#7fd3ff"></div>
+      <div class="sun"><div class="rays"></div><div class="sun-core"></div></div>
+      <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hill h1"></div><div class="hill h2"></div><div class="ground"></div>
+      <div class="flowers"><span style="left:40px">🌼</span><span style="left:267px">🌷</span><span style="left:495px">🌼</span><span style="left:722px">🌸</span><span style="left:950px">🌼</span><span style="left:1177px">🌷</span><span style="left:1405px">🌸</span><span style="left:1632px">🌼</span><span style="left:1860px">🌷</span></div>
+      <div class="char-pos" style="left:260px; --sz:0.66; --c:#21b6a8; --d:#14897e;">
+        <div class="char-in" id="outro-teacher">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="hair"></div><div class="bun"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="glasses"><b></b><b></b></div>
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Teacher</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:540px; --sz:0.66; --c:#f2683c; --d:#c94d26;">
+        <div class="char-in" id="outro-school">
+          <div class="char-bob shape-school">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="roof"></div><div class="bell"></div><div class="door"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">School</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:820px; --sz:0.66; --c:#ffa62b; --d:#e08410;">
+        <div class="char-in" id="outro-cat">
+          <div class="char-bob shape-cat">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="tail"></div><div class="ear l"><i></i></div><div class="ear r"><i></i></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="whiskers l"><s></s><s></s></div><div class="whiskers r"><s></s><s></s></div><div class="nose"></div>
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Cat</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1100px; --sz:0.66; --c:#8e5cf5; --d:#6a3fd1;">
+        <div class="char-in" id="outro-noun">
+          <div class="char-bob shape-block">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="antenna"></div><div class="star"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">NOUN</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1380px; --sz:0.66; --c:#ef3b3b; --d:#c42323;">
+        <div class="char-in" id="outro-apple">
+          <div class="char-bob shape-round">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="stem"></div><div class="leaf"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Apple</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="char-pos" style="left:1660px; --sz:0.66; --c:#2f8cff; --d:#1c68cc;">
+        <div class="char-in" id="outro-ball">
+          <div class="char-bob shape-ball">
+            <div class="leg l"><div class="shoe"></div></div><div class="leg r"><div class="shoe"></div></div>
+            <div class="arm l"><div class="hand"></div></div><div class="arm r"><div class="hand"></div></div>
+            <div class="stripe"></div><div class="shine"></div>
+            <div class="body">
+              <div class="face" data-facing="0">
+                <div class="eye l"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                <div class="eye r"><div class="pupil"><i></i></div><div class="lid"></div></div>
+                
+                <div class="cheek l"></div><div class="cheek r"></div>
+                <div class="mouth"><div class="tongue"></div></div>
+              </div>
+              <div class="label">Ball</div>
+            </div>
+          </div>
+        </div>
+      </div><div class="confetti"><i class="cf" style="left:1485px; background:#ff5fa2; width:19px; height:35px" data-dx="63" data-r="-584" data-d="1.56" data-sp="3.82"></i><i class="cf" style="left:1509px; background:#ffd23f; width:15px; height:29px" data-dx="-41" data-r="614" data-d="1.03" data-sp="3.92"></i><i class="cf" style="left:851px; background:#3bceac; width:16px; height:30px" data-dx="-139" data-r="471" data-d="1.01" data-sp="3.81"></i><i class="cf" style="left:680px; background:#2f8cff; width:25px; height:36px" data-dx="89" data-r="-439" data-d="0.75" data-sp="2.67"></i><i class="cf" style="left:296px; background:#8e5cf5; width:22px; height:33px" data-dx="149" data-r="-250" data-d="0.59" data-sp="3.35"></i><i class="cf" style="left:363px; background:#ef3b3b; width:15px; height:29px" data-dx="-87" data-r="244" data-d="0.70" data-sp="3.93"></i><i class="cf" style="left:1344px; background:#ff5fa2; width:17px; height:35px" data-dx="97" data-r="-162" data-d="0.46" data-sp="3.69"></i><i class="cf" style="left:268px; background:#ffd23f; width:16px; height:22px" data-dx="91" data-r="237" data-d="1.13" data-sp="3.85"></i><i class="cf" style="left:881px; background:#3bceac; width:20px; height:24px" data-dx="-123" data-r="242" data-d="0.75" data-sp="3.50"></i><i class="cf" style="left:1468px; background:#2f8cff; width:21px; height:30px" data-dx="18" data-r="-282" data-d="0.05" data-sp="3.30"></i><i class="cf" style="left:412px; background:#8e5cf5; width:18px; height:35px" data-dx="-85" data-r="-636" data-d="0.45" data-sp="3.07"></i><i class="cf" style="left:1270px; background:#ef3b3b; width:20px; height:34px" data-dx="52" data-r="-134" data-d="1.30" data-sp="2.87"></i><i class="cf" style="left:43px; background:#ff5fa2; width:15px; height:33px" data-dx="-12" data-r="-487" data-d="0.80" data-sp="2.84"></i><i class="cf" style="left:1336px; background:#ffd23f; width:19px; height:28px" data-dx="-63" data-r="187" data-d="0.58" data-sp="2.74"></i><i class="cf" style="left:226px; background:#3bceac; width:25px; height:36px" data-dx="63" data-r="-337" data-d="1.55" data-sp="3.85"></i><i class="cf" style="left:1376px; background:#2f8cff; width:19px; height:26px" data-dx="-129" data-r="579" data-d="0.73" data-sp="2.92"></i><i class="cf" style="left:587px; background:#8e5cf5; width:20px; height:24px" data-dx="114" data-r="372" data-d="1.15" data-sp="3.29"></i><i class="cf" style="left:1204px; background:#ef3b3b; width:21px; height:32px" data-dx="-132" data-r="-121" data-d="0.07" data-sp="3.39"></i><i class="cf" style="left:633px; background:#ff5fa2; width:15px; height:23px" data-dx="28" data-r="-474" data-d="1.48" data-sp="3.53"></i><i class="cf" style="left:665px; background:#ffd23f; width:21px; height:22px" data-dx="146" data-r="-25" data-d="1.25" data-sp="2.73"></i><i class="cf" style="left:934px; background:#3bceac; width:19px; height:37px" data-dx="22" data-r="-38" data-d="0.43" data-sp="3.13"></i><i class="cf" style="left:999px; background:#2f8cff; width:19px; height:22px" data-dx="104" data-r="570" data-d="0.22" data-sp="3.49"></i><i class="cf" style="left:208px; background:#8e5cf5; width:22px; height:26px" data-dx="51" data-r="326" data-d="1.23" data-sp="2.77"></i><i class="cf" style="left:1758px; background:#ef3b3b; width:16px; height:22px" data-dx="17" data-r="-185" data-d="1.33" data-sp="3.89"></i><i class="cf" style="left:608px; background:#ff5fa2; width:25px; height:26px" data-dx="4" data-r="-351" data-d="1.50" data-sp="2.86"></i><i class="cf" style="left:86px; background:#ffd23f; width:19px; height:37px" data-dx="125" data-r="357" data-d="1.43" data-sp="4.03"></i><i class="cf" style="left:996px; background:#3bceac; width:17px; height:34px" data-dx="51" data-r="-181" data-d="0.15" data-sp="3.79"></i><i class="cf" style="left:503px; background:#2f8cff; width:25px; height:25px" data-dx="-120" data-r="476" data-d="0.25" data-sp="2.89"></i><i class="cf" style="left:1150px; background:#8e5cf5; width:24px; height:25px" data-dx="-60" data-r="399" data-d="1.55" data-sp="3.40"></i><i class="cf" style="left:276px; background:#ef3b3b; width:14px; height:25px" data-dx="-117" data-r="255" data-d="0.19" data-sp="3.41"></i><i class="cf" style="left:1332px; background:#ff5fa2; width:20px; height:25px" data-dx="97" data-r="310" data-d="1.18" data-sp="2.81"></i><i class="cf" style="left:237px; background:#ffd23f; width:25px; height:28px" data-dx="-63" data-r="-16" data-d="1.06" data-sp="4.13"></i><i class="cf" style="left:549px; background:#3bceac; width:25px; height:22px" data-dx="17" data-r="192" data-d="0.17" data-sp="2.82"></i><i class="cf" style="left:804px; background:#2f8cff; width:25px; height:31px" data-dx="138" data-r="438" data-d="0.75" data-sp="3.86"></i><i class="cf" style="left:34px; background:#8e5cf5; width:15px; height:35px" data-dx="94" data-r="-384" data-d="0.85" data-sp="3.57"></i><i class="cf" style="left:1666px; background:#ef3b3b; width:21px; height:28px" data-dx="-40" data-r="-106" data-d="1.04" data-sp="3.99"></i><i class="cf" style="left:871px; background:#ff5fa2; width:16px; height:25px" data-dx="78" data-r="455" data-d="0.17" data-sp="2.71"></i><i class="cf" style="left:1141px; background:#ffd23f; width:15px; height:35px" data-dx="-60" data-r="-512" data-d="1.47" data-sp="2.86"></i><i class="cf" style="left:546px; background:#3bceac; width:15px; height:23px" data-dx="-153" data-r="-640" data-d="0.28" data-sp="2.69"></i><i class="cf" style="left:1134px; background:#2f8cff; width:22px; height:28px" data-dx="-58" data-r="6" data-d="1.40" data-sp="3.96"></i><i class="cf" style="left:83px; background:#8e5cf5; width:16px; height:25px" data-dx="-80" data-r="102" data-d="0.67" data-sp="2.68"></i><i class="cf" style="left:717px; background:#ef3b3b; width:20px; height:23px" data-dx="106" data-r="-645" data-d="1.48" data-sp="2.76"></i><i class="cf" style="left:1619px; background:#ff5fa2; width:24px; height:37px" data-dx="96" data-r="402" data-d="1.03" data-sp="3.85"></i><i class="cf" style="left:258px; background:#ffd23f; width:20px; height:30px" data-dx="114" data-r="-53" data-d="0.62" data-sp="3.62"></i><i class="cf" style="left:511px; background:#3bceac; width:15px; height:29px" data-dx="-26" data-r="-385" data-d="0.59" data-sp="3.19"></i><i class="cf" style="left:628px; background:#2f8cff; width:18px; height:32px" data-dx="-64" data-r="646" data-d="1.47" data-sp="3.37"></i><i class="cf" style="left:630px; background:#8e5cf5; width:20px; height:35px" data-dx="48" data-r="438" data-d="0.85" data-sp="3.61"></i><i class="cf" style="left:553px; background:#ef3b3b; width:22px; height:25px" data-dx="62" data-r="519" data-d="0.21" data-sp="3.58"></i><i class="cf" style="left:182px; background:#ff5fa2; width:22px; height:23px" data-dx="139" data-r="-522" data-d="1.53" data-sp="3.88"></i><i class="cf" style="left:1139px; background:#ffd23f; width:23px; height:34px" data-dx="142" data-r="-355" data-d="0.94" data-sp="2.75"></i><i class="cf" style="left:1183px; background:#3bceac; width:16px; height:31px" data-dx="23" data-r="-48" data-d="0.84" data-sp="3.82"></i><i class="cf" style="left:1534px; background:#2f8cff; width:19px; height:31px" data-dx="137" data-r="-547" data-d="0.19" data-sp="2.74"></i><i class="cf" style="left:1263px; background:#8e5cf5; width:19px; height:34px" data-dx="54" data-r="-239" data-d="1.44" data-sp="3.82"></i><i class="cf" style="left:519px; background:#ef3b3b; width:18px; height:27px" data-dx="-109" data-r="-507" data-d="1.50" data-sp="3.30"></i><i class="cf" style="left:735px; background:#ff5fa2; width:22px; height:30px" data-dx="139" data-r="403" data-d="0.77" data-sp="3.20"></i><i class="cf" style="left:1894px; background:#ffd23f; width:22px; height:37px" data-dx="-122" data-r="504" data-d="1.02" data-sp="2.80"></i><i class="cf" style="left:1129px; background:#3bceac; width:22px; height:22px" data-dx="-14" data-r="468" data-d="0.47" data-sp="3.33"></i><i class="cf" style="left:849px; background:#2f8cff; width:17px; height:36px" data-dx="90" data-r="-560" data-d="1.60" data-sp="4.01"></i><i class="cf" style="left:545px; background:#8e5cf5; width:24px; height:23px" data-dx="159" data-r="238" data-d="1.04" data-sp="2.74"></i><i class="cf" style="left:1722px; background:#ef3b3b; width:14px; height:25px" data-dx="-114" data-r="398" data-d="0.32" data-sp="4.06"></i><i class="cf" style="left:1260px; background:#ff5fa2; width:14px; height:22px" data-dx="-143" data-r="152" data-d="1.28" data-sp="2.98"></i><i class="cf" style="left:1630px; background:#ffd23f; width:14px; height:34px" data-dx="136" data-r="391" data-d="1.12" data-sp="3.94"></i><i class="cf" style="left:77px; background:#3bceac; width:16px; height:23px" data-dx="1" data-r="353" data-d="1.01" data-sp="3.96"></i><i class="cf" style="left:298px; background:#2f8cff; width:22px; height:25px" data-dx="-73" data-r="302" data-d="1.57" data-sp="3.58"></i><i class="cf" style="left:104px; background:#8e5cf5; width:21px; height:22px" data-dx="122" data-r="301" data-d="0.28" data-sp="2.75"></i><i class="cf" style="left:352px; background:#ef3b3b; width:25px; height:29px" data-dx="90" data-r="196" data-d="0.92" data-sp="2.83"></i><i class="cf" style="left:1816px; background:#ff5fa2; width:17px; height:31px" data-dx="63" data-r="214" data-d="1.50" data-sp="2.84"></i><i class="cf" style="left:976px; background:#ffd23f; width:18px; height:29px" data-dx="-121" data-r="-526" data-d="0.44" data-sp="3.09"></i><i class="cf" style="left:821px; background:#3bceac; width:21px; height:32px" data-dx="-28" data-r="-131" data-d="0.35" data-sp="3.54"></i><i class="cf" style="left:608px; background:#2f8cff; width:14px; height:28px" data-dx="-8" data-r="-395" data-d="0.92" data-sp="3.51"></i></div><div class="end-text">You did it! ⭐</div>
+    </div>
+    <div class="clip caption" id="cap-intro-0" data-start="5.3" data-duration="2.150" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Hello, friends! I am <span class="hl-noun">Noun</span>!</div></div></div>
+    <div class="clip caption" id="cap-intro-1" data-start="7.6" data-duration="2.450" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">A <span class="hl-noun">noun</span> is a naming word.</div></div></div>
+    <div class="clip caption" id="cap-intro-2" data-start="10.2" data-duration="4.550" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">A <span class="hl-noun">noun</span> can be a <span class="hl-kind">person</span>, a <span class="hl-kind">place</span>, an <span class="hl-kind">animal</span>, or a <span class="hl-kind">thing</span>!</div></div></div>
+    <div class="clip caption" id="cap-intro-3" data-start="14.9" data-duration="2.150" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Let&#x27;s meet my <span class="hl-noun">noun</span> friends!</div></div></div>
+    <div class="clip caption" id="cap-person-0" data-start="18.95" data-duration="2.450" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#14897e">Teacher</div><div class="cap-text">Good morning, class! I am Teacher.</div></div></div>
+    <div class="clip caption" id="cap-person-1" data-start="21.55" data-duration="3.350" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#14897e">Teacher</div><div class="cap-text">I am a <span class="hl-kind">person</span>. So, I am a <span class="hl-noun">noun</span>!</div></div></div>
+    <div class="clip caption" id="cap-person-2" data-start="25.05" data-duration="3.755" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Yes! <span class="hl-kind">People</span> are <span class="hl-noun">nouns</span>. Like mom, dad, baby, and you!</div></div></div>
+    <div class="clip caption" id="cap-place-0" data-start="30.705" data-duration="1.850" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#c94d26">School</div><div class="cap-text">Hello! I am School.</div></div></div>
+    <div class="clip caption" id="cap-place-1" data-start="32.705" data-duration="3.650" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#c94d26">School</div><div class="cap-text">I am a <span class="hl-kind">place</span>. Children come to me to learn!</div></div></div>
+    <div class="clip caption" id="cap-place-2" data-start="36.505" data-duration="3.350" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text"><span class="hl-kind">Places</span> are <span class="hl-noun">nouns</span> too! Like park, home, and zoo!</div></div></div>
+    <div class="clip caption" id="cap-animal-0" data-start="41.755" data-duration="2.150" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#e08410">Cat</div><div class="cap-text">Meow! Meow! I am Cat!</div></div></div>
+    <div class="clip caption" id="cap-animal-1" data-start="44.055" data-duration="3.350" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#e08410">Cat</div><div class="cap-text">I am an <span class="hl-kind">animal</span>. So, I am a <span class="hl-noun">noun</span>!</div></div></div>
+    <div class="clip caption" id="cap-animal-2" data-start="47.555" data-duration="3.203" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text"><span class="hl-kind">Animals</span> are <span class="hl-noun">nouns</span>! Like dog, cow, and fish!</div></div></div>
+    <div class="clip caption" id="cap-thing-0" data-start="52.658" data-duration="1.857" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#c42323">Apple</div><div class="cap-text">Yummy! I am Apple!</div></div></div>
+    <div class="clip caption" id="cap-thing-1" data-start="54.665" data-duration="4.550" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#c42323">Apple</div><div class="cap-text">I am a <span class="hl-kind">thing</span>. You can eat me! So, I am a <span class="hl-noun">noun</span>!</div></div></div>
+    <div class="clip caption" id="cap-thing-2" data-start="59.365" data-duration="3.350" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text"><span class="hl-kind">Things</span> are <span class="hl-noun">nouns</span> too! Like ball, book, and car!</div></div></div>
+    <div class="clip caption" id="cap-recap-0" data-start="64.615" data-duration="1.284" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Let&#x27;s remember!</div></div></div>
+    <div class="clip caption" id="cap-recap-1" data-start="66.049" data-duration="4.250" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">A <span class="hl-noun">noun</span> names a <span class="hl-kind">person</span>, a <span class="hl-kind">place</span>, an <span class="hl-kind">animal</span>, or a <span class="hl-kind">thing</span>!</div></div></div>
+    <div class="clip caption" id="cap-quiz-0" data-start="72.199" data-duration="2.750" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Quiz time! Which word is a <span class="hl-noun">noun</span>?</div></div></div>
+    <div class="clip caption" id="cap-quiz-2" data-start="78.699" data-duration="3.950" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Ball! Yes! Ball is a <span class="hl-kind">thing</span>. So, ball is a <span class="hl-noun">noun</span>!</div></div></div>
+    <div class="clip caption" id="cap-quiz-3" data-start="83.699" data-duration="3.350" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#1c68cc">Ball</div><div class="cap-text">Boing! Boing! I am Ball. I am a <span class="hl-noun">noun</span>!</div></div></div>
+    <div class="clip caption" id="cap-outro-0" data-start="88.949" data-duration="2.750" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#6a3fd1">Noun</div><div class="cap-text">Great job, friends! Now you know <span class="hl-noun">nouns</span>!</div></div></div>
+    <div class="clip caption" id="cap-outro-1" data-start="91.849" data-duration="1.280" data-track-index="3">
+        <div class="cap-in"><div class="who" style="background:#d6246f">Everyone</div><div class="cap-text">Bye bye!</div></div></div>
+    <div id="wipe"></div>
+    <audio id="vo-intro-0-0" src="assets/voice/intro-0-822894a871.wav" data-start="5.3" data-duration="1.661" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-intro-1-0" src="assets/voice/intro-1-43e3211f6f.wav" data-start="7.6" data-duration="1.574" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-intro-2-0" src="assets/voice/intro-2-c95c475ed8.wav" data-start="10.2" data-duration="3.144" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-intro-3-0" src="assets/voice/intro-3-da61912e3b.wav" data-start="14.9" data-duration="1.507" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-person-0-0" src="assets/voice/person-0-6199301b01.wav" data-start="18.95" data-duration="2.092" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-person-1-0" src="assets/voice/person-1-11b8346cac.wav" data-start="21.55" data-duration="2.334" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-person-2-0" src="assets/voice/person-2-cef80a9797.wav" data-start="25.05" data-duration="3.455" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-place-0-0" src="assets/voice/place-0-2974f4b10d.wav" data-start="30.705" data-duration="1.39" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-place-1-0" src="assets/voice/place-1-269f8a6b84.wav" data-start="32.705" data-duration="2.432" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-place-2-0" src="assets/voice/place-2-a36a19e9fc.wav" data-start="36.505" data-duration="2.861" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-animal-0-0" src="assets/voice/animal-0-adb0921f1b.wav" data-start="41.755" data-duration="1.595" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-animal-1-0" src="assets/voice/animal-1-881d3c3755.wav" data-start="44.055" data-duration="2.126" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-animal-2-0" src="assets/voice/animal-2-03c54950d4.wav" data-start="47.555" data-duration="2.903" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-thing-0-0" src="assets/voice/thing-0-34cb68471c.wav" data-start="52.658" data-duration="1.557" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-thing-1-0" src="assets/voice/thing-1-bbd0633acc.wav" data-start="54.665" data-duration="2.933" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-thing-2-0" src="assets/voice/thing-2-12d9fabba7.wav" data-start="59.365" data-duration="2.798" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-recap-0-0" src="assets/voice/recap-0-d4fe29ee2b.wav" data-start="64.615" data-duration="0.984" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-recap-1-0" src="assets/voice/recap-1-4ff721421e.wav" data-start="66.049" data-duration="3.124" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-quiz-0-0" src="assets/voice/quiz-0-07c3dd1110.wav" data-start="72.199" data-duration="1.954" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-quiz-2-0" src="assets/voice/quiz-2-94166b970e.wav" data-start="78.699" data-duration="2.819" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-quiz-3-0" src="assets/voice/quiz-3-aaf797f12a.wav" data-start="83.699" data-duration="2.103" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-outro-0-0" src="assets/voice/outro-0-1d01543e31.wav" data-start="88.949" data-duration="2.369" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-outro-1-0" src="assets/voice/outro-1-teacher-28d935461f.wav" data-start="91.849" data-duration="0.846" data-volume="1" data-track-index="10"></audio>
+    <audio id="vo-outro-1-1" src="assets/voice/outro-1-school-c92b04804e.wav" data-start="91.849" data-duration="0.95" data-volume="1" data-track-index="11"></audio>
+    <audio id="vo-outro-1-2" src="assets/voice/outro-1-cat-ab2313a3e0.wav" data-start="91.849" data-duration="0.878" data-volume="1" data-track-index="12"></audio>
+    <audio id="vo-outro-1-3" src="assets/voice/outro-1-noun-78e7b50f27.wav" data-start="91.849" data-duration="0.772" data-volume="1" data-track-index="13"></audio>
+    <audio id="vo-outro-1-4" src="assets/voice/outro-1-apple-580a7af326.wav" data-start="91.849" data-duration="0.98" data-volume="1" data-track-index="14"></audio>
+    <audio id="vo-outro-1-5" src="assets/voice/outro-1-ball-51c14dc18a.wav" data-start="91.849" data-duration="0.779" data-volume="1" data-track-index="15"></audio>
+    <audio id="sfx-0" src="assets/sfx/jingle.wav" data-start="0.25" data-duration="2.4" data-volume="0.8" data-track-index="20"></audio>
+    <audio id="sfx-1" src="assets/sfx/whoosh.wav" data-start="3.9" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-2" src="assets/sfx/pop.wav" data-start="11.065" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-3" src="assets/sfx/pop.wav" data-start="11.636" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-4" src="assets/sfx/pop.wav" data-start="12.208" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-5" src="assets/sfx/pop.wav" data-start="12.951" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-6" src="assets/sfx/boing.wav" data-start="14.95" data-duration="0.45" data-volume="0.5" data-track-index="20"></audio>
+    <audio id="sfx-7" src="assets/sfx/whoosh.wav" data-start="17.55" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-8" src="assets/sfx/pop.wav" data-start="26.86" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-9" src="assets/sfx/pop.wav" data-start="27.193" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-10" src="assets/sfx/pop.wav" data-start="27.525" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-11" src="assets/sfx/pop.wav" data-start="28.189" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-12" src="assets/sfx/whoosh.wav" data-start="29.305" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-13" src="assets/sfx/pop.wav" data-start="38.099" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-14" src="assets/sfx/pop.wav" data-start="38.464" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-15" src="assets/sfx/pop.wav" data-start="39.072" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-16" src="assets/sfx/whoosh.wav" data-start="40.355" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-17" src="assets/sfx/boing.wav" data-start="41.805" data-duration="0.45" data-volume="0.5" data-track-index="20"></audio>
+    <audio id="sfx-18" src="assets/sfx/pop.wav" data-start="49.125" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-19" src="assets/sfx/pop.wav" data-start="49.463" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-20" src="assets/sfx/pop.wav" data-start="50.071" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-21" src="assets/sfx/whoosh.wav" data-start="51.258" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-22" src="assets/sfx/pop.wav" data-start="60.922" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-23" src="assets/sfx/pop.wav" data-start="61.28" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-24" src="assets/sfx/pop.wav" data-start="61.875" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-25" src="assets/sfx/whoosh.wav" data-start="63.215" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-26" src="assets/sfx/boing.wav" data-start="64.665" data-duration="0.45" data-volume="0.5" data-track-index="20"></audio>
+    <audio id="sfx-27" src="assets/sfx/pop.wav" data-start="66.867" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-28" src="assets/sfx/pop.wav" data-start="67.445" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-29" src="assets/sfx/pop.wav" data-start="68.024" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-30" src="assets/sfx/pop.wav" data-start="68.776" data-duration="0.18" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-31" src="assets/sfx/whoosh.wav" data-start="70.799" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="sfx-32" src="assets/sfx/tick.wav" data-start="75.299" data-duration="0.1" data-volume="0.8" data-track-index="20"></audio>
+    <audio id="sfx-33" src="assets/sfx/tick.wav" data-start="76.399" data-duration="0.1" data-volume="0.8" data-track-index="20"></audio>
+    <audio id="sfx-34" src="assets/sfx/tick.wav" data-start="77.499" data-duration="0.1" data-volume="0.8" data-track-index="20"></audio>
+    <audio id="sfx-35" src="assets/sfx/ding.wav" data-start="78.449" data-duration="1.2" data-volume="0.6" data-track-index="20"></audio>
+    <audio id="sfx-36" src="assets/sfx/boing.wav" data-start="83.749" data-duration="0.45" data-volume="0.5" data-track-index="20"></audio>
+    <audio id="sfx-37" src="assets/sfx/boing.wav" data-start="82.849" data-duration="0.45" data-volume="0.5" data-track-index="20"></audio>
+    <audio id="sfx-38" src="assets/sfx/whoosh.wav" data-start="87.549" data-duration="0.55" data-volume="0.7" data-track-index="20"></audio>
+    <audio id="music" src="assets/sfx/music.wav" data-start="0" data-duration="93.929" data-volume="0.16" data-fade-in="1" data-fade-out="2" data-track-index="30"></audio>
+    </div>
+    <script>
+      const DATA = {"total": 93.929, "scenes": [{"id": "title", "fixed": 4.2, "bg": "#7fd3ff", "start": 0.0, "dur": 4.2, "lines": []}, {"id": "intro", "bg": "#7fd3ff", "chars": [["noun", 960, 1.05]], "start": 4.2, "dur": 13.65, "lines": [{"speaker": "noun", "text": "Hello, friends! I am Noun!", "start": 5.3, "dur": 1.661, "clips": [{"who": "noun", "src": "assets/voice/intro-0-822894a871.wav", "dur": 1.6609166666666666, "env": [0.06, 0.98, 1.0, 1.0, 1.0, 0.27, 0.17, 0.94, 0.62, 0.55, 0.64, 0.66, 0.34, 0.0, 0.57, 0.82, 0.75, 0.79, 0.82, 0.71, 0.37, 0.21, 0.15, 0.09, 0.0]}], "act": "wave", "hold": 2.15}, {"speaker": "noun", "text": "A noun is a naming word.", "start": 7.6, "dur": 1.574, "clips": [{"who": "noun", "src": "assets/voice/intro-1-43e3211f6f.wav", "dur": 1.5735416666666666, "env": [0.9, 1.0, 1.0, 0.8, 0.81, 0.92, 0.66, 0.19, 0.03, 0.79, 1.0, 0.78, 0.74, 0.8, 0.92, 0.74, 0.49, 0.39, 0.37, 0.2, 0.13, 0.21, 0.03, 0.0]}], "hold": 2.45}, {"speaker": "noun", "text": "A noun can be a person, a place, an animal, or a thing!", "start": 10.2, "dur": 3.144, "clips": [{"who": "noun", "src": "assets/voice/intro-2-c95c475ed8.wav", "dur": 3.1438333333333333, "env": [0.95, 1.0, 1.0, 1.0, 1.0, 0.98, 0.45, 0.9, 0.75, 0.85, 0.27, 0.12, 0.59, 0.48, 0.67, 0.35, 0.22, 0.23, 0.11, 0.01, 0.01, 0.0, 0.68, 0.15, 0.4, 1.0, 0.82, 0.56, 0.67, 0.68, 0.46, 0.67, 0.83, 0.95, 0.85, 0.78, 0.74, 0.19, 0.86, 0.76, 0.38, 0.03, 0.62, 0.35, 0.14, 0.07, 0.01, 0.0]}], "pops": [{"emoji": "👩", "label": "person", "at": 11.065}, {"emoji": "🏫", "label": "place", "at": 11.636}, {"emoji": "🐶", "label": "animal", "at": 12.208}, {"emoji": "⚽", "label": "thing", "at": 12.951}], "hold": 4.55}, {"speaker": "noun", "text": "Let's meet my noun friends!", "start": 14.9, "dur": 1.507, "clips": [{"who": "noun", "src": "assets/voice/intro-3-da61912e3b.wav", "dur": 1.5068333333333332, "env": [0.43, 1.0, 1.0, 0.3, 0.48, 1.0, 0.68, 0.31, 0.81, 0.74, 0.68, 0.63, 0.82, 0.77, 0.12, 0.55, 0.53, 0.2, 0.2, 0.34, 0.34, 0.08, 0.0]}], "act": "jump", "hold": 2.15}]}, {"id": "person", "bg": "#ffd36e", "badge": ["👩‍🏫", "PERSON"], "chars": [["teacher", 470, 1.0], ["noun", 1560, 0.78]], "start": 17.85, "dur": 11.755, "lines": [{"speaker": "teacher", "text": "Good morning, class! I am Teacher.", "start": 18.95, "dur": 2.092, "clips": [{"who": "teacher", "src": "assets/voice/person-0-6199301b01.wav", "dur": 2.0917916666666665, "env": [0.1, 1.0, 0.34, 0.67, 1.0, 1.0, 0.64, 0.46, 0.22, 0.37, 1.0, 0.93, 0.49, 0.17, 0.34, 0.14, 0.01, 0.18, 0.62, 0.69, 0.59, 0.41, 0.29, 0.27, 0.38, 0.1, 0.61, 0.36, 0.2, 0.05, 0.01, 0.0]}], "act": "wave", "hold": 2.45}, {"speaker": "teacher", "text": "I am a person. So, I am a noun!", "start": 21.55, "dur": 2.334, "clips": [{"who": "teacher", "src": "assets/voice/person-1-11b8346cac.wav", "dur": 2.3342916666666667, "env": [0.61, 1.0, 0.94, 0.8, 0.72, 0.18, 0.59, 1.0, 0.71, 0.69, 0.35, 0.14, 0.05, 0.01, 0.01, 0.0, 0.25, 0.76, 1.0, 1.0, 0.44, 0.61, 0.81, 0.71, 0.55, 0.67, 0.65, 0.7, 0.82, 0.92, 0.49, 0.15, 0.07, 0.04, 0.01, 0.0]}], "hold": 3.35}, {"speaker": "noun", "text": "Yes! People are nouns. Like mom, dad, baby, and you!", "start": 25.05, "dur": 3.455, "clips": [{"who": "noun", "src": "assets/voice/person-2-cef80a9797.wav", "dur": 3.455208333333333, "env": [0.3, 1.0, 1.0, 0.51, 0.73, 0.14, 0.3, 0.7, 0.23, 0.87, 0.87, 0.75, 0.68, 0.5, 0.32, 0.24, 0.22, 0.32, 0.65, 0.17, 0.01, 0.01, 0.0, 0.0, 0.63, 0.9, 0.13, 1.0, 1.0, 0.95, 1.0, 1.0, 0.72, 0.74, 0.8, 0.61, 0.71, 0.2, 0.3, 0.71, 0.54, 0.31, 0.6, 0.38, 0.57, 0.64, 0.4, 0.64, 0.34, 0.13, 0.07, 0.0]}], "pops": [{"emoji": "👩", "label": "mom", "at": 26.86}, {"emoji": "👨", "label": "dad", "at": 27.193}, {"emoji": "👶", "label": "baby", "at": 27.525}, {"emoji": "🧒", "label": "you", "at": 28.189}], "hold": 3.755}]}, {"id": "place", "bg": "#9be59b", "badge": ["🏫", "PLACE"], "chars": [["school", 470, 1.0], ["noun", 1560, 0.78]], "start": 29.605, "dur": 11.05, "lines": [{"speaker": "school", "text": "Hello! I am School.", "start": 30.705, "dur": 1.39, "clips": [{"who": "school", "src": "assets/voice/place-0-2974f4b10d.wav", "dur": 1.3897083333333333, "env": [0.08, 0.38, 1.0, 1.0, 1.0, 0.99, 0.7, 0.47, 0.6, 0.68, 0.58, 0.54, 0.59, 0.15, 0.65, 0.55, 0.46, 0.3, 0.07, 0.02, 0.0]}], "act": "wave", "hold": 1.85}, {"speaker": "school", "text": "I am a place. Children come to me to learn!", "start": 32.705, "dur": 2.432, "clips": [{"who": "school", "src": "assets/voice/place-1-269f8a6b84.wav", "dur": 2.432, "env": [0.12, 0.9, 1.0, 1.0, 0.96, 0.62, 0.09, 0.87, 1.0, 0.67, 0.18, 0.44, 0.31, 0.03, 0.61, 0.82, 1.0, 0.3, 0.72, 0.63, 0.18, 0.61, 0.76, 0.51, 0.41, 0.49, 0.49, 0.34, 0.6, 0.63, 1.0, 0.84, 0.56, 0.38, 0.25, 0.03, 0.0]}], "hold": 3.65}, {"speaker": "noun", "text": "Places are nouns too! Like park, home, and zoo!", "start": 36.505, "dur": 2.861, "clips": [{"who": "noun", "src": "assets/voice/place-2-a36a19e9fc.wav", "dur": 2.86075, "env": [0.08, 0.97, 0.9, 0.51, 0.69, 0.92, 1.0, 1.0, 0.82, 0.87, 0.88, 0.65, 0.36, 0.49, 0.51, 0.26, 0.24, 0.01, 0.01, 0.0, 0.0, 0.2, 1.0, 0.16, 0.11, 0.53, 1.0, 0.98, 0.07, 0.14, 0.25, 1.0, 0.9, 0.75, 0.44, 0.83, 0.53, 0.72, 0.73, 0.3, 0.16, 0.09, 0.0]}], "pops": [{"emoji": "🌳", "label": "park", "at": 38.099}, {"emoji": "🏠", "label": "home", "at": 38.464}, {"emoji": "🦒", "label": "zoo", "at": 39.072}], "hold": 3.35}]}, {"id": "animal", "bg": "#ffb3d1", "badge": ["🐾", "ANIMAL"], "chars": [["cat", 470, 1.0], ["noun", 1560, 0.78]], "start": 40.655, "dur": 10.903, "lines": [{"speaker": "cat", "text": "Meow! Meow! I am Cat!", "start": 41.755, "dur": 1.595, "clips": [{"who": "cat", "src": "assets/voice/animal-0-adb0921f1b.wav", "dur": 1.594625, "env": [0.52, 1.0, 1.0, 0.79, 0.77, 0.71, 1.0, 0.94, 0.8, 0.74, 0.5, 0.39, 0.65, 0.68, 0.66, 0.38, 0.07, 0.51, 0.31, 0.1, 0.01, 0.24, 0.08, 0.0]}], "act": "jump", "hold": 2.15}, {"speaker": "cat", "text": "I am an animal. So, I am a noun!", "start": 44.055, "dur": 2.126, "clips": [{"who": "cat", "src": "assets/voice/animal-1-881d3c3755.wav", "dur": 2.126125, "env": [0.53, 0.79, 0.78, 1.0, 1.0, 0.75, 0.28, 0.9, 1.0, 0.96, 0.57, 0.4, 0.28, 0.06, 0.03, 0.32, 0.47, 1.0, 0.74, 0.19, 0.82, 0.72, 0.72, 0.78, 0.74, 0.61, 0.44, 0.31, 0.2, 0.27, 0.16, 0.0]}], "hold": 3.35}, {"speaker": "noun", "text": "Animals are nouns! Like dog, cow, and fish!", "start": 47.555, "dur": 2.903, "clips": [{"who": "noun", "src": "assets/voice/animal-2-03c54950d4.wav", "dur": 2.902833333333333, "env": [0.76, 1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.93, 0.82, 0.66, 0.43, 0.31, 0.28, 0.3, 0.56, 0.4, 0.0, 0.0, 0.0, 0.0, 0.75, 0.79, 0.02, 0.65, 0.99, 0.68, 0.85, 0.67, 0.09, 0.12, 0.35, 0.57, 0.6, 0.61, 0.36, 0.62, 0.08, 0.57, 0.61, 0.16, 0.39, 0.36, 0.1, 0.0]}], "pops": [{"emoji": "🐶", "label": "dog", "at": 49.125}, {"emoji": "🐮", "label": "cow", "at": 49.463}, {"emoji": "🐟", "label": "fish", "at": 50.071}], "hold": 3.203}]}, {"id": "thing", "bg": "#a9c8ff", "badge": ["🎁", "THING"], "chars": [["apple", 470, 1.0], ["noun", 1560, 0.78]], "start": 51.558, "dur": 11.957, "lines": [{"speaker": "apple", "text": "Yummy! I am Apple!", "start": 52.658, "dur": 1.557, "clips": [{"who": "apple", "src": "assets/voice/thing-0-34cb68471c.wav", "dur": 1.5567083333333334, "env": [0.14, 0.85, 1.0, 1.0, 1.0, 0.79, 0.3, 0.28, 0.69, 0.75, 0.72, 0.66, 0.57, 0.32, 0.72, 0.72, 0.02, 0.31, 0.3, 0.25, 0.11, 0.03, 0.01, 0.01]}], "act": "wave", "hold": 1.857}, {"speaker": "apple", "text": "I am a thing. You can eat me! So, I am a noun!", "start": 54.665, "dur": 2.933, "clips": [{"who": "apple", "src": "assets/voice/thing-1-bbd0633acc.wav", "dur": 2.93275, "env": [0.58, 1.0, 1.0, 1.0, 1.0, 0.29, 0.03, 0.89, 0.93, 0.79, 0.53, 0.47, 0.42, 0.14, 0.71, 0.22, 0.37, 0.61, 0.26, 0.03, 0.42, 0.29, 0.2, 0.03, 0.0, 0.02, 0.23, 0.4, 0.91, 1.0, 0.61, 0.71, 0.64, 0.58, 0.61, 0.57, 0.63, 0.58, 0.54, 0.39, 0.24, 0.15, 0.04, 0.01]}], "hold": 4.55}, {"speaker": "noun", "text": "Things are nouns too! Like ball, book, and car!", "start": 59.365, "dur": 2.798, "clips": [{"who": "noun", "src": "assets/voice/thing-2-12d9fabba7.wav", "dur": 2.7984166666666668, "env": [0.02, 0.87, 1.0, 1.0, 0.89, 1.0, 1.0, 0.81, 0.9, 0.95, 0.84, 0.49, 0.58, 0.54, 0.29, 0.23, 0.11, 0.01, 0.0, 0.0, 0.05, 1.0, 0.63, 0.05, 0.66, 0.99, 0.89, 0.88, 0.81, 0.15, 0.86, 0.39, 0.18, 0.51, 0.43, 0.2, 0.65, 0.55, 0.27, 0.2, 0.07, 0.0]}], "pops": [{"emoji": "⚽", "label": "ball", "at": 60.922}, {"emoji": "📘", "label": "book", "at": 61.28}, {"emoji": "🚗", "label": "car", "at": 61.875}], "hold": 3.35}]}, {"id": "recap", "bg": "#7fd3ff", "badge": ["⭐", "REMEMBER"], "chars": [["noun", 960, 0.85]], "start": 63.515, "dur": 7.584, "lines": [{"speaker": "noun", "text": "Let's remember!", "start": 64.615, "dur": 0.984, "clips": [{"who": "noun", "src": "assets/voice/recap-0-d4fe29ee2b.wav", "dur": 0.98425, "env": [0.48, 1.0, 1.0, 0.28, 0.81, 0.4, 0.93, 0.95, 0.94, 0.94, 0.52, 0.31, 0.19, 0.04, 0.0]}], "act": "jump", "hold": 1.284}, {"speaker": "noun", "text": "A noun names a person, a place, an animal, or a thing!", "start": 66.049, "dur": 3.124, "clips": [{"who": "noun", "src": "assets/voice/recap-1-4ff721421e.wav", "dur": 3.123625, "env": [0.79, 1.0, 1.0, 1.0, 1.0, 0.9, 1.0, 0.85, 0.57, 0.45, 0.1, 0.41, 0.42, 0.48, 0.37, 0.22, 0.21, 0.17, 0.0, 0.0, 0.0, 0.57, 0.1, 0.49, 0.88, 0.6, 0.37, 0.55, 0.22, 0.84, 0.2, 0.67, 0.83, 1.0, 0.85, 0.73, 0.68, 0.25, 0.74, 0.6, 0.13, 0.04, 0.64, 0.22, 0.09, 0.05, 0.0]}], "big": [{"emoji": "👩", "label": "person", "at": 66.867}, {"emoji": "🏫", "label": "place", "at": 67.445}, {"emoji": "🐶", "label": "animal", "at": 68.024}, {"emoji": "⚽", "label": "thing", "at": 68.776}], "hold": 4.25}]}, {"id": "quiz", "bg": "#ffd36e", "badge": ["❓", "QUIZ TIME"], "chars": [["noun", 1600, 0.78], ["ball", 960, 0.85]], "start": 71.099, "dur": 16.75, "lines": [{"speaker": "noun", "text": "Quiz time! Which word is a noun?", "start": 72.199, "dur": 1.954, "clips": [{"who": "noun", "src": "assets/voice/quiz-0-07c3dd1110.wav", "dur": 1.953875, "env": [0.1, 1.0, 1.0, 0.64, 0.39, 0.74, 0.85, 0.78, 0.51, 0.43, 0.02, 0.0, 0.07, 1.0, 0.51, 0.2, 0.72, 1.0, 0.89, 0.94, 0.54, 0.77, 0.68, 0.65, 0.42, 0.24, 0.21, 0.16, 0.01, 0.0]}], "quiz": true, "hold": 2.75}, {"speaker": "pause", "start": 75.099, "dur": 3.6}, {"speaker": "noun", "text": "Ball! Yes! Ball is a thing. So, ball is a noun!", "start": 78.699, "dur": 2.819, "clips": [{"who": "noun", "src": "assets/voice/quiz-2-94166b970e.wav", "dur": 2.8186666666666667, "env": [0.95, 1.0, 1.0, 0.96, 0.43, 0.36, 1.0, 0.73, 0.39, 0.47, 0.04, 0.73, 0.72, 0.72, 0.73, 0.54, 0.27, 0.34, 0.3, 0.23, 0.28, 0.04, 0.01, 0.01, 0.0, 0.31, 0.77, 1.0, 0.95, 0.25, 1.0, 0.83, 0.92, 0.51, 0.92, 0.8, 0.73, 0.49, 0.24, 0.21, 0.13, 0.01, 0.0]}], "answer": true, "hold": 3.95}, {"speaker": "ball", "text": "Boing! Boing! I am Ball. I am a noun!", "start": 83.699, "dur": 2.103, "clips": [{"who": "ball", "src": "assets/voice/quiz-3-aaf797f12a.wav", "dur": 2.1032083333333333, "env": [1.0, 1.0, 0.96, 0.67, 0.25, 1.0, 1.0, 0.89, 0.54, 0.27, 0.73, 0.74, 0.64, 0.24, 0.9, 0.86, 0.56, 0.24, 0.01, 0.07, 0.68, 0.75, 0.7, 0.78, 0.67, 0.93, 0.66, 0.34, 0.15, 0.09, 0.03, 0.0]}], "act": "jump", "enter": true, "hold": 3.35}]}, {"id": "outro", "bg": "#7fd3ff", "chars": [["teacher", 260, 0.66], ["school", 540, 0.66], ["cat", 820, 0.66], ["noun", 1100, 0.66], ["apple", 1380, 0.66], ["ball", 1660, 0.66]], "start": 87.849, "dur": 6.08, "lines": [{"speaker": "noun", "text": "Great job, friends! Now you know nouns!", "start": 88.949, "dur": 2.369, "clips": [{"who": "noun", "src": "assets/voice/outro-0-1d01543e31.wav", "dur": 2.368625, "env": [0.08, 1.0, 0.79, 0.13, 0.47, 1.0, 0.74, 0.99, 0.07, 0.12, 0.66, 0.48, 0.35, 0.39, 0.44, 0.37, 0.03, 0.01, 0.0, 0.0, 0.66, 1.0, 0.94, 0.85, 1.0, 0.93, 0.74, 0.7, 0.63, 0.39, 0.21, 0.2, 0.35, 0.36, 0.06, 0.0]}], "hold": 2.75}, {"speaker": "all", "text": "Bye bye!", "start": 91.849, "dur": 0.98, "clips": [{"who": "teacher", "src": "assets/voice/outro-1-teacher-28d935461f.wav", "dur": 0.8459166666666667, "env": [0.11, 1.0, 0.94, 0.89, 0.57, 0.9, 1.0, 0.92, 0.62, 0.22, 0.11, 0.05, 0.0]}, {"who": "school", "src": "assets/voice/outro-1-school-c92b04804e.wav", "dur": 0.950125, "env": [0.21, 0.66, 1.0, 0.99, 0.77, 0.73, 1.0, 0.76, 0.7, 0.69, 0.31, 0.17, 0.08, 0.01, 0.0]}, {"who": "cat", "src": "assets/voice/outro-1-cat-ab2313a3e0.wav", "dur": 0.8775833333333334, "env": [0.15, 1.0, 1.0, 0.97, 0.92, 0.81, 0.83, 0.68, 0.59, 0.51, 0.44, 0.29, 0.01, 0.0]}, {"who": "noun", "src": "assets/voice/outro-1-noun-78e7b50f27.wav", "dur": 0.7723333333333333, "env": [0.21, 1.0, 0.9, 1.0, 0.78, 0.74, 0.57, 0.44, 0.36, 0.27, 0.02, 0.0]}, {"who": "apple", "src": "assets/voice/outro-1-apple-580a7af326.wav", "dur": 0.9803333333333333, "env": [0.03, 0.87, 0.95, 1.0, 1.0, 0.51, 0.65, 0.82, 0.75, 0.68, 0.44, 0.34, 0.18, 0.02, 0.01]}, {"who": "ball", "src": "assets/voice/outro-1-ball-51c14dc18a.wav", "dur": 0.7793333333333333, "env": [1.0, 0.84, 0.96, 0.8, 1.0, 0.85, 0.68, 0.52, 0.48, 0.23, 0.04, 0.0]}], "act": "wave", "hold": 1.28}]}]};
+      const tl = gsap.timeline({ paused: true });
+      const $ = (s, r = document) => r.querySelector(s);
+      const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+
+      function rig(id) {
+        const el = document.getElementById(id);
+        return {
+          el, bob: $(".char-bob", el), armL: $(".arm.l", el), armR: $(".arm.r", el),
+          mouth: $(".mouth", el), lids: $$(".lid", el),
+        };
+      }
+
+      // ---------- title ----------
+      tl.fromTo(".title-top", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(2.5)" }, 0.15);
+      tl.fromTo(".tl", { y: -700, rotation: -25 }, { y: 0, rotation: 0, duration: 0.9, stagger: 0.13, ease: "bounce.out" }, 0.35);
+      tl.to(".tl", { y: -40, duration: 0.25, stagger: 0.1, yoyo: true, repeat: 1, ease: "power2.out" }, 2.0);
+      tl.fromTo(".title-sub", { scale: 0 }, { scale: 1, duration: 0.6, ease: "back.out(2)" }, 1.6);
+
+      DATA.scenes.forEach((sc, si) => {
+        const S = sc.start, E = sc.start + sc.dur, sid = sc.id;
+        const root = document.getElementById("scene-" + sid);
+
+        // background life
+        $$(".cloud", root).forEach((c, i) => tl.fromTo(c, { x: 0 }, { x: 90 + i * 40, duration: sc.dur, ease: "none" }, S));
+        tl.fromTo($(".rays", root), { rotation: 0 }, { rotation: sc.dur * 14, duration: sc.dur, ease: "none" }, S);
+
+        // scene wipe
+        if (si > 0) {
+          tl.fromTo("#wipe", { scale: 0 }, { scale: 1, duration: 0.35, ease: "power2.in" }, S - 0.35);
+          tl.to("#wipe", { scale: 0, duration: 0.45, ease: "power2.out" }, S);
+        }
+
+        const badge = $(".badge", root);
+        if (badge) {
+          gsap.set(badge, { xPercent: -50 });
+          tl.fromTo(badge, { y: -200 }, { y: 0, duration: 0.7, ease: "back.out(2)" }, S + 0.25);
+        }
+        if (!sc.chars) return;
+
+        // characters: entrance, idle bob, blinks
+        const enterAt = {};
+        sc.lines.forEach((ln) => { if (ln.enter) enterAt[ln.speaker] = ln.start - 0.9; });
+        sc.chars.forEach(([name], i) => {
+          const r = rig(sid + "-" + name);
+          gsap.set([r.armL], { rotation: 24 });
+          gsap.set([r.armR], { rotation: -24 });
+          gsap.set(r.mouth, { scaleY: 0.25 });
+          const t0 = enterAt[name] ?? S + 0.1 + i * 0.12;
+          tl.fromTo(r.el, { scale: 0, y: 240, transformOrigin: "50% 100%" },
+            { scale: 1, y: 0, duration: 0.75, ease: "back.out(1.7)" }, t0);
+          const per = 0.62, n = Math.max(1, Math.floor((E - t0) / per));
+          tl.to(r.bob, { y: -12, duration: per, repeat: n - (n % 2 ? 0 : 1), yoyo: true, ease: "sine.inOut" }, t0 + 0.75 + i * 0.2);
+          for (let t = t0 + 1.3 + i * 0.57; t < E - 0.4; t += 2.9) {
+            tl.to(r.lids, { scaleY: 1, duration: 0.07, yoyo: true, repeat: 1, ease: "none" }, t);
+          }
+        });
+
+        sc.lines.forEach((ln, li) => {
+          const T = ln.start;
+          if (ln.speaker === "pause") {
+            for (let k = 0; k < 3; k++) {
+              const c = "#" + sid + "-count" + k, t = T + 0.2 + k * 1.1;
+              tl.fromTo(c, { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.3, ease: "back.out(3)" }, t);
+              tl.to(c, { scale: 1.5, opacity: 0, duration: 0.25 }, t + 0.8);
+            }
+            return;
+          }
+          // caption
+          const cap = $("#cap-" + sid + "-" + li + " .cap-in");
+          tl.fromTo(cap, { y: 60, opacity: 0, scale: 0.9 }, { y: 0, opacity: 1, scale: 1, duration: 0.3, ease: "back.out(2)" }, T);
+          tl.to(cap, { opacity: 0, y: 20, duration: 0.2 }, T + ln.hold - 0.22);
+
+          ln.clips.forEach((cl) => {
+            const r = rig(sid + "-" + cl.who);
+            const step = 1 / 15;
+            cl.env.forEach((v, k) => {
+              tl.to(r.mouth, { scaleY: 0.25 + 0.75 * v, duration: step, ease: "none" }, T + k * step);
+            });
+            tl.to(r.mouth, { scaleY: 0.25, duration: 0.12 }, T + cl.env.length * step);
+            // talking squash + gesture
+            const reps = Math.max(1, Math.round(cl.dur / 0.28)) | 1;
+            tl.to(r.bob, { scaleY: 1.035, scaleX: 0.975, transformOrigin: "50% 100%", duration: 0.28, yoyo: true, repeat: reps, ease: "sine.inOut" }, T);
+            tl.to(r.armL, { rotation: 55, duration: 0.35, yoyo: true, repeat: Math.max(1, Math.round(cl.dur / 0.35)) | 1, ease: "sine.inOut" }, T);
+            if (ln.act === "wave") {
+              tl.to(r.armR, { rotation: -150, duration: 0.3, ease: "power2.out" }, T);
+              tl.to(r.armR, { rotation: -115, duration: 0.2, yoyo: true, repeat: 5, ease: "sine.inOut" }, T + 0.3);
+              tl.to(r.armR, { rotation: -24, duration: 0.35, ease: "power2.inOut" }, T + 1.5);
+            }
+            if (ln.act === "jump") {
+              tl.to(r.el, { y: -150, duration: 0.32, yoyo: true, repeat: 3, ease: "power2.out" }, T);
+            }
+          });
+
+          (ln.pops || []).forEach((p, k) => {
+            tl.fromTo("#" + sid + "-" + li + "-pop" + k, { scale: 0, rotation: -20, opacity: 0 },
+              { scale: 1, rotation: 0, opacity: 1, duration: 0.55, ease: "back.out(2.2)" }, p.at);
+          });
+          (ln.big || []).forEach((p, k) => {
+            tl.fromTo("#" + sid + "-" + li + "-big" + k, { scale: 0, y: 80, opacity: 0 },
+              { scale: 1, y: 0, opacity: 1, duration: 0.6, ease: "back.out(2)" }, p.at);
+            tl.to("#" + sid + "-" + li + "-big" + k, { rotation: k % 2 ? 4 : -4, duration: 0.3, yoyo: true, repeat: 1 }, p.at + 0.6);
+          });
+          if (ln.quiz) {
+            tl.fromTo(".qcard", { scale: 0, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, stagger: 0.25, ease: "back.out(2.2)" }, T + 0.6);
+            tl.to(".qcard", { rotation: 3, duration: 0.25, yoyo: true, repeat: 7, stagger: 0.1, ease: "sine.inOut" }, T + ln.dur + 0.4);
+          }
+          if (ln.answer) {
+            tl.to("#q-ball", { scale: 1.25, backgroundColor: "#7ee07e", duration: 0.4, ease: "back.out(3)" }, T - 0.25);
+            tl.to(["#q-jump", "#q-happy"], { opacity: 0.3, scale: 0.85, duration: 0.4 }, T - 0.25);
+          }
+        });
+
+        if (sid === "outro") {
+          const bye = sc.lines[sc.lines.length - 1];
+          tl.fromTo(".end-text", { scale: 0, rotation: -10 }, { scale: 1, rotation: 0, duration: 0.6, ease: "back.out(2.5)" }, bye.start - 0.2);
+          $$(".cf", root).forEach((c) => {
+            const d = +c.dataset.d, sp = +c.dataset.sp;
+            tl.fromTo(c, { y: 0, x: 0, rotation: 0 }, { y: 1250, x: +c.dataset.dx, rotation: +c.dataset.r, duration: sp, ease: "power1.in" }, bye.start - 0.4 + d);
+          });
+          gsap.set(".end-text", { scale: 0 });
+        }
+      });
+
+      tl.set({}, {}, DATA.total);
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>
