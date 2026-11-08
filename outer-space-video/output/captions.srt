@@ -1,0 +1,1252 @@
+1
+00:00:02,650 --> 00:00:04,628
+Hello, little space explorers!
+
+2
+00:00:05,008 --> 00:00:07,502
+My name is Twinkle. I am a little star!
+
+3
+00:00:07,882 --> 00:00:10,669
+Today, we are going on an amazing adventure...
+
+4
+00:00:11,049 --> 00:00:12,240
+...to outer space!
+
+5
+00:00:12,620 --> 00:00:14,779
+Can you say it with me? Outer space!
+
+6
+00:00:16,959 --> 00:00:17,756
+Wonderful!
+
+7
+00:00:19,136 --> 00:00:21,569
+On our trip, we have four space missions.
+
+8
+00:00:21,949 --> 00:00:23,962
+Mission one: the Solar System.
+
+9
+00:00:24,342 --> 00:00:26,896
+Mission two: Earth, Moon, and Stars.
+
+10
+00:00:27,276 --> 00:00:30,048
+Mission three: Astronomers and Astronauts.
+
+11
+00:00:30,428 --> 00:00:33,203
+And mission four: What do we see in outer space?
+
+12
+00:00:33,583 --> 00:00:36,217
+Are you ready? Let's climb into our rocket!
+
+13
+00:00:37,597 --> 00:00:41,451
+Every astronaut checks the launch checklist. Let's check together!
+
+14
+00:00:41,831 --> 00:00:43,452
+Oxygen... check!
+
+15
+00:00:43,832 --> 00:00:45,085
+Weather... check!
+
+16
+00:00:45,465 --> 00:00:47,253
+Engines ready... check!
+
+17
+00:00:47,633 --> 00:00:49,413
+Doors secure... check!
+
+18
+00:00:49,793 --> 00:00:52,225
+We are go for launch! Count down with me!
+
+19
+00:00:52,605 --> 00:00:53,280
+Five!
+
+20
+00:00:53,730 --> 00:00:54,359
+Four!
+
+21
+00:00:54,809 --> 00:00:55,439
+Three!
+
+22
+00:00:55,889 --> 00:00:56,473
+Two!
+
+23
+00:00:56,923 --> 00:00:57,505
+One!
+
+24
+00:00:57,955 --> 00:00:58,858
+Blast off!
+
+25
+00:01:03,838 --> 00:01:06,018
+Mission one... the Solar System!
+
+26
+00:01:08,198 --> 00:01:10,609
+Whoosh! We are in space! Look all around.
+
+27
+00:01:10,989 --> 00:01:13,473
+Everything around us is called the Universe.
+
+28
+00:01:13,853 --> 00:01:18,736
+The Universe is everything! Every star, every planet... and even you and me!
+
+29
+00:01:19,116 --> 00:01:21,016
+Here is our home, planet Earth.
+
+30
+00:01:21,396 --> 00:01:23,976
+Here is the Sun and its family of planets.
+
+31
+00:01:24,356 --> 00:01:25,922
+Here is our big galaxy...
+
+32
+00:01:26,302 --> 00:01:28,547
+...and here are many, many more galaxies!
+
+33
+00:01:28,927 --> 00:01:34,137
+Outer space is the big, big area beyond our Earth. It goes on and on and on!
+
+34
+00:01:35,517 --> 00:01:39,466
+Ooh, it's getting warm! What is that big, bright ball? Can you guess?
+
+35
+00:01:42,916 --> 00:01:43,814
+It's the Sun!
+
+36
+00:01:44,194 --> 00:01:47,598
+Here's a surprise. The Sun is a star, just like me!
+
+37
+00:01:47,978 --> 00:01:50,963
+It is a giant ball of hot, glowing gases.
+
+38
+00:01:51,343 --> 00:01:54,435
+It is round, like a ball. We call this shape a sphere.
+
+39
+00:01:54,815 --> 00:01:57,493
+Long ago, people called the Sun... Sol.
+
+40
+00:01:57,873 --> 00:02:01,458
+That's why the Sun and its family are called the Solar System!
+
+41
+00:02:01,838 --> 00:02:06,201
+Remember: never look straight at the Sun. It is much too bright for our eyes!
+
+42
+00:02:07,581 --> 00:02:09,268
+How do you feel on a sunny day?
+
+43
+00:02:13,718 --> 00:02:15,741
+Yes! We feel warm and cosy.
+
+44
+00:02:16,121 --> 00:02:19,913
+The Sun sends light down to Earth. These are called sun rays.
+
+45
+00:02:20,293 --> 00:02:23,035
+Sun rays fall on Earth, like golden rain!
+
+46
+00:02:23,415 --> 00:02:24,809
+They make the air warmer...
+
+47
+00:02:25,189 --> 00:02:26,842
+...and they dry up the wet streets!
+
+48
+00:02:27,222 --> 00:02:28,874
+Let's sing our sunshine song!
+
+49
+00:02:29,254 --> 00:02:33,513
+Shine, shine, Sun so bright! Warm the world with golden light!
+
+50
+00:02:33,893 --> 00:02:37,976
+Shine, shine, high and round! Dry the puddles on the ground!
+
+51
+00:02:38,356 --> 00:02:39,052
+Hooray!
+
+52
+00:02:40,432 --> 00:02:44,019
+The Sun is not alone. It has a family of eight planets!
+
+53
+00:02:44,399 --> 00:02:47,118
+The Sun is in the centre of the Solar System.
+
+54
+00:02:47,498 --> 00:02:48,798
+Can you point to the Sun?
+
+55
+00:02:52,248 --> 00:02:54,358
+Yes, right in the middle! Well done!
+
+56
+00:02:54,738 --> 00:02:59,114
+The planets travel round and round the Sun. Their path is called an orbit.
+
+57
+00:02:59,494 --> 00:03:03,027
+Let's meet the planets, in order from the Sun. Count with me!
+
+58
+00:03:03,407 --> 00:03:04,640
+One: Mercury!
+
+59
+00:03:05,020 --> 00:03:06,195
+Two: Venus!
+
+60
+00:03:06,575 --> 00:03:07,648
+Three: Earth!
+
+61
+00:03:08,028 --> 00:03:09,229
+Four: Mars!
+
+62
+00:03:09,609 --> 00:03:10,860
+Five: Jupiter!
+
+63
+00:03:11,240 --> 00:03:12,380
+Six: Saturn!
+
+64
+00:03:12,760 --> 00:03:14,039
+Seven: Uranus!
+
+65
+00:03:14,419 --> 00:03:15,675
+Eight: Neptune!
+
+66
+00:03:16,055 --> 00:03:19,125
+Many planets have moons that travel around them, too!
+
+67
+00:03:19,505 --> 00:03:22,960
+Uh oh! One planet is hiding. Which planet is missing?
+
+68
+00:03:28,410 --> 00:03:30,442
+It's Earth, our home! Amazing!
+
+69
+00:03:31,822 --> 00:03:35,360
+Our Sun is one star. But there are many, many more stars!
+
+70
+00:03:35,740 --> 00:03:39,587
+A galaxy is a giant group of stars and solar systems.
+
+71
+00:03:39,967 --> 00:03:43,022
+Between them there is lots and lots of empty space.
+
+72
+00:03:43,402 --> 00:03:45,835
+Our galaxy is called... the Milky Way!
+
+73
+00:03:46,215 --> 00:03:50,264
+Our Earth and our Solar System live in the Milky Way. We are here!
+
+74
+00:03:50,644 --> 00:03:57,683
+Scientists think there may be tens of billions of solar systems in our galaxy. That's more than we could ever count!
+
+75
+00:03:59,063 --> 00:04:00,756
+Time for a quick space quiz!
+
+76
+00:04:01,136 --> 00:04:07,155
+What is in the centre of the Solar System?
+
+77
+00:04:12,605 --> 00:04:14,462
+It's B, the Sun! Excellent!
+
+78
+00:04:14,842 --> 00:04:21,008
+What is the name of our galaxy?
+
+79
+00:04:26,458 --> 00:04:29,699
+It's A, the Milky Way! Well done, space explorer!
+
+80
+00:04:30,079 --> 00:04:35,176
+How many planets travel around our Sun?
+
+81
+00:04:40,626 --> 00:04:42,383
+B, eight planets! Super!
+
+82
+00:04:43,763 --> 00:04:45,557
+Mission one... complete!
+
+83
+00:04:45,937 --> 00:04:48,478
+Mission two... Earth, Moon, and Stars!
+
+84
+00:04:50,458 --> 00:04:52,121
+What is the name of our planet?
+
+85
+00:04:56,571 --> 00:04:57,766
+Earth! Brilliant!
+
+86
+00:04:58,146 --> 00:05:00,374
+Earth is the third planet from the Sun.
+
+87
+00:05:00,754 --> 00:05:03,407
+Let's count. One... two... three... Earth!
+
+88
+00:05:03,787 --> 00:05:07,973
+Earth is our home. It has land, water, and air for us to breathe.
+
+89
+00:05:09,353 --> 00:05:12,986
+Have you ever seen a globe? A globe is a model of the Earth.
+
+90
+00:05:13,366 --> 00:05:16,028
+It is round, like a ball. It is a sphere!
+
+91
+00:05:16,408 --> 00:05:18,463
+Let's pretend this torch is the Sun.
+
+92
+00:05:18,843 --> 00:05:20,112
+Here is Pakistan.
+
+93
+00:05:20,492 --> 00:05:23,575
+When Pakistan faces the Sun, it is daytime!
+
+94
+00:05:23,955 --> 00:05:28,438
+The Earth spins around, like a top. This spinning is called rotation.
+
+95
+00:05:28,818 --> 00:05:32,086
+It spins around a line through the middle, called the axis.
+
+96
+00:05:32,466 --> 00:05:34,612
+The Earth spins around once every day.
+
+97
+00:05:34,993 --> 00:05:39,327
+As Pakistan turns away from the Sun, it gets darker... and darker...
+
+98
+00:05:39,707 --> 00:05:41,065
+Now it's night time!
+
+99
+00:05:41,445 --> 00:05:45,903
+And when Pakistan turns back to the Sun... good morning! It's day again!
+
+100
+00:05:47,283 --> 00:05:49,373
+Let's play a game. Day, or night?
+
+101
+00:05:49,753 --> 00:05:54,073
+Children are playing in the park, and the Sun is shining. Day, or night?
+
+102
+00:05:57,523 --> 00:05:58,107
+Day!
+
+103
+00:05:58,487 --> 00:06:02,336
+An owl says hoo hoo, under the Moon and stars. Day, or night?
+
+104
+00:06:05,786 --> 00:06:06,436
+Night!
+
+105
+00:06:06,816 --> 00:06:10,349
+We eat breakfast and get ready for school. Day, or night?
+
+106
+00:06:13,799 --> 00:06:14,382
+Day!
+
+107
+00:06:14,762 --> 00:06:18,709
+We are fast asleep in bed, tucked in tight. Day, or night?
+
+108
+00:06:22,159 --> 00:06:23,708
+Night! You are so clever!
+
+109
+00:06:24,088 --> 00:06:29,880
+In the day, we see the Sun and the blue sky. At night, we can see the Moon and the stars.
+
+110
+00:06:31,260 --> 00:06:32,873
+What can we see in the night sky?
+
+111
+00:06:36,323 --> 00:06:37,751
+Stars... and the Moon!
+
+112
+00:06:38,131 --> 00:06:39,863
+Let's zoom in close to the Moon.
+
+113
+00:06:40,243 --> 00:06:42,429
+The Moon's surface has tall mountains...
+
+114
+00:06:42,809 --> 00:06:43,931
+...deep valleys...
+
+115
+00:06:44,311 --> 00:06:45,615
+...old volcanoes...
+
+116
+00:06:45,995 --> 00:06:48,592
+...and lots of dusty holes, called craters!
+
+117
+00:06:48,972 --> 00:06:51,144
+We can see the Moon with just our eyes.
+
+118
+00:06:51,524 --> 00:06:55,791
+But with a telescope, or binoculars, it looks much bigger and closer!
+
+119
+00:06:57,171 --> 00:06:59,826
+Have you noticed that the Moon seems to change shape?
+
+120
+00:07:00,206 --> 00:07:03,421
+The Moon travels around the Earth. This is its orbit.
+
+121
+00:07:03,801 --> 00:07:08,819
+The Moon has no light of its own. It reflects light from the Sun, like a mirror!
+
+122
+00:07:09,199 --> 00:07:13,198
+As the Moon goes around us, we see different parts of its sunny side.
+
+123
+00:07:13,578 --> 00:07:15,283
+Sometimes a thin crescent...
+
+124
+00:07:15,663 --> 00:07:17,076
+...sometimes half a Moon...
+
+125
+00:07:17,456 --> 00:07:19,626
+...and sometimes a big, round, full Moon!
+
+126
+00:07:20,006 --> 00:07:22,758
+Which one is the full Moon? A, B, or C?
+
+127
+00:07:27,208 --> 00:07:29,591
+C! The big round one! Fantastic!
+
+128
+00:07:30,971 --> 00:07:36,624
+Long ago, in nineteen sixty-nine, a very brave astronaut flew all the way to the Moon.
+
+129
+00:07:37,004 --> 00:07:38,738
+His name was Neil Armstrong.
+
+130
+00:07:39,118 --> 00:07:41,757
+He was the very first person to walk on the Moon!
+
+131
+00:07:42,137 --> 00:07:45,325
+He explored the Moon, and left his footprints in the dust.
+
+132
+00:07:45,705 --> 00:07:49,042
+Bounce, bounce! Walking on the Moon is called a moon walk!
+
+133
+00:07:49,422 --> 00:07:52,245
+Can you do a moon walk? Bounce, bounce, bounce!
+
+134
+00:07:56,695 --> 00:07:57,984
+Great moon walking!
+
+135
+00:07:59,364 --> 00:08:03,681
+Look at all the stars! They look like glitter, sprinkled across the sky.
+
+136
+00:08:04,061 --> 00:08:06,158
+Twinkle... sparkle... shine!
+
+137
+00:08:06,538 --> 00:08:08,827
+Can we touch a star? What do you think?
+
+138
+00:08:13,277 --> 00:08:19,688
+No, we can't! Stars are hot balls of gas. They are very, very hot, and very, very far away!
+
+139
+00:08:20,068 --> 00:08:22,575
+Don't worry. I'm a friendly cartoon star!
+
+140
+00:08:22,955 --> 00:08:27,728
+Here is a secret. Stars are always in the sky, even in the daytime!
+
+141
+00:08:28,108 --> 00:08:31,454
+In the day, the Sun is so bright that we cannot see them.
+
+142
+00:08:31,834 --> 00:08:35,678
+When the Sun goes down, the dark night lets the stars shine through!
+
+143
+00:08:37,058 --> 00:08:41,971
+Some groups of stars make pictures in the sky. These are called constellations.
+
+144
+00:08:42,351 --> 00:08:45,438
+Watch the stars join up. What picture do you see?
+
+145
+00:08:49,888 --> 00:08:56,511
+It looks like a big spoon! People call it the Big Dipper. It is part of a star picture called the Great Bear.
+
+146
+00:08:56,891 --> 00:08:59,377
+Whoosh! Did you see that? A shooting star!
+
+147
+00:08:59,757 --> 00:09:06,687
+A shooting star is not really a star. It is a tiny space rock that glows as it zooms through the sky.
+
+148
+00:09:07,067 --> 00:09:12,226
+If a space rock falls all the way down and lands on Earth, we call it a meteorite!
+
+149
+00:09:13,606 --> 00:09:17,612
+On a dark, clear night, far away from bright city lights, look up!
+
+150
+00:09:17,992 --> 00:09:22,190
+You may see a dusty, white band of stars stretching across the sky.
+
+151
+00:09:22,570 --> 00:09:24,711
+That is our galaxy, the Milky Way!
+
+152
+00:09:25,091 --> 00:09:28,287
+It is made of stars, dust, and clouds of gas.
+
+153
+00:09:28,667 --> 00:09:35,143
+It has hundreds of billions of stars! And it is just one of billions of galaxies in the Universe!
+
+154
+00:09:36,523 --> 00:09:41,161
+True or false? Thumbs up for true. Thumbs down for false. Ready?
+
+155
+00:09:41,541 --> 00:09:43,687
+The Earth spins around once every day.
+
+156
+00:09:48,137 --> 00:09:49,329
+True! Thumbs up!
+
+157
+00:09:49,709 --> 00:09:51,502
+Stars go away in the daytime.
+
+158
+00:09:55,952 --> 00:10:00,544
+False! The stars are still there. The Sun is just too bright for us to see them.
+
+159
+00:10:00,924 --> 00:10:02,465
+The Moon makes its own light.
+
+160
+00:10:06,915 --> 00:10:09,545
+False! The Moon reflects light from the Sun.
+
+161
+00:10:09,925 --> 00:10:13,146
+When our side of Earth faces the Sun, it is daytime.
+
+162
+00:10:17,596 --> 00:10:18,861
+True! Amazing!
+
+163
+00:10:20,241 --> 00:10:22,036
+Mission two... complete!
+
+164
+00:10:22,416 --> 00:10:25,253
+Mission three... Astronomers and Astronauts!
+
+165
+00:10:27,233 --> 00:10:31,548
+People who study space use a special science. It's called astronomy!
+
+166
+00:10:31,928 --> 00:10:39,878
+Astronomy is the science of outer space. It studies the Sun, the Moon, stars, comets, planets, and galaxies.
+
+167
+00:10:40,258 --> 00:10:42,933
+People who study space are called astronomers.
+
+168
+00:10:43,313 --> 00:10:46,639
+People have been studying the sky for thousands of years!
+
+169
+00:10:48,019 --> 00:10:50,201
+Let's meet three famous astronomers!
+
+170
+00:10:50,581 --> 00:10:56,185
+This is Galileo Galilei. He built telescopes, and used them to look at the night sky.
+
+171
+00:10:56,565 --> 00:11:01,754
+This is Isaac Newton. He discovered gravity. Gravity is an invisible pull.
+
+172
+00:11:02,134 --> 00:11:07,596
+Gravity makes an apple fall down from a tree... and it keeps the planets going around the Sun!
+
+173
+00:11:07,976 --> 00:11:14,661
+The Sun's pull reaches far out into space, all around it. This is called a gravitational field.
+
+174
+00:11:15,041 --> 00:11:21,459
+This is Edwin Hubble. A giant space telescope is named after him: the Hubble Space Telescope!
+
+175
+00:11:21,839 --> 00:11:26,530
+It floats in space, and takes amazing pictures of stars and galaxies.
+
+176
+00:11:26,910 --> 00:11:31,760
+Who built telescopes to look at the night sky? Galileo, Newton, or Hubble?
+
+177
+00:11:36,210 --> 00:11:38,027
+Galileo! Super memory!
+
+178
+00:11:39,407 --> 00:11:42,492
+Hi, everyone! I'm Captain Zoe. I'm an astronaut!
+
+179
+00:11:42,872 --> 00:11:45,841
+Hello, Captain Zoe! What do astronauts do?
+
+180
+00:11:46,221 --> 00:11:49,450
+Astronauts travel into space in rockets and spaceships.
+
+181
+00:11:49,830 --> 00:11:54,645
+We visit space to collect information, for scientists and astronomers to study.
+
+182
+00:11:55,025 --> 00:11:58,155
+And sometimes, we fix spaceships while we are in space!
+
+183
+00:11:58,535 --> 00:12:02,514
+Welcome to my space station! Let's press the buttons. Beep, boop!
+
+184
+00:12:02,894 --> 00:12:05,649
+You can build a space station in your classroom, too!
+
+185
+00:12:07,029 --> 00:12:10,169
+Living in space is very different from living on Earth.
+
+186
+00:12:10,549 --> 00:12:14,654
+On Earth, there is air all around us. But in space, there is no air!
+
+187
+00:12:15,034 --> 00:12:17,262
+So how do astronauts breathe in space?
+
+188
+00:12:21,712 --> 00:12:24,767
+We need oxygen! So we wear a special space suit.
+
+189
+00:12:25,147 --> 00:12:27,580
+My backpack holds air, for me to breathe.
+
+190
+00:12:27,960 --> 00:12:32,375
+My helmet has a dark visor, to protect my eyes from the Sun's glare.
+
+191
+00:12:32,755 --> 00:12:38,134
+My suit is big, thick, and bulky. It keeps me safe from the Sun's heat, and from the cold.
+
+192
+00:12:38,514 --> 00:12:40,941
+And my heavy boots help me walk on the Moon!
+
+193
+00:12:41,321 --> 00:12:44,606
+In space, nothing has weight, so everything floats! Wheee!
+
+194
+00:12:44,986 --> 00:12:50,715
+What helps an astronaut breathe?
+
+195
+00:12:55,165 --> 00:12:57,408
+B! A backpack of air! Well done!
+
+196
+00:12:58,788 --> 00:13:01,212
+Captain Zoe, how do you sleep in space?
+
+197
+00:13:01,592 --> 00:13:05,531
+We sleep in sleeping bags that are tied down, so we don't float away!
+
+198
+00:13:05,911 --> 00:13:08,169
+How do you think astronauts drink in space?
+
+199
+00:13:12,619 --> 00:13:16,733
+We can't drink from a cup. The water would float away in wobbly bubbles!
+
+200
+00:13:17,113 --> 00:13:19,776
+So we drink through a straw, from a plastic pouch.
+
+201
+00:13:20,156 --> 00:13:25,847
+Space food is special, too. Most of it is freeze dried, or packed tight with the air sucked out.
+
+202
+00:13:26,227 --> 00:13:31,966
+Some food is a powder in a pouch, a bit like baby food. We add water, and suck it out. Yum!
+
+203
+00:13:32,346 --> 00:13:36,548
+Some space food is sticky, so it sticks to the plate and doesn't float away!
+
+204
+00:13:37,928 --> 00:13:40,103
+Every astronaut keeps a log book!
+
+205
+00:13:40,483 --> 00:13:44,875
+It has a cover with your name, a launch checklist, and a space chart of the planets.
+
+206
+00:13:45,255 --> 00:13:49,842
+Now it's your turn! Imagine you are filling in an astronaut application.
+
+207
+00:13:50,222 --> 00:13:52,042
+Why do you want to be an astronaut?
+
+208
+00:13:57,492 --> 00:13:59,811
+And if you went to space, what would you do?
+
+209
+00:14:05,261 --> 00:14:09,203
+What wonderful ideas! You would make a fantastic astronaut!
+
+210
+00:14:10,583 --> 00:14:12,453
+Mission three... complete!
+
+211
+00:14:12,833 --> 00:14:15,565
+Mission four... What do we see in outer space?
+
+212
+00:14:17,545 --> 00:14:20,837
+What else can we see in outer space? Look, a satellite!
+
+213
+00:14:21,217 --> 00:14:24,494
+A satellite is a spacecraft that is sent into space.
+
+214
+00:14:24,874 --> 00:14:28,587
+It collects information, and sends it back to Earth by radio.
+
+215
+00:14:28,967 --> 00:14:33,469
+Satellites send TV programmes and information all around the world!
+
+216
+00:14:34,849 --> 00:14:38,562
+How do astronauts and things get into space? With rockets!
+
+217
+00:14:38,942 --> 00:14:41,764
+Rockets carry astronauts and things into space.
+
+218
+00:14:42,144 --> 00:14:47,354
+Only rocket engines are strong enough and fast enough to get a spacecraft into space.
+
+219
+00:14:47,734 --> 00:14:54,559
+Fuel burns inside the engine. It rushes out of the bottom, called the nozzle, and pushes the rocket up!
+
+220
+00:14:54,939 --> 00:14:58,353
+It's just like blowing a paper wrapper off a straw. Whoosh!
+
+221
+00:14:58,733 --> 00:15:00,058
+This is a space shuttle.
+
+222
+00:15:00,438 --> 00:15:06,401
+The space shuttle could blast off just like a rocket, and come back to Earth like a giant glider!
+
+223
+00:15:06,781 --> 00:15:10,870
+When it came back through the air around Earth, it got very, very hot!
+
+224
+00:15:11,250 --> 00:15:16,958
+And this is a space rover. It's a robot car that drives around and explores other worlds!
+
+225
+00:15:18,338 --> 00:15:23,012
+We have one Moon. But did you know there are hundreds of moons in our Solar System?
+
+226
+00:15:23,392 --> 00:15:27,276
+Let's have a planet parade, and learn a fun fact about each planet!
+
+227
+00:15:27,656 --> 00:15:32,554
+Mercury is the closest planet to the Sun. It is also the smallest planet.
+
+228
+00:15:32,934 --> 00:15:41,006
+Venus is the hottest planet. It is the brightest planet in our sky. If you know where to look, you can see it with just your eyes!
+
+229
+00:15:41,386 --> 00:15:46,180
+Earth is our home. It has more water than land. Look at the big blue oceans!
+
+230
+00:15:46,560 --> 00:15:53,721
+Mars is the red planet. It has the biggest volcano in the Solar System. It is called Olympus Mons!
+
+231
+00:15:54,101 --> 00:16:04,247
+Jupiter is the largest planet of all! Its four biggest moons are named after Galileo. They are called Io, Europa, Ganymede and Callisto.
+
+232
+00:16:04,627 --> 00:16:09,555
+Saturn is a giant planet, made of gas. It is the second largest planet.
+
+233
+00:16:09,935 --> 00:16:19,735
+Saturn has beautiful rings, made of ice. Some pieces are as big as houses, and some are as tiny as dust! Saturn has lots of moons, too.
+
+234
+00:16:20,115 --> 00:16:26,381
+Uranus likes to be different! It is blue-green, and it rolls around on its side, like a barrel!
+
+235
+00:16:26,761 --> 00:16:33,052
+Neptune is the farthest planet from the Sun. It is big, almost four times as wide as Earth!
+
+236
+00:16:33,432 --> 00:16:37,450
+And far, far away, there are little dwarf planets too, like Pluto!
+
+237
+00:16:38,830 --> 00:16:41,409
+Look! What is that, with a long, glowing tail?
+
+238
+00:16:44,859 --> 00:16:45,866
+It's a comet!
+
+239
+00:16:46,246 --> 00:16:51,641
+A comet is like a big, dirty snowball, made of ice, frozen gases, and dust.
+
+240
+00:16:52,021 --> 00:16:55,531
+It travels around the Sun, on a long, stretched-out path.
+
+241
+00:16:55,911 --> 00:17:01,387
+When it comes close to the Sun, it warms up, and makes a glowing cloud and a long tail!
+
+242
+00:17:01,767 --> 00:17:06,371
+Remember, a space rock that falls down to Earth is called a meteorite.
+
+243
+00:17:06,751 --> 00:17:10,067
+And a big rock floating in space is called an asteroid.
+
+244
+00:17:11,447 --> 00:17:13,499
+Hmm. Do aliens live in space?
+
+245
+00:17:13,879 --> 00:17:17,669
+Nobody has ever found an alien. But it's fun to imagine!
+
+246
+00:17:18,049 --> 00:17:20,533
+If you were an alien, what would your name be?
+
+247
+00:17:24,983 --> 00:17:26,517
+Which planet would you live on?
+
+248
+00:17:30,967 --> 00:17:34,191
+And what would you eat? Moon cheese? Star sprinkles?
+
+249
+00:17:38,641 --> 00:17:40,466
+Ha ha! What a funny alien!
+
+250
+00:17:41,846 --> 00:17:43,732
+Hooray! It's Solar System Day!
+
+251
+00:17:44,112 --> 00:17:49,519
+Children dress up as the Sun and the planets, and tell everyone a fact about themselves.
+
+252
+00:17:49,899 --> 00:17:51,722
+I am the Sun! I am a star!
+
+253
+00:17:52,102 --> 00:17:54,792
+I am Earth! I have blue oceans!
+
+254
+00:17:55,172 --> 00:17:57,816
+I am Saturn! I have beautiful rings!
+
+255
+00:17:58,196 --> 00:17:59,884
+Which planet would you like to be?
+
+256
+00:18:04,333 --> 00:18:07,279
+Then everyone sings the Solar System song together!
+
+257
+00:18:10,159 --> 00:18:12,714
+Revision time! Let's play: What is this?
+
+258
+00:18:16,244 --> 00:18:17,277
+A space shuttle!
+
+259
+00:18:20,807 --> 00:18:21,592
+A planet!
+
+260
+00:18:25,122 --> 00:18:26,181
+An astronaut!
+
+261
+00:18:29,711 --> 00:18:30,441
+The Moon!
+
+262
+00:18:33,971 --> 00:18:34,706
+The Sun!
+
+263
+00:18:38,236 --> 00:18:39,230
+An asteroid!
+
+264
+00:18:42,760 --> 00:18:43,861
+A space rover!
+
+265
+00:18:47,391 --> 00:18:48,161
+Stars!
+
+266
+00:18:51,691 --> 00:18:52,560
+A rocket!
+
+267
+00:18:56,090 --> 00:18:57,048
+A telescope!
+
+268
+00:19:00,578 --> 00:19:01,453
+A satellite!
+
+269
+00:19:04,983 --> 00:19:05,828
+A comet!
+
+270
+00:19:06,208 --> 00:19:08,692
+You know all your space words! Amazing!
+
+271
+00:19:10,072 --> 00:19:12,109
+Let's remember everything we learned!
+
+272
+00:19:12,489 --> 00:19:16,060
+The Universe is everything. Outer space goes on and on!
+
+273
+00:19:16,440 --> 00:19:21,876
+The Sun is a star, a hot glowing ball. It is in the centre of the Solar System.
+
+274
+00:19:22,256 --> 00:19:29,216
+Eight planets orbit the Sun. Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune!
+
+275
+00:19:29,596 --> 00:19:32,650
+We live on planet Earth, in the Milky Way galaxy.
+
+276
+00:19:33,030 --> 00:19:38,008
+Earth spins on its axis. Facing the Sun is day. Facing away is night.
+
+277
+00:19:38,388 --> 00:19:41,771
+The Moon has craters, and it reflects light from the Sun.
+
+278
+00:19:42,151 --> 00:19:45,944
+Stars are hot balls of gas, and they are always in the sky.
+
+279
+00:19:46,324 --> 00:19:51,130
+Astronomers study space. Astronauts travel to space, in space suits!
+
+280
+00:19:51,510 --> 00:19:56,529
+Rockets, satellites, comets, and meteorites. Space is full of wonders!
+
+281
+00:19:57,909 --> 00:20:02,707
+It's time for the big final quiz! Listen carefully, and shout out your answer!
+
+282
+00:20:03,087 --> 00:20:08,542
+I am the farthest planet from the Sun. Who am I?
+
+283
+00:20:13,992 --> 00:20:15,495
+Neptune! Excellent!
+
+284
+00:20:15,875 --> 00:20:20,141
+I have got the oceans. Who am I?
+
+285
+00:20:25,591 --> 00:20:26,816
+Earth! Well done!
+
+286
+00:20:27,196 --> 00:20:31,842
+I am the largest planet. Who am I?
+
+287
+00:20:37,292 --> 00:20:38,829
+Jupiter! Amazing!
+
+288
+00:20:39,209 --> 00:20:44,625
+I have big, beautiful rings around me. Who am I?
+
+289
+00:20:50,075 --> 00:20:51,252
+Saturn! Super!
+
+290
+00:20:51,632 --> 00:20:56,213
+I am the hottest planet. Who am I?
+
+291
+00:21:01,663 --> 00:21:02,997
+Venus! Brilliant!
+
+292
+00:21:03,377 --> 00:21:08,026
+I roll around on my side. Who am I?
+
+293
+00:21:13,476 --> 00:21:15,098
+Uranus! Fantastic!
+
+294
+00:21:15,478 --> 00:21:19,657
+I am the red planet. Who am I?
+
+295
+00:21:25,107 --> 00:21:26,424
+Mars! Excellent!
+
+296
+00:21:26,804 --> 00:21:33,157
+I am the smallest planet, and the closest to the Sun. Who am I?
+
+297
+00:21:38,607 --> 00:21:40,134
+Mercury! Well done!
+
+298
+00:21:40,514 --> 00:21:46,370
+Who was the first person to walk on the Moon?
+
+299
+00:21:51,820 --> 00:21:53,767
+Neil Armstrong! Amazing!
+
+300
+00:21:54,147 --> 00:21:59,034
+What do astronauts need to breathe in space?
+
+301
+00:22:04,484 --> 00:22:06,024
+Oxygen! Super!
+
+302
+00:22:06,404 --> 00:22:10,907
+When your side of the Earth faces away from the Sun, is it day or night?
+
+303
+00:22:16,357 --> 00:22:17,582
+Night! Brilliant!
+
+304
+00:22:17,962 --> 00:22:21,881
+What is a shooting star?
+
+305
+00:22:27,331 --> 00:22:29,347
+A tiny space rock! Excellent!
+
+306
+00:22:29,727 --> 00:22:34,095
+Wow! You know so much about outer space! You are a super space explorer!
+
+307
+00:22:35,475 --> 00:22:38,963
+Mission four... complete! All our missions are complete!
+
+308
+00:22:39,343 --> 00:22:41,995
+You did an amazing job, space explorers!
+
+309
+00:22:42,375 --> 00:22:44,588
+Here is your Super Space Explorer medal!
+
+310
+00:22:44,968 --> 00:22:49,997
+Ask your teacher about our space worksheets. And build your own space station at school!
+
+311
+00:22:50,377 --> 00:22:54,200
+Tonight, look up at the sky. Can you find the Moon and the stars?
+
+312
+00:22:54,580 --> 00:22:56,794
+Keep exploring, and keep discovering!
+
+313
+00:22:57,174 --> 00:22:59,688
+Goodbye, little stars! See you next time!
+
