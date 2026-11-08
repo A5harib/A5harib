@@ -370,6 +370,13 @@ button.pl:hover{transform:scale(1.12)}
 .cert{background:linear-gradient(160deg,#fffaf0,#ffeec4);color:#3a2a10;border:1.2cqmin double #e0a12a;border-radius:3cqmin;padding:3cqmin 5cqmin;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1cqmin;max-width:100%}
 .cert h3{margin:0;font:800 var(--t-s)/1 var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:#c43b74}
 .cert b{font:800 var(--t-xl)/1 var(--f-display);color:#2b1d55}
+.rcap{position:absolute;left:50%;bottom:3cqmin;translate:-50% 0;z-index:15;max-width:70%;text-align:center;font:800 3.6cqmin/1.25 var(--f-body);color:#fff;background:rgba(10,8,40,.82);padding:1.2cqmin 2.6cqmin;border-radius:2cqmin;border:.4cqmin solid rgba(255,255,255,.18)}
+.rcap mark{background:none;color:var(--sun)}
+body.render{background:#000;overflow:hidden}
+body.render .wrap{padding:0;max-width:none;gap:0}
+body.render .wrap>*:not(.stage){display:none!important}
+body.render .stage{width:100vw;height:100vh;aspect-ratio:auto;border:0;border-radius:0;box-shadow:none}
+body.render .yourturn,body.render .thinker{bottom:13cqmin}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 
@@ -383,6 +390,7 @@ button.pl:hover{transform:scale(1.12)}
   <div class="stage" id="stage">
     <canvas id="starfield" aria-hidden="true"></canvas>
     <div id="sceneHost"></div>
+    <div class="rcap" id="rcap" hidden></div>
     <button class="start" id="start" aria-label="Start the space adventure">
       <span class="inner">
         <span class="play"><svg viewBox="0 0 24 24"><path d="M6 3.5v17L20.5 12z" fill="#241400"/></svg></span>
@@ -436,6 +444,7 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const FAST = !!window.__FAST;
 const SPD = FAST ? 0.02 : 1;
+const R = window.__RENDER || null; /* video export mode: exact narration timings, logged sounds */
 
 /* ================= ART ================= */
 const STAR_PATH = 'M50 6 61 36 94 38 68 58 77 91 50 72 23 91 32 58 6 38 39 36Z';
@@ -936,8 +945,8 @@ sc({ch:'quiz', title:'Final quiz: 11 questions', sb:'Eleven picture questions co
   beats:[{do:()=>{st.score=0;}},...QUIZ.map(([q,o,a],k)=>({ask:{q:`Question ${k+1}. ${q}`, o, a, quiz:true, think:8, onRight:(first)=>{ if(first){const s=$$('#score span',stage)[k]; if(s){s.classList.remove('off');s.classList.add('pop');}} }}}))]});
 sc({ch:'quiz', title:'Your quiz score', sb:'The stars earned light up and Twinkle celebrates the score.', covers:['final'],
   html:() => `${head('Final quiz','Your score')}<div class="bd col"><div class="score" id="sc2"></div><p class="big" id="sct"></p></div>`,
-  mount(root){ const n=st.score; $('#sc2',root).innerHTML=QUIZ.map((_,k)=>`<span class="${k<n?'pop':'off'}" style="animation-delay:${k*.15}s">${starSvg('#ffc93c')}</span>`).join(''); $('#sct',root).textContent=`${n} out of ${QUIZ.length} stars!`; },
-  beats:[{do:()=>sfx.cheer()},T(()=>st.score>=8?`Wow! You got ${st.score} stars! You are a space superstar!`:st.score>=1?`Well done! You got ${st.score} stars! Keep exploring and you will learn even more!`:`Great try, space explorer! Watch again and earn lots of stars!`)]});
+  mount(root){ const n=R?QUIZ.length:st.score; $('#sc2',root).innerHTML=QUIZ.map((_,k)=>`<span class="${k<n?'pop':'off'}" style="animation-delay:${k*.15}s">${starSvg('#ffc93c')}</span>`).join(''); $('#sct',root).textContent=`${n} out of ${QUIZ.length} stars!`; },
+  beats:[{do:()=>sfx.cheer()},T(()=>R?'How many did you get right? Count your stars, and give yourself a big clap!':st.score>=8?`Wow! You got ${st.score} stars! You are a space superstar!`:st.score>=1?`Well done! You got ${st.score} stars! Keep exploring and you will learn even more!`:`Great try, space explorer! Watch again and earn lots of stars!`)]});
 
 /* ---------- 9. CELEBRATE & CLOSE ---------- */
 sc({ch:'party', title:'Solar System Day', sb:'A stage party: the Sun and planets with smiling faces dance in a line, like children dressed up as planets. Links to the two songs from the document.', covers:['ssday','videos'],
@@ -959,6 +968,7 @@ let ac = null, musicGain, sfxGain, noiseBuf, musicTimer = null;
 const st = {i:0, beat:0, playing:false, token:0, voice:true, music:true, score:0, speaking:0};
 try { st.voice = localStorage.getItem('osa-voice') !== 'off'; st.music = localStorage.getItem('osa-music') !== 'off'; } catch(e) {}
 function initAudio(){
+  if (R) return;
   if (ac || !AC) { if (ac && ac.state === 'suspended') ac.resume(); return; }
   try { ac = new AC(); } catch(e) { return; }
   const master = ac.createGain(); master.gain.value = .9; master.connect(ac.destination);
@@ -987,6 +997,7 @@ const sfx = {
   cheer(){ const t = now(); [523, 659, 784, 1046].forEach((f, i) => tone(f, t + i * .09, .45, 'triangle', .18)); },
   reveal(){ const t = now(); tone(660, t, .2, 'triangle', .18); tone(880, t + .12, .35, 'triangle', .18); }
 };
+if (R) Object.keys(sfx).forEach(k => { sfx[k] = (...a) => R.log({type:'sfx', name:k, a}); });
 /* Gentle generated background music: soft pads, bass and twinkly bells in C major */
 const CHORDS = [[261.6,329.6,392],[220,261.6,329.6],[174.6,220,261.6],[196,246.9,293.7]];
 const BELLS = [523.3,587.3,659.3,784,880,1046.5,1174.7,1318.5];
@@ -1019,7 +1030,19 @@ const cancelers = new Set();
 const clean = s => s.replace(/\*/g, '');
 function talk(who, on){ $$(`.char[data-who="${who}"]`, stage).forEach(e => e.classList.toggle('talking', on)); }
 function utter(text, who){ const v = VOICE[who] || VOICE.T; const u = new SpeechSynthesisUtterance(clean(text)); if (v.voice) u.voice = v.voice; u.rate = v.rate; u.pitch = v.pitch; return u; }
+function speakR(text, who){
+  return new Promise(res => {
+    const go = () => {
+      setCaption(text, who); talk(who, true);
+      const d = R.dur(who, clean(text)); R.log({type:'voice', who, text: clean(text)});
+      let done = false; const fin = () => { if (done) return; done = true; clearTimeout(id); cancelers.delete(fin); talk(who, false); res(); };
+      const id = setTimeout(fin, d * 1000 + 350); cancelers.add(fin);
+    };
+    const wait = R.quickUntil - performance.now(); if (wait > 0) setTimeout(go, wait + 150); else go();
+  });
+}
 function speak(text, who = 'T'){
+  if (R) return speakR(text, who);
   setCaption(text, who); talk(who, true); st.speaking++; setMusicLevel();
   return new Promise(res => {
     let done = false; const words = clean(text).split(/\s+/).length;
@@ -1031,12 +1054,14 @@ function speak(text, who = 'T'){
 }
 function quick(text, urgent, who = 'T'){
   setCaption(text, who);
+  if (R) { const d = R.dur(who, clean(text)); R.log({type:'voice', who, text: clean(text)}); R.quickUntil = performance.now() + d * 1000 + 250; talk(who, true); clearTimeout(quick.t); quick.t = setTimeout(() => talk(who, false), d * 1000); return; }
   if (st.voice && hasTTS) { if (urgent || !st.speaking) speechSynthesis.cancel(); const u = utter(text, who); talk(who, true); u.onend = u.onerror = () => talk(who, false); speechSynthesis.speak(u); }
 }
 function stopAll(){ st.token++; if (hasTTS) speechSynthesis.cancel(); [...cancelers].forEach(f => f()); cancelers.clear(); $$('.qpanel,.thinker,.yourturn', stage).forEach(e => e.remove()); talk('T', false); talk('Z', false); }
 const sleep = ms => new Promise(r => { const f = () => { clearTimeout(id); cancelers.delete(f); r(); }; const id = setTimeout(f, ms * SPD); cancelers.add(f); });
 const PRAISE = ['Excellent!','Well done!','Amazing!','Super star!','Fantastic!','Brilliant!','Great job!'];
-const praise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];
+let praiseN = 0;
+const praise = () => R ? PRAISE[praiseN++ % PRAISE.length] : PRAISE[Math.floor(Math.random() * PRAISE.length)];
 
 /* ================= STAGE HELPERS ================= */
 const stage = $('#stage'), host = $('#sceneHost');
@@ -1044,6 +1069,7 @@ function setCaption(text, who){
   const w = $('#who'); w.textContent = who === 'Z' ? 'Zara' : 'Twinkle'; w.className = 'who' + (who === 'Z' ? ' z' : '');
   const c = $('#caption'); c.textContent = ''; text.split(/(\*[^*]+\*)/).forEach(part => { if (/^\*.+\*$/.test(part)) { const m = document.createElement('mark'); m.textContent = part.slice(1, -1); c.appendChild(m); } else c.appendChild(document.createTextNode(part)); });
   const kw = text.match(/\*([^*]+)\*/); if (kw) keyword(kw[1]);
+  if (R) { const rc = $('#rcap'); rc.hidden = false; rc.innerHTML = ''; [...c.childNodes].forEach(n => rc.appendChild(n.cloneNode(true))); }
 }
 function keyword(word){ $$('.kw', stage).forEach(e => e.remove()); const k = document.createElement('div'); k.className = 'kw'; k.innerHTML = starSvg('#fff'); k.appendChild(document.createTextNode(word)); stage.appendChild(k); setTimeout(() => k.remove(), 3800); }
 function burst(el){
@@ -1108,7 +1134,7 @@ async function ask(q, t){
   const res = await Promise.race([answer, timer]); cancelers.delete(resolve);
   if (t !== st.token) return panel.remove();
   if (res === 'right') { if (q.quiz && first) st.score++; if (q.onRight) q.onRight(first); await speak(`${praise()} ${q.ok || ''}`, 'T'); }
-  else { answered = true; $$('.qopt', panel)[q.a].classList.add('right'); sfx.reveal(); await speak(`The answer is: ${label(q.a)}! ${q.ok || ''}`, 'T'); }
+  else { answered = true; $$('.qopt', panel)[q.a].classList.add('right'); sfx.reveal(); if (R && q.onRight) q.onRight(true); await speak(`The answer is: ${label(q.a)}! ${q.ok || ''}`, 'T'); }
   if (t === st.token) await sleep(800); panel.remove();
 }
 async function runScene(t){
@@ -1176,6 +1202,7 @@ function drawStars(){ cx.clearRect(0, 0, cv.width, cv.height); for (const s of s
 new ResizeObserver(sizeCanvas).observe(stage); sizeCanvas(); drawStars();
 
 window.__osa = {S, goTo, togglePlay, st};
+if (R) { document.body.classList.add('render'); const s0 = $('#start'); if (s0) s0.parentNode.removeChild(s0); }
 render(0);
 })();
 </script>
