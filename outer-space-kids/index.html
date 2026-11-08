@@ -1,0 +1,860 @@
+<title>Outer Space Adventure</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+/* Layout: a cartoon "TV screen" stage floating in deep space, with player controls, big captions and a chapter strip below. One dark world on purpose. */
+:root{
+  --space:#0d0b2e; --space-2:#1b1650; --panel:#231e60; --line:#3d3690;
+  --text:#fff8ea; --muted:#c3bdf2; --ink:#241400;
+  --sun:#ffc93c; --pink:#ff5fa2; --mint:#3ee6c1; --sky:#5cc8ff; --violet:#b18cff; --orange:#ff9f43;
+  --f-display:"Baloo 2","Comic Sans MS","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Nunito","Trebuchet MS",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--space);color:var(--text)}
+body{font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background:radial-gradient(1200px 600px at 80% -10%,#2b1f7a 0,transparent 60%),radial-gradient(900px 500px at -10% 110%,#3a1456 0,transparent 60%),var(--space);
+  min-height:100%}
+.wrap{max-width:1120px;margin:0 auto;padding-block:20px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex;flex-direction:column;gap:14px}
+header.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header.top svg{width:44px;height:44px;flex:none}
+header.top h1{font:800 clamp(24px,4vw,38px)/1 var(--f-display);margin:0;letter-spacing:.01em;text-wrap:balance}
+header.top h1 span{color:var(--sun)}
+header.top p{margin:0;color:var(--muted);font-weight:700;font-size:14px;flex-basis:100%}
+@media (min-width:700px){header.top p{flex-basis:auto;margin-left:auto}}
+
+/* ---------- Stage ---------- */
+.stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;container:stage/size;overflow:hidden;
+  border-radius:22px;border:4px solid #4a3fb0;
+  background:radial-gradient(120% 90% at 50% 0%,#241c6e 0,#120f3d 55%,#090722 100%);
+  box-shadow:0 0 0 6px #17134a,0 20px 60px rgba(0,0,0,.55);
+  --t-xl:clamp(24px,10cqmin,72px);--t-l:clamp(18px,6cqmin,40px);--t-m:clamp(13px,4.1cqmin,25px);--t-s:clamp(11px,3.1cqmin,18px)}
+@media (max-width:640px){.stage{aspect-ratio:4/5;border-radius:18px}}
+#starfield{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+.scene{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;gap:2.4cqmin;padding:4.5cqmin 5cqmin 6cqmin;animation:sceneIn .7s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes sceneIn{from{opacity:0;transform:scale(.94) translateY(2cqmin)}to{opacity:1;transform:none}}
+.sh{flex:none}
+.eb{display:inline-block;font:800 var(--t-s)/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--chc,var(--sun));padding:.45em .8em;border-radius:999px}
+.sh h2{font:800 var(--t-l)/1.05 var(--f-display);margin:.25em 0 0;text-wrap:balance;text-shadow:0 .6cqmin 0 rgba(0,0,0,.35)}
+.bd{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:4cqmin}
+.col{flex-direction:column}
+@container stage (orientation:portrait){.split{flex-direction:column}.split>*{max-width:100%!important}}
+.card{background:rgba(35,30,96,.85);border:.5cqmin solid var(--line);border-radius:3cqmin;padding:2.2cqmin 3cqmin;font:800 var(--t-m)/1.25 var(--f-body);min-width:0}
+.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2cqmin;width:100%}
+.cards .card{display:flex;align-items:center;gap:2cqmin}
+.num{flex:none;display:grid;place-items:center;width:7cqmin;height:7cqmin;border-radius:50%;font:800 var(--t-m)/1 var(--f-display);color:var(--ink)}
+.big{font:800 var(--t-xl)/1 var(--f-display);text-align:center;text-wrap:balance;margin:0}
+.lead{font:800 var(--t-m)/1.3 var(--f-body);color:var(--muted);text-align:center;margin:0}
+.tag{display:inline-block;font:800 var(--t-s)/1 var(--f-body);padding:.5em .8em;border-radius:999px;background:var(--panel);border:.4cqmin solid var(--line)}
+.pop{animation:pop .6s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.float{animation:float 3.2s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-2.5cqmin)}}
+.d1{animation-delay:.4s}.d2{animation-delay:.9s}.d3{animation-delay:1.4s}.d4{animation-delay:1.9s}.d5{animation-delay:2.4s}.d6{animation-delay:2.9s}.d7{animation-delay:3.4s}.d8{animation-delay:3.9s}
+button{font-family:inherit;color:inherit}
+.btn{font:800 var(--t-m)/1 var(--f-display);padding:1.6cqmin 3.2cqmin;min-height:36px;border-radius:999px;border:0;background:var(--sun);color:var(--ink);cursor:pointer;box-shadow:0 .8cqmin 0 #b9811a;transition:transform .1s}
+.btn:active{transform:translateY(.6cqmin);box-shadow:0 .2cqmin 0 #b9811a}
+.btn.ghost{background:var(--panel);color:var(--text);box-shadow:0 .8cqmin 0 #120f3d;border:.4cqmin solid var(--line)}
+.btn.on{background:var(--mint);box-shadow:0 .8cqmin 0 #1f9c80}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+.chc-intro{--chc:var(--sun)}.chc-u1{--chc:var(--orange)}.chc-u2{--chc:var(--sky)}.chc-u3{--chc:var(--pink)}.chc-u4{--chc:var(--mint)}.chc-games{--chc:var(--violet)}.chc-party{--chc:var(--sun)}
+
+/* ---------- Planets (pure CSS) ---------- */
+.pl{--s:10cqmin;width:var(--s);height:var(--s);border-radius:50%;position:relative;flex:none;border:0;padding:0;cursor:default}
+.pl::after{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 32% 30%,rgba(255,255,255,.35) 0,transparent 30%,transparent 50%,rgba(0,0,10,.5) 100%);pointer-events:none}
+.pl-sun{background:radial-gradient(circle at 40% 40%,#fff7b8,#ffd23c 40%,#ff9a1f 75%,#ff6a1f);box-shadow:0 0 calc(var(--s)*.25) #ffb12a,0 0 calc(var(--s)*.6) rgba(255,140,30,.55);animation:glow 2.4s ease-in-out infinite}
+.pl-sun::after{background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.4),transparent 45%)}
+@keyframes glow{50%{box-shadow:0 0 calc(var(--s)*.35) #ffc23a,0 0 calc(var(--s)*.85) rgba(255,140,30,.6)}}
+.pl-mercury{background:radial-gradient(circle at 30% 60%,#8d8782 0 10%,transparent 11%),radial-gradient(circle at 65% 35%,#9d9792 0 8%,transparent 9%),radial-gradient(circle at 40% 40%,#e3ded9,#a29d98 60%,#6d6965)}
+.pl-venus{background:linear-gradient(160deg,transparent 30%,rgba(255,255,255,.18) 32% 38%,transparent 40% 60%,rgba(170,100,30,.2) 62% 70%,transparent 72%),radial-gradient(circle at 40% 40%,#fff0c4,#f0be62 55%,#b9792c)}
+.pl-earth{background:radial-gradient(ellipse 20% 14% at 58% 26%,#f4fdff 0 60%,transparent 62%),radial-gradient(ellipse 18% 26% at 32% 42%,#46c96a 0 70%,transparent 72%),radial-gradient(ellipse 22% 16% at 66% 64%,#46c96a 0 70%,transparent 72%),radial-gradient(ellipse 10% 14% at 46% 72%,#46c96a 0 70%,transparent 72%),radial-gradient(circle at 40% 40%,#79cbff,#2477dc 60%,#103f91)}
+.pl-mars{background:radial-gradient(ellipse 18% 8% at 50% 10%,#fff1ea 0 60%,transparent 62%),radial-gradient(circle at 62% 58%,#a83418 0 12%,transparent 13%),radial-gradient(circle at 40% 40%,#ffa071,#de4b2c 60%,#8d2513)}
+.pl-jupiter{background:radial-gradient(ellipse 13% 8% at 64% 64%,#c8452b 0 70%,transparent 75%),linear-gradient(#ebcb9d 0 16%,#c98a55 16% 28%,#f3e0c4 28% 42%,#b8703f 42% 52%,#efd6b1 52% 68%,#c98a55 68% 82%,#e8c597 82%)}
+.pl-saturn{background:linear-gradient(#f6e3b0 0 25%,#e3c27f 25% 40%,#f8e9c3 40% 60%,#d9b46d 60% 75%,#f1dca4 75%)}
+.pl-saturn::before{content:"";position:absolute;left:-48%;right:-48%;top:36%;bottom:36%;border-radius:50%;border:calc(var(--s)*.075) solid rgba(236,206,150,.92);box-shadow:0 0 0 calc(var(--s)*.03) rgba(180,150,100,.6);transform:rotate(-16deg);z-index:1}
+.pl-uranus{background:linear-gradient(90deg,transparent 46%,rgba(255,255,255,.18) 47% 53%,transparent 54%),radial-gradient(circle at 40% 40%,#dcfdff,#82e2e8 55%,#3a9ba9)}
+.pl-neptune{background:radial-gradient(ellipse 14% 8% at 40% 56%,#1d2c8a 0 70%,transparent 75%),radial-gradient(circle at 40% 40%,#a8caff,#3d72f2 55%,#1a2d9c)}
+.pl-moon{background:radial-gradient(circle at 30% 35%,#a9a39a 0 9%,transparent 10%),radial-gradient(circle at 62% 30%,#b3ada4 0 6%,transparent 7%),radial-gradient(circle at 55% 66%,#a39d94 0 12%,transparent 13%),radial-gradient(circle at 26% 70%,#b0aaa1 0 5%,transparent 6%),radial-gradient(circle at 40% 40%,#f2eee6,#c7c1b6 60%,#8f897f)}
+.pl-dwarf{background:radial-gradient(circle at 40% 40%,#efe6ff,#a99bcf 60%,#625785)}
+button.pl{cursor:pointer;transition:transform .2s}
+button.pl:hover{transform:scale(1.12)}
+.wob{animation:wob .5s}
+@keyframes wob{20%{transform:translateX(-1.5cqmin) rotate(-6deg)}50%{transform:translateX(1.5cqmin) rotate(6deg)}80%{transform:translateX(-.6cqmin)}}
+.spin{animation:rot 18s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* Orbits */
+.orbits{position:relative;height:100%;aspect-ratio:1;max-width:100%;max-height:100%}
+.orbits .pl-sun{position:absolute;left:50%;top:50%;translate:-50% -50%;--s:17%}
+.orbit{position:absolute;left:50%;top:50%;width:var(--r);aspect-ratio:1;border-radius:50%;border:.3cqmin dashed rgba(195,189,242,.35);transform:translate(-50%,-50%);animation:orb var(--d) linear infinite;animation-delay:var(--o)}
+.orbit .pl{position:absolute;left:50%;top:0;translate:-50% -50%}
+@keyframes orb{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+
+/* Mascot */
+.mascot{width:var(--m,20cqmin);flex:none;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 1.2cqmin 1.5cqmin rgba(0,0,0,.4))}
+.guide{position:absolute;left:2cqmin;bottom:1.4cqmin;z-index:5;display:flex;align-items:flex-end;gap:1cqmin;pointer-events:none;max-width:80%}
+.guide .mascot{--m:11cqmin}
+.bubble{background:#fff;color:#2b1d55;font:800 var(--t-s)/1.25 var(--f-body);padding:1.4cqmin 2cqmin;border-radius:2.4cqmin 2.4cqmin 2.4cqmin .4cqmin;margin-bottom:6cqmin;box-shadow:0 .8cqmin 0 rgba(0,0,0,.25);animation:pop .4s cubic-bezier(.3,1.6,.5,1) both}
+.yourturn{position:absolute;right:2.5cqmin;bottom:2cqmin;z-index:6;font:800 var(--t-s)/1 var(--f-display);background:var(--pink);color:#fff;padding:1.2cqmin 2.2cqmin;border-radius:999px;animation:pulse 1s ease-in-out infinite;pointer-events:none}
+@keyframes pulse{50%{transform:scale(1.1)}}
+.burst{position:absolute;z-index:8;pointer-events:none;width:4cqmin;height:4cqmin;animation:burst 1.1s ease-out forwards}
+@keyframes burst{from{transform:translate(0,0) scale(.4) rotate(0);opacity:1}to{transform:translate(var(--x),var(--y)) scale(1.2) rotate(240deg);opacity:0}}
+
+/* Start overlay */
+.start{position:absolute;inset:0;z-index:20;display:grid;place-items:center;background:radial-gradient(circle,rgba(13,11,46,.35),rgba(13,11,46,.8));border:0;cursor:pointer;padding:4cqmin}
+.start .inner{display:flex;flex-direction:column;align-items:center;gap:2cqmin}
+.start .play{width:22cqmin;height:22cqmin;border-radius:50%;background:var(--sun);display:grid;place-items:center;box-shadow:0 0 0 2cqmin rgba(255,201,60,.25),0 1.2cqmin 0 #b9811a;animation:pulse 1.6s ease-in-out infinite}
+.start .play svg{width:45%;margin-left:8%}
+.start b{font:800 var(--t-l)/1.1 var(--f-display);text-align:center}
+.start small{font:700 var(--t-s)/1.3 var(--f-body);color:var(--muted);text-align:center}
+
+/* ---------- Player chrome ---------- */
+.controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.cbtn{width:48px;height:48px;border-radius:50%;border:2px solid var(--line);background:var(--panel);display:grid;place-items:center;cursor:pointer;flex:none}
+.cbtn svg{width:22px;height:22px}
+.cbtn.main{width:60px;height:60px;background:var(--sun);border-color:var(--sun);color:var(--ink)}
+.cbtn.main svg{width:28px;height:28px}
+.cbtn[aria-pressed="false"]{opacity:.55}
+.where{margin-left:auto;font-weight:800;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;text-align:right}
+.progress{display:flex;gap:3px;height:14px;width:100%}
+.progress button{flex:1;border:0;border-radius:4px;background:var(--c);opacity:.28;cursor:pointer;padding:0;min-width:0}
+.progress button.seen{opacity:.65}
+.progress button.cur{opacity:1;transform:scaleY(1.5)}
+.caption{min-height:3.2em;background:var(--space-2);border:2px solid var(--line);border-radius:16px;padding:12px 18px;font:800 clamp(17px,2.4vw,24px)/1.35 var(--f-body);display:flex;align-items:center;gap:12px}
+.caption .cc{flex:none;font:800 12px/1 var(--f-body);letter-spacing:.08em;color:var(--ink);background:var(--muted);border-radius:6px;padding:4px 6px}
+.chapters{display:flex;gap:8px;flex-wrap:wrap}
+.chapters button{border:2px solid var(--c);background:transparent;color:var(--text);border-radius:999px;padding:8px 14px;font:800 14px/1 var(--f-body);cursor:pointer;display:flex;align-items:center;gap:8px}
+.chapters button i{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.chapters button.cur{background:var(--c);color:var(--ink)}
+.teacher{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.teacher section{background:var(--space-2);border:2px solid var(--line);border-radius:16px;padding:16px 18px;min-width:0}
+.teacher h3{font:800 20px/1.1 var(--f-display);margin:0 0 8px;color:var(--sun)}
+.teacher ul{margin:0;padding-left:20px;color:var(--muted);font-weight:600}
+.teacher li{margin:3px 0}
+.teacher a{color:var(--sky)}
+
+/* ---------- Scene illustrations ---------- */
+.rays{position:relative;display:grid;place-items:center}
+.rays::before{content:"";position:absolute;inset:-35%;background:repeating-conic-gradient(rgba(255,201,60,.35) 0 8deg,transparent 8deg 22deg);border-radius:50%;animation:rot 20s linear infinite;-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%)}
+.sunny{background:linear-gradient(#7fd3ff,#c9f0ff 70%,#ffe9a8);}
+.street{position:relative;width:100%;height:100%;border-radius:3cqmin;overflow:hidden}
+.drop{position:absolute;top:-10%;width:1.2cqmin;height:6cqmin;border-radius:1cqmin;background:linear-gradient(#fff6b0,#ffc93c);animation:fall 1.6s linear infinite;opacity:.9}
+@keyframes fall{to{transform:translateY(80cqh)}}
+.ground{position:absolute;left:0;right:0;bottom:0;height:28%;background:#6b6f8c}
+.puddle{position:absolute;bottom:8%;height:6%;border-radius:50%;background:#4aa3e0;animation:dry 6s ease-in forwards}
+@keyframes dry{to{transform:scale(.05);opacity:0}}
+.galaxy{position:relative;height:90%;aspect-ratio:1;max-width:100%;border-radius:50%;background:radial-gradient(circle,#fff6d8 0 6%,#ffd38a 10%,transparent 24%),conic-gradient(from 0deg,transparent,rgba(177,140,255,.75) 10%,transparent 22%,rgba(92,200,255,.65) 35%,transparent 47%,rgba(255,95,162,.6) 60%,transparent 72%,rgba(177,140,255,.7) 85%,transparent);-webkit-mask:radial-gradient(circle,#000 35%,transparent 70%);mask:radial-gradient(circle,#000 35%,transparent 70%);animation:rot 30s linear infinite}
+.here{position:absolute;font:800 var(--t-s)/1 var(--f-body);background:var(--pink);color:#fff;padding:.5em .8em;border-radius:999px;white-space:nowrap}
+.dn{display:flex;align-items:center;justify-content:space-between;width:100%;height:100%;gap:3cqmin;position:relative}
+.dn-sun{flex:none;width:18cqmin;height:60cqmin;max-height:100%;border-radius:0 50% 50% 0/0 50% 50% 0;background:radial-gradient(circle at 0 50%,#fff7b8,#ffc93c 40%,#ff8a1f);box-shadow:0 0 8cqmin #ffb12a;margin-left:-5cqmin}
+.dn-earth{position:relative;width:34cqmin;height:34cqmin;border-radius:50%;border:0;padding:0;cursor:pointer;flex:none;overflow:hidden;background:#2477dc}
+.dn-spin{position:absolute;inset:0;transition:transform 1.6s cubic-bezier(.5,0,.3,1)}
+.dn-spin .land{position:absolute;inset:0;background:radial-gradient(ellipse 22% 16% at 30% 30%,#46c96a 0 70%,transparent 72%),radial-gradient(ellipse 18% 24% at 70% 40%,#46c96a 0 70%,transparent 72%),radial-gradient(ellipse 24% 14% at 45% 75%,#46c96a 0 70%,transparent 72%),radial-gradient(circle,#2f86e8,#1a5fc0)}
+.dn-spin .pin{position:absolute;left:8%;top:50%;width:5cqmin;height:5cqmin;translate:0 -50%;border-radius:50%;background:var(--pink);border:.7cqmin solid #fff;box-shadow:0 0 0 1cqmin rgba(255,95,162,.4)}
+.dn-shade{position:absolute;inset:0;background:linear-gradient(90deg,transparent 50%,rgba(5,5,30,.72) 50%);pointer-events:none}
+.dn-card{flex:1;min-width:0;max-width:44%;border-radius:3cqmin;padding:2.4cqmin 3cqmin;transition:background .8s,color .8s;font:800 var(--t-m)/1.3 var(--f-body)}
+.dn-card h3{font:800 var(--t-l)/1 var(--f-display);margin:0 0 .3em}
+.dn-card.day{background:linear-gradient(#8fdcff,#d9f5ff);color:#123a5c}
+.dn-card.night{background:linear-gradient(#0a0830,#24206a);color:#fff;border:.4cqmin solid var(--line)}
+.dn-card ul{margin:0;padding-left:1.1em}
+.moonbox{position:relative;width:36cqmin;height:36cqmin;border-radius:50%;overflow:hidden;flex:none}
+.moonbox .pl{--s:100%}
+.shadow{position:absolute;inset:-1%;border-radius:50%;background:#0b0926;transition:transform .5s}
+.range{width:min(100%,60cqmin);accent-color:var(--sun);height:6cqmin}
+.const{position:relative;width:100%;height:100%}
+.const svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.cst{position:absolute;width:7cqmin;height:7cqmin;translate:-50% -50%;border:0;padding:0;background:none;cursor:pointer}
+.cst svg{position:static;width:100%;height:100%}
+.cst.next{animation:pulse .9s ease-in-out infinite}
+.cst.lit path{fill:#ffe46b}
+.hills{position:absolute;left:0;right:0;bottom:0;height:22%;background:radial-gradient(60% 120% at 20% 100%,#0e2a2a 60%,transparent 61%),radial-gradient(70% 140% at 85% 100%,#0b2222 60%,transparent 61%);z-index:1}
+.mw{position:absolute;left:-10%;right:-10%;top:30%;height:30%;transform:rotate(-14deg);background:radial-gradient(ellipse at center,rgba(255,255,255,.55),rgba(200,180,255,.25) 40%,transparent 70%);filter:blur(1.2cqmin)}
+.shoot{position:absolute;top:18%;left:60%;width:22cqmin;height:.6cqmin;border-radius:1cqmin;background:linear-gradient(90deg,#fff,transparent);transform:rotate(-25deg);animation:shoot 2.6s ease-in infinite;opacity:0}
+@keyframes shoot{0%{opacity:0;translate:0 0}10%{opacity:1}40%{opacity:0;translate:-40cqmin 20cqmin}100%{opacity:0}}
+.scientists{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.4cqmin;width:100%}
+@container stage (orientation:portrait){.scientists{grid-template-columns:1fr}.scientists .card{flex-direction:row;text-align:left}}
+.scientists .card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.4cqmin;font-size:var(--t-s)}
+.scientists .card b{font:800 var(--t-m)/1.1 var(--f-display);color:var(--sun)}
+.avatar{width:14cqmin;height:14cqmin;border-radius:50%;display:grid;place-items:center;flex:none}
+.avatar svg{width:65%;height:65%}
+.check{display:flex;flex-direction:column;gap:1.4cqmin;min-width:0}
+.check button{display:flex;align-items:center;gap:1.6cqmin;text-align:left;background:var(--panel);border:.4cqmin solid var(--line);border-radius:2cqmin;padding:1.2cqmin 2cqmin;font:800 var(--t-m)/1.1 var(--f-body);cursor:pointer}
+.check button i{width:4.6cqmin;height:4.6cqmin;border-radius:1cqmin;border:.5cqmin solid var(--muted);flex:none;display:grid;place-items:center;font-style:normal;color:var(--ink)}
+.check button.ok{border-color:var(--mint)}
+.check button.ok i{background:var(--mint);border-color:var(--mint)}
+.check button.ok i::after{content:"✓";font-weight:900}
+.pad{position:relative;height:100%;width:30cqmin;flex:none;display:flex;align-items:flex-end;justify-content:center}
+.rocket{width:16cqmin;transition:transform 2.6s cubic-bezier(.6,0,.9,.4)}
+.rocket .flame{transform-origin:50% 0;animation:flick .12s infinite alternate;opacity:0}
+.rocket.go .flame,.rocket.burn .flame{opacity:1}
+.rocket.go{transform:translateY(-120cqh)}
+@keyframes flick{to{transform:scaleY(1.3)}}
+.count{position:absolute;inset:0;display:grid;place-items:center;font:800 calc(var(--t-xl)*2)/1 var(--f-display);color:var(--sun);text-shadow:0 1cqmin 0 rgba(0,0,0,.4);pointer-events:none;z-index:7}
+.astro{height:100%;max-height:62cqmin;flex:none}
+.art{height:100%;display:flex;align-items:center;justify-content:center}
+@container stage (orientation:portrait){.art{height:auto;flex:1 1 0;min-height:0}.art .astro{height:100%;max-height:100%}#appBox .art{display:none}.maker{max-width:100%;flex:1 1 auto;min-height:0}#alienBox .alien{width:24cqmin}}
+.astro .layer{opacity:0;transform:scale(1.25);transform-origin:center;transform-box:fill-box;transition:opacity .5s,transform .5s cubic-bezier(.3,1.6,.5,1)}
+.astro .layer.on{opacity:1;transform:none}
+.parts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1.6cqmin;min-width:0;max-width:52%}
+.parts .btn{font-size:var(--t-s);padding:1.6cqmin 2cqmin}
+.drift{animation:drift 6s ease-in-out infinite}
+@keyframes drift{25%{transform:translate(2cqmin,-3cqmin) rotate(8deg)}50%{transform:translate(-1cqmin,-5cqmin) rotate(-6deg)}75%{transform:translate(-3cqmin,-1cqmin) rotate(4deg)}}
+.blob{animation:blob 3s ease-in-out infinite}
+@keyframes blob{50%{border-radius:40% 60% 55% 45%/55% 40% 60% 45%;transform:translateY(-2cqmin)}}
+.sat{position:absolute;inset:0;margin:auto;width:70cqmin;height:70cqmin;max-width:100%;max-height:100%;animation:rot 9s linear infinite}
+.sat svg{position:absolute;left:50%;top:0;width:14cqmin;translate:-50% -30%}
+.wave{position:absolute;border:.6cqmin solid var(--mint);border-radius:50%;border-left-color:transparent;border-bottom-color:transparent;animation:wave 1.6s ease-out infinite;opacity:0}
+@keyframes wave{0%{opacity:1;transform:scale(.3)}100%{opacity:0;transform:scale(1.4)}}
+.straw{position:relative;width:46cqmin;height:9cqmin;max-width:100%}
+.straw .tube{position:absolute;left:0;top:35%;width:80%;height:30%;border-radius:2cqmin;background:repeating-linear-gradient(90deg,#fff 0 3cqmin,var(--pink) 3cqmin 6cqmin)}
+.straw .wrap{position:absolute;left:58%;top:28%;width:24%;height:44%;border-radius:2cqmin;background:#ffe9a8;animation:shootoff 2.4s ease-in infinite}
+@keyframes shootoff{0%,30%{transform:none}70%,100%{transform:translateX(30cqmin) rotate(25deg);opacity:0}}
+.counter{font:800 calc(var(--t-xl)*1.4)/1 var(--f-display);color:var(--mint);font-variant-numeric:tabular-nums}
+.parade{flex-direction:row}
+.factlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1.6cqmin}
+.factlist li{display:flex;gap:1.6cqmin;align-items:flex-start}
+.factlist li::before{content:"";flex:none;width:3cqmin;height:3cqmin;margin-top:.5cqmin;border-radius:50%;background:var(--chc)}
+.comet{position:relative;width:60cqmin;height:16cqmin;max-width:100%;animation:cometgo 5s ease-in-out infinite}
+.comet .head{position:absolute;right:0;top:50%;width:10cqmin;height:10cqmin;translate:0 -50%;border-radius:50%;background:radial-gradient(circle,#fff,#b9f3ff 40%,rgba(92,200,255,.2) 70%,transparent)}
+.comet .tail{position:absolute;left:0;right:5cqmin;top:50%;height:6cqmin;translate:0 -50%;background:linear-gradient(90deg,transparent,rgba(92,200,255,.5) 60%,rgba(255,255,255,.9));border-radius:50% 0 0 50%;filter:blur(.4cqmin)}
+@keyframes cometgo{0%{transform:translateX(-12cqmin)}50%{transform:translateX(6cqmin)}100%{transform:translateX(-12cqmin)}}
+.rock{width:16cqmin}
+.choices{display:flex;gap:3cqmin;flex-wrap:wrap;justify-content:center}
+.choice{display:flex;flex-direction:column;align-items:center;gap:1cqmin;background:var(--panel);border:.5cqmin solid var(--line);border-radius:3cqmin;padding:2cqmin 2.6cqmin;cursor:pointer;font:800 var(--t-m)/1 var(--f-display);min-width:0}
+.choice:hover{border-color:var(--sun)}
+.choice.right{border-color:var(--mint);background:#155a52}
+.mystery{display:grid;place-items:center;font:800 var(--t-xl)/1 var(--f-display);color:var(--ink);background:radial-gradient(circle at 40% 35%,#e6dcff,var(--violet) 70%)}
+.clue{font:800 var(--t-l)/1.15 var(--f-display);text-align:center;margin:0;text-wrap:balance}
+.slots{display:flex;align-items:center;gap:1.4cqmin;flex-wrap:wrap;justify-content:center;padding:1.6cqmin 2cqmin;background:rgba(0,0,0,.25);border-radius:3cqmin;border:.4cqmin dashed var(--line)}
+.slot{width:8cqmin;height:8cqmin;border-radius:50%;border:.4cqmin dashed var(--muted);display:grid;place-items:center;font:800 var(--t-s)/1 var(--f-body);color:var(--muted)}
+.slot .pl{--s:8cqmin}
+.tray{display:flex;gap:2.4cqmin;flex-wrap:wrap;justify-content:center}
+.tray button.pl{--s:10cqmin}
+.tray button.used{visibility:hidden}
+.pic{width:30cqmin;height:30cqmin;display:grid;place-items:center;background:rgba(255,255,255,.06);border-radius:4cqmin;border:.5cqmin solid var(--line);flex:none}
+.pic svg{width:80%;height:80%}
+.wordbtns{display:flex;flex-direction:column;gap:2cqmin;min-width:0}
+.alien{width:30cqmin;flex:none}
+.maker{display:flex;flex-direction:column;gap:1.4cqmin;min-width:0;flex:1;max-width:60%;overflow:auto;max-height:100%}
+.maker label,.maker .lbl{font:800 var(--t-s)/1 var(--f-body);color:var(--muted)}
+.row{display:flex;gap:1.2cqmin;flex-wrap:wrap;align-items:center}
+.sw{width:6.5cqmin;height:6.5cqmin;min-width:28px;min-height:28px;border-radius:50%;border:.6cqmin solid transparent;cursor:pointer;padding:0}
+.sw.sel{border-color:#fff;box-shadow:0 0 0 .5cqmin var(--sun)}
+.chip{font:800 var(--t-s)/1 var(--f-body);padding:1.2cqmin 1.8cqmin;border-radius:999px;border:.4cqmin solid var(--line);background:var(--panel);cursor:pointer}
+.chip.sel{background:var(--sun);color:var(--ink);border-color:var(--sun)}
+.inp{font:800 var(--t-m)/1 var(--f-body);padding:1.2cqmin 1.8cqmin;border-radius:1.6cqmin;border:.4cqmin solid var(--line);background:#100d38;color:var(--text);width:100%;min-width:0}
+.badge{position:relative;width:min(100%,70cqmin);background:linear-gradient(160deg,#fff 0,#eaf6ff 100%);color:#1b2a5a;border-radius:4cqmin;padding:3cqmin 4cqmin;display:flex;gap:3cqmin;align-items:center;box-shadow:0 1.4cqmin 0 rgba(0,0,0,.3)}
+.badge .hole{position:absolute;top:1.6cqmin;left:50%;translate:-50% 0;width:10cqmin;height:2cqmin;border-radius:2cqmin;background:#0d0b2e}
+.badge h3{margin:0;font:800 var(--t-s)/1 var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--pink)}
+.badge b{display:block;font:800 var(--t-xl)/1 var(--f-display);word-break:break-word}
+.badge small{font:800 var(--t-s)/1.3 var(--f-body);color:#47609a}
+.stamp{position:absolute;right:3cqmin;bottom:2cqmin;font:800 var(--t-s)/1 var(--f-display);color:#e0326f;border:.6cqmin solid #e0326f;border-radius:1.4cqmin;padding:.6cqmin 1.2cqmin;transform:rotate(-12deg);opacity:.85}
+.vocab{display:flex;flex-wrap:wrap;gap:1.2cqmin;justify-content:center;overflow:auto;max-height:100%;padding:1cqmin}
+.vocab button{font:800 var(--t-s)/1 var(--f-body);padding:1.2cqmin 1.8cqmin;border-radius:999px;border:0;color:var(--ink);cursor:pointer}
+.dance{animation:dance .8s ease-in-out infinite alternate}
+@keyframes dance{from{transform:translateY(0) rotate(-6deg)}to{transform:translateY(-3cqmin) rotate(6deg)}}
+.links{display:flex;gap:2cqmin;flex-wrap:wrap;justify-content:center}
+.links a{font:800 var(--t-s)/1.1 var(--f-body);color:var(--ink);background:var(--mint);padding:1.4cqmin 2.2cqmin;border-radius:999px;text-decoration:none}
+.unitcard{align-items:center;justify-content:center;text-align:center}
+.unitcard .no{font:800 var(--t-m)/1 var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:var(--chc)}
+.unitcard .big{font-size:calc(var(--t-xl)*1.15);color:var(--text)}
+.swoosh{position:absolute;left:-20cqmin;top:62%;width:16cqmin;animation:swoosh 2.4s ease-in-out .2s both}
+@keyframes swoosh{from{transform:translate(0,0) rotate(60deg)}to{transform:translate(160cqw,-50cqh) rotate(60deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 6 61 36 94 38 68 58 77 91 50 72 23 91 32 58 6 38 39 36Z" fill="#ffd84a" stroke="#f3a51c" stroke-width="5" stroke-linejoin="round"/><circle cx="41" cy="50" r="4" fill="#3a2a5a"/><circle cx="59" cy="50" r="4" fill="#3a2a5a"/><path d="M42 59q8 8 16 0" stroke="#3a2a5a" stroke-width="4" fill="none" stroke-linecap="round"/></svg>
+    <h1>Outer Space <span>Adventure</span></h1>
+    <p>An interactive space video for preschool explorers</p>
+  </header>
+
+  <div class="stage" id="stage">
+    <canvas id="starfield" aria-hidden="true"></canvas>
+    <div id="sceneHost"></div>
+    <button class="start" id="start" aria-label="Start the space adventure">
+      <span class="inner">
+        <span class="play"><svg viewBox="0 0 24 24"><path d="M6 3.5v17L20.5 12z" fill="#241400"/></svg></span>
+        <b>Start the Space Adventure!</b>
+        <small>Turn your sound on. Twinkle the star will read along.</small>
+      </span>
+    </button>
+  </div>
+
+  <div class="progress" id="progress" aria-label="Scenes"></div>
+
+  <div class="controls">
+    <button class="cbtn" id="prev" aria-label="Previous scene"><svg viewBox="0 0 24 24"><path d="M6 5h2.5v14H6zM20 5v14L9.5 12z" fill="currentColor"/></svg></button>
+    <button class="cbtn main" id="play" aria-label="Play"><svg viewBox="0 0 24 24" id="playIcon"><path d="M7 4v16l13-8z" fill="currentColor"/></svg></button>
+    <button class="cbtn" id="next" aria-label="Next scene"><svg viewBox="0 0 24 24"><path d="M15.5 5H18v14h-2.5zM4 5v14l10.5-7z" fill="currentColor"/></svg></button>
+    <button class="cbtn" id="voice" aria-pressed="true" aria-label="Narration voice on or off"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg></button>
+    <div class="where" id="where">Scene 1</div>
+  </div>
+
+  <div class="caption" aria-live="polite"><span class="cc">CC</span><span id="caption">Press play to begin our trip to outer space!</span></div>
+
+  <nav class="chapters" id="chapters" aria-label="Chapters"></nav>
+
+  <div class="teacher">
+    <section>
+      <h3>What this video covers</h3>
+      <ul>
+        <li>Unit 1: Universe, the Sun (Sol), the 8 planets, orbits, galaxies</li>
+        <li>Unit 2: Earth, day and night, the Moon and its phases, stars, constellations, the Milky Way</li>
+        <li>Unit 3: Astronomy, Galileo, Newton, Hubble, astronauts, space suits, living in space</li>
+        <li>Unit 4: Satellites, rockets, the space shuttle, moons, each planet, dwarf planets, meteorites, comets</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Games from the worksheets</h3>
+      <ul>
+        <li>Planet Riddle: Who Am I? (Worksheet 1)</li>
+        <li>My Space Words (Worksheet 2)</li>
+        <li>The Solar System order (Worksheet 3)</li>
+        <li>If I Were an Alien (Worksheet 4)</li>
+        <li>Astronaut Application (Worksheet 5)</li>
+        <li>Day and Night (Worksheet 6)</li>
+      </ul>
+    </section>
+    <section>
+      <h3>Tips for the classroom</h3>
+      <ul>
+        <li>Play it on a big screen at circle time, one unit per week.</li>
+        <li>Pause on game scenes and let children take turns tapping.</li>
+        <li>Songs for Solar System Day: <a href="https://www.youtube.com/watch?v=F2prtmPEjOc" target="_blank" rel="noopener">The Solar System Song</a> and <a href="https://www.youtube.com/watch?v=Vb2ZXRh74WU" target="_blank" rel="noopener">StoryBots Outer Space</a>.</li>
+        <li>Keyboard: Space to play or pause, arrow keys to move between scenes.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+/* ---------------- Art ---------------- */
+const STAR_PATH = 'M50 6 61 36 94 38 68 58 77 91 50 72 23 91 32 58 6 38 39 36Z';
+const mascot = (cls = '') => `<svg class="mascot ${cls}" viewBox="0 0 100 100" aria-hidden="true"><path d="${STAR_PATH}" fill="#ffd84a" stroke="#f3a51c" stroke-width="5" stroke-linejoin="round"/><circle cx="41" cy="49" r="4.5" fill="#3a2a5a"/><circle cx="59" cy="49" r="4.5" fill="#3a2a5a"/><circle cx="42.5" cy="47.5" r="1.5" fill="#fff"/><circle cx="60.5" cy="47.5" r="1.5" fill="#fff"/><circle cx="34" cy="57" r="4" fill="#ff8fb1" opacity=".8"/><circle cx="66" cy="57" r="4" fill="#ff8fb1" opacity=".8"/><path d="M42 58q8 9 16 0" stroke="#3a2a5a" stroke-width="4" fill="#fff" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const starSvg = (fill = '#fff') => `<svg viewBox="0 0 100 100"><path d="${STAR_PATH}" fill="${fill}" stroke-linejoin="round"/></svg>`;
+const rocketSvg = (cls = 'rocket') => `<svg class="${cls}" viewBox="0 0 60 130" aria-hidden="true"><path class="flame" d="M19 92q11 40 22 0z" fill="#ffc93c"/><path class="flame" d="M24 92q6 22 12 0z" fill="#fff3b0"/><path d="M30 4C48 22 50 52 46 86H14C10 52 12 22 30 4Z" fill="#f4f4ff"/><path d="M30 4c10 10 14 20 15 28H15c1-8 5-18 15-28z" fill="#ff5fa2"/><circle cx="30" cy="54" r="9" fill="#5cc8ff" stroke="#3a3a8a" stroke-width="3"/><path d="M14 66 1 98l15-6zM46 66l13 32-15-6z" fill="#ff5fa2"/><rect x="19" y="85" width="22" height="8" rx="2" fill="#8f8fcf"/></svg>`;
+const telescopeSvg = `<svg viewBox="0 0 100 100" aria-hidden="true"><g transform="rotate(-28 50 50)"><rect x="18" y="38" width="60" height="18" rx="4" fill="#5cc8ff"/><rect x="70" y="34" width="14" height="26" rx="3" fill="#ff5fa2"/><rect x="8" y="42" width="12" height="10" rx="2" fill="#b18cff"/></g><path d="M48 58 30 94M52 58l18 36M50 58v36" stroke="#c3bdf2" stroke-width="4" stroke-linecap="round"/></svg>`;
+const astronautSvg = (layers = true) => `<svg class="astro" viewBox="0 0 120 170" aria-hidden="true">
+  <g class="layer L-pack ${layers ? '' : 'on'}"><rect x="27" y="62" width="66" height="58" rx="12" fill="#c9c9e8"/><rect x="31" y="66" width="12" height="40" rx="6" fill="#ff9f43"/><rect x="77" y="66" width="12" height="40" rx="6" fill="#ff9f43"/></g>
+  <g><rect x="44" y="110" width="13" height="38" rx="5" fill="#3a4a8a"/><rect x="63" y="110" width="13" height="38" rx="5" fill="#3a4a8a"/><rect x="40" y="62" width="40" height="52" rx="12" fill="#5cc8ff"/><rect x="26" y="66" width="14" height="36" rx="7" fill="#f2c39b"/><rect x="80" y="66" width="14" height="36" rx="7" fill="#f2c39b"/><circle cx="60" cy="38" r="18" fill="#f2c39b"/><path d="M43 33q2-16 17-16t17 16q-6-7-17-7t-17 7z" fill="#3a2418"/><circle cx="53" cy="39" r="2.4" fill="#2b1d1d"/><circle cx="67" cy="39" r="2.4" fill="#2b1d1d"/><path d="M54 46q6 5 12 0" stroke="#2b1d1d" stroke-width="2.4" fill="none" stroke-linecap="round"/></g>
+  <g class="layer L-suit ${layers ? '' : 'on'}"><rect x="42" y="108" width="16" height="40" rx="7" fill="#fff"/><rect x="62" y="108" width="16" height="40" rx="7" fill="#fff"/><rect x="36" y="58" width="48" height="58" rx="15" fill="#fff"/><rect x="22" y="62" width="17" height="42" rx="8" fill="#fff"/><rect x="81" y="62" width="17" height="42" rx="8" fill="#fff"/><rect x="48" y="72" width="24" height="16" rx="4" fill="#d9dcf5"/><circle cx="54" cy="80" r="3" fill="#ff5fa2"/><circle cx="62" cy="80" r="3" fill="#3ee6c1"/><circle cx="69" cy="80" r="2" fill="#ffc93c"/><circle cx="30" cy="104" r="7" fill="#ff9f43"/><circle cx="90" cy="104" r="7" fill="#ff9f43"/></g>
+  <g class="layer L-boots ${layers ? '' : 'on'}"><rect x="39" y="140" width="21" height="16" rx="6" fill="#6b6b9c"/><rect x="60" y="140" width="21" height="16" rx="6" fill="#6b6b9c"/></g>
+  <g class="layer L-helmet ${layers ? '' : 'on'}"><circle cx="60" cy="38" r="28" fill="rgba(190,225,255,.25)" stroke="#fff" stroke-width="5"/><path d="M38 34a22 22 0 0 1 44 0q-22-9-44 0z" fill="#e8a33a" opacity=".85"/><path d="M42 26q6-8 14-9" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/></g>
+</svg>`;
+const ICONS = {
+  sun: `<svg viewBox="0 0 100 100"><g stroke="#ffb02a" stroke-width="6" stroke-linecap="round">${Array.from({length:12},(_,i)=>`<line x1="50" y1="8" x2="50" y2="20" transform="rotate(${i*30} 50 50)"/>`).join('')}</g><circle cx="50" cy="50" r="24" fill="#ffd23c"/></svg>`,
+  moon: `<svg viewBox="0 0 100 100"><path d="M62 10a40 40 0 1 0 28 62A32 32 0 1 1 62 10z" fill="#f3e7b0"/><circle cx="40" cy="60" r="5" fill="#d8c98a"/><circle cx="32" cy="38" r="3.5" fill="#d8c98a"/></svg>`,
+  stars: `<svg viewBox="0 0 100 100"><path d="${STAR_PATH}" fill="#ffe46b" transform="translate(4 4) scale(.55)"/><path d="${STAR_PATH}" fill="#fff" transform="translate(52 30) scale(.42)"/><path d="${STAR_PATH}" fill="#b9f3ff" transform="translate(22 60) scale(.36)"/></svg>`,
+  asteroid: `<svg viewBox="0 0 100 100"><path d="M20 40 32 18 58 14 80 26 88 50 76 78 48 88 22 76 12 58z" fill="#9b8f86"/><circle cx="40" cy="40" r="8" fill="#7d726a"/><circle cx="64" cy="58" r="10" fill="#7d726a"/><circle cx="36" cy="68" r="5" fill="#7d726a"/></svg>`,
+  shuttle: `<svg viewBox="0 0 100 100"><path d="M8 54 30 42h44q20 4 22 12-2 8-22 12H30z" fill="#f4f4ff"/><path d="M84 46q12 4 12 8t-12 8z" fill="#2b2b4a"/><path d="M34 42 50 14h10l-6 28zM34 66l16 28h10l-6-28z" fill="#d9dcf5"/><path d="M8 54 2 44v20z" fill="#ff9f43"/><rect x="58" y="49" width="6" height="5" rx="1" fill="#5cc8ff"/><rect x="67" y="49" width="6" height="5" rx="1" fill="#5cc8ff"/></svg>`,
+  rover: `<svg viewBox="0 0 100 100"><rect x="18" y="44" width="58" height="20" rx="4" fill="#e9e9ff"/><rect x="24" y="36" width="34" height="10" fill="#5cc8ff"/><path d="M66 44V22" stroke="#c3bdf2" stroke-width="4"/><rect x="58" y="14" width="18" height="10" rx="3" fill="#ff5fa2"/><path d="M76 54 90 46" stroke="#c3bdf2" stroke-width="4"/><g fill="#3a3a5a" stroke="#c3bdf2" stroke-width="3"><circle cx="26" cy="74" r="9"/><circle cx="48" cy="74" r="9"/><circle cx="70" cy="74" r="9"/></g></svg>`,
+  planet: `<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="26" fill="#b18cff"/><path d="M30 40q20-6 40 4" stroke="#8a65e0" stroke-width="5" fill="none"/><ellipse cx="50" cy="52" rx="46" ry="12" fill="none" stroke="#ffc93c" stroke-width="5" transform="rotate(-14 50 52)"/></svg>`,
+  astronaut: astronautSvg(false),
+  apple: `<svg viewBox="0 0 100 100"><path d="M50 30c-20-10-38 4-34 28 3 22 18 34 34 28 16 6 31-6 34-28 4-24-14-38-34-28z" fill="#ff5a5a"/><path d="M50 30q-2-14 8-20" stroke="#6b3a1a" stroke-width="5" fill="none"/><path d="M54 18q14-8 20 4-12 6-20-4z" fill="#46c96a"/></svg>`,
+  hubble: `<svg viewBox="0 0 100 100"><rect x="30" y="34" width="40" height="32" rx="6" fill="#d9dcf5"/><rect x="66" y="38" width="12" height="24" rx="2" fill="#8f8fcf"/><rect x="4" y="42" width="24" height="16" fill="#5cc8ff"/><rect x="72" y="42" width="24" height="16" fill="#5cc8ff" transform="translate(0 30)" opacity="0"/><path d="M28 50h2" stroke="#c3bdf2" stroke-width="3"/><circle cx="78" cy="50" r="6" fill="#241e60"/></svg>`
+};
+const alienSvg = (color, eyes) => {
+  const ex = eyes === 1 ? [60] : eyes === 2 ? [48, 72] : [42, 60, 78];
+  return `<svg class="alien float" viewBox="0 0 120 140" aria-hidden="true">
+    <path d="M44 30 34 6M76 30 86 6" stroke="${color}" stroke-width="5" stroke-linecap="round"/><circle cx="34" cy="6" r="6" fill="#ffc93c"/><circle cx="86" cy="6" r="6" fill="#ffc93c"/>
+    <path d="M60 22c30 0 42 24 40 52-2 30-18 52-40 52S22 104 20 74C18 46 30 22 60 22z" fill="${color}"/>
+    <ellipse cx="22" cy="86" rx="8" ry="16" fill="${color}" transform="rotate(25 22 86)"/><ellipse cx="98" cy="86" rx="8" ry="16" fill="${color}" transform="rotate(-25 98 86)"/>
+    ${ex.map(x => `<circle cx="${x}" cy="58" r="10" fill="#fff"/><circle cx="${x + 2}" cy="60" r="5" fill="#241e60"/>`).join('')}
+    <path d="M44 86q16 16 32 0" stroke="#241e60" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="60" cy="132" rx="30" ry="6" fill="rgba(0,0,0,.25)"/></svg>`;
+};
+const P = (id, s, tag = 'div', extra = '') => `<${tag} class="pl pl-${id}" style="--s:${s}" data-p="${id}" ${tag === 'button' ? `aria-label="${NAME[id] || id}" type="button"` : 'aria-hidden="true"'} ${extra}></${tag}>`;
+const head = (eb, title) => `<div class="sh"><span class="eb">${eb}</span><h2>${title}</h2></div>`;
+
+const ORDER = ['mercury','venus','earth','mars','jupiter','saturn','uranus','neptune'];
+const NAME = {sun:'Sun',mercury:'Mercury',venus:'Venus',earth:'Earth',mars:'Mars',jupiter:'Jupiter',saturn:'Saturn',uranus:'Uranus',neptune:'Neptune',moon:'Moon'};
+const ROW_SIZE = {mercury:'5cqmin',venus:'7cqmin',earth:'7.5cqmin',mars:'6cqmin',jupiter:'14cqmin',saturn:'11cqmin',uranus:'9cqmin',neptune:'9cqmin'};
+const FACTS = {
+  mercury:{lines:["Hi! I'm Mercury.","I am the closest planet to the Sun.","I am also the smallest planet. Zoom, zoom!"],short:["Closest to the Sun","The smallest planet"]},
+  venus:{lines:["Hello! I'm Venus.","I am the brightest planet in our sky. Sometimes you can see me with just your eyes, if you know where to look!","I am also the hottest planet."],short:["Brightest planet in our sky","The hottest planet"]},
+  earth:{lines:["Hi friends! I'm Earth, your home.","I am the third planet from the Sun.","I have more water than land. Look at my big blue oceans!"],short:["3rd planet from the Sun","More water than land","Our home!"]},
+  mars:{lines:["Hey! I'm Mars, the red planet.","I have Olympus Mons, the biggest volcano in the whole Solar System!"],short:["The red planet","Olympus Mons: the biggest volcano in the Solar System"]},
+  jupiter:{lines:["Hello! I'm Jupiter, the largest planet of all!","My four main moons are called the Galilean moons, named after Galileo.","Their names are Io, Europa, Ganymede and Callisto."],short:["The largest planet","4 main moons: Io, Europa, Ganymede, Callisto"]},
+  saturn:{lines:["Hi! I'm Saturn, a gas giant. I am the second largest planet.","My beautiful rings are made of millions of pieces of ice. Some are as big as houses, and some are as small as specks of dust!","I have lots of moons too."],short:["Gas giant, 2nd largest","Rings of ice: some as big as houses, some tiny as dust","Lots of moons"]},
+  uranus:{lines:["Hello! I'm Uranus, and I like to be different!","I have a pretty blue-green color.","I spin lying on my side, rolling like a barrel!"],short:["Blue-green haze","Spins on its side, rolling like a barrel"]},
+  neptune:{lines:["Hi! I'm Neptune.","I am the farthest planet from the Sun.","I am big! Nearly four times as wide as Earth."],short:["Farthest from the Sun","Nearly 4 times as wide as Earth"]}
+};
+const VOCAB = 'Solar System,Universe,Galaxy,Space,Sun,Moon,Stars,Mercury,Venus,Earth,Mars,Jupiter,Saturn,Uranus,Neptune,Milky Way,Meteorite,Constellation,Rotation,Axis,Orbit,Night,Day,Sphere,Space Ship,Telescope,Astronaut,Space Suit,Aliens,Satellites,Rockets,Discover,Explore,Glow,Sparkle,Twinkle,Shine,Sun rays,Moon Walk,Craters,Volcanoes,Surface,Comet,Gravitational field'.split(',');
+const COLORS = ['var(--sun)','var(--pink)','var(--mint)','var(--sky)','var(--violet)','var(--orange)'];
+
+/* ---------------- Chapters ---------------- */
+const CH = {
+  intro:{name:'Blast Off',c:'#ffc93c'},
+  u1:{name:'Unit 1 · Solar System',c:'#ff9f43'},
+  u2:{name:'Unit 2 · Earth, Moon & Stars',c:'#5cc8ff'},
+  u3:{name:'Unit 3 · Astronauts',c:'#ff5fa2'},
+  u4:{name:'Unit 4 · What We See',c:'#3ee6c1'},
+  games:{name:'Space Games',c:'#b18cff'},
+  party:{name:'Solar System Day',c:'#ffd84a'}
+};
+
+/* ---------------- Scenes ---------------- */
+const unitCard = (ch, no, title, line) => ({ch, cls:'unitcard', lines:[line], html:() => `
+  <div class="bd col unitcard">${rocketSvg('swoosh rocket burn')}<div class="no pop">${no}</div><h2 class="big pop d1">${title}</h2></div>`});
+
+const S = [];
+S.push({ch:'intro', lines:["Hello, space explorers!","I'm Twinkle, a little star. I live up in the sky.","Today we are going on a big adventure into outer space!","Put on your helmet, and let's blast off!"], html:() => `
+  <div class="bd split">${mascot().replace('class="mascot ','class="mascot pop ').replace('<svg','<svg style="--m:34cqmin"')}
+    <div style="max-width:60%"><span class="eb">Outer Space Theme</span><h2 class="big" style="text-align:left;margin-top:.2em">Outer Space<br><span style="color:var(--sun)">Adventure!</span></h2><p class="lead" style="text-align:left;margin-top:1cqmin">with Twinkle the star</p></div></div>`});
+S.push({ch:'intro', lines:["On our adventure we have four missions.","Mission one: learn about the Solar System and the planets.","Mission two: find out how the day sky is different from the night sky.","Mission three: learn what astronauts do, and how they live in space.","Mission four: discover other amazing things in space!"], html:() => `
+  ${head('Our missions','Four space missions')}
+  <div class="bd"><div class="cards">
+    ${[['The Sun and the 8 planets','var(--orange)'],['Day sky and night sky','var(--sky)'],['What astronauts do','var(--pink)'],['Comets, rockets and more','var(--mint)']].map((m,i)=>`<div class="card pop d${i*2+1}"><span class="num" style="background:${m[1]}">${i+1}</span>${m[0]}</div>`).join('')}
+  </div></div>`});
+
+/* Unit 1 */
+S.push(unitCard('u1','Unit 1','The Solar System',"Unit one. The Solar System!"));
+S.push({ch:'u1', lines:["Look all around you. The trees, the oceans, the Moon and the stars.","Everything, everywhere, is called the Universe.","Outer space is the huge area that is beyond our Earth."], html:() => `
+  ${head('Big word','The Universe')}
+  <div class="bd split"><div style="position:relative;display:grid;place-items:center;width:40cqmin;height:40cqmin">${P('earth','16cqmin','div','class="spin"')}
+    ${[[8,10,'sun','8cqmin'],[78,14,'saturn','7cqmin'],[80,74,'moon','6cqmin'],[10,78,'jupiter','8cqmin']].map(([x,y,p,s],i)=>`<div class="pop d${i+1}" style="position:absolute;left:${x}%;top:${y}%">${P(p,s)}</div>`).join('')}</div>
+    <div class="col" style="display:flex;gap:2cqmin;max-width:50%"><div class="card pop d2">Everything around us is called the <span style="color:var(--sun)">Universe</span>.</div><div class="card pop d5"><span style="color:var(--mint)">Outer space</span> is everything beyond our Earth.</div></div></div>`});
+S.push({ch:'u1', lines:["This is the Sun!","Guess what? The Sun is a star!","It is a giant ball of hot, glowing gases.","In Latin, the Sun is called Sol. That is why we say Solar System. It means the system of the Sun!"], html:() => `
+  ${head('Meet the star of the show','The Sun')}
+  <div class="bd split"><div class="rays">${P('sun','34cqmin')}</div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:48%"><div class="card pop d1">The Sun is a <span style="color:var(--sun)">star</span>.</div><div class="card pop d3">A ball of hot, glowing gases.</div><div class="card pop d6">Latin name: <span style="color:var(--sun)">Sol</span>.<br>Sol + system = <span style="color:var(--sun)">Solar System</span></div></div></div>`});
+S.push({ch:'u1', lines:["What happens on a sunny day?","Sun rays fall on Earth like warm, sunny rain.","The air gets warmer, and the wet streets dry up.","Can you feel the sunshine? Wiggle your fingers like sun rays!"], html:() => `
+  ${head('Sunny day','What does the Sun do?')}
+  <div class="bd split"><div class="street sunny" style="max-width:56%;height:100%">
+    <div style="position:absolute;left:6%;top:-14%">${P('sun','22cqmin')}</div>
+    ${Array.from({length:14},(_,i)=>`<span class="drop" style="left:${8+i*6.5}%;animation-delay:${(i*0.37)%1.6}s"></span>`).join('')}
+    <div class="ground"></div><span class="puddle" style="left:12%;width:22%"></span><span class="puddle" style="left:58%;width:28%;animation-delay:1s"></span></div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:40%"><div class="card pop d1">Sun rays fall on Earth like rain</div><div class="card pop d3">The air gets warmer</div><div class="card pop d5">Wet streets dry up</div></div></div>`});
+S.push({ch:'u1', interactive:true, lines:["The Sun sits right in the middle of the Solar System.","Eight planets travel around and around the Sun. Their path is called an orbit.","Each planet can have moons going around it too.","Can you find the Sun? Tap the Sun!"], html:() => `
+  ${head('The Solar System','The Sun and its 8 planets')}
+  <div class="bd"><div class="orbits">
+    ${ORDER.map((p,i)=>{const r=[30,39,48,57,70,80,90,100][i];const s=['2.4cqmin','3.2cqmin','3.4cqmin','2.8cqmin','6.5cqmin','5.2cqmin','4.2cqmin','4.2cqmin'][i];return `<div class="orbit" style="--r:${r}%;--d:${[8,12,16,22,34,46,60,74][i]}s;--o:-${i*3.7}s">${P(p,s,'button')}</div>`}).join('')}
+    ${P('sun','17%','button','id="sunBtn"')}
+  </div></div>`,
+  mount(root, api){
+    $('#sunBtn',root).addEventListener('click',e=>{api.say('Yes! That is the Sun, right in the middle!');api.done(e.currentTarget);});
+    $$('.orbit .pl',root).forEach(b=>b.addEventListener('click',()=>api.say(`That's ${NAME[b.dataset.p]}! Now find the Sun.`)));
+  }});
+S.push({ch:'u1', lines:["Let's say the planet names together!","Mercury. Venus. Earth. Mars.","Jupiter. Saturn. Uranus. Neptune.","Great job! Those are the eight planets."], html:() => `
+  ${head('Say it with me','The 8 planets')}
+  <div class="bd" style="flex-wrap:wrap;align-content:center;gap:3cqmin 2.4cqmin">
+    ${ORDER.map((p,i)=>`<div class="pop" style="animation-delay:${0.8+i*(i<4?0.7:0.7)+(i>=4?2:0)}s;display:flex;flex-direction:column;align-items:center;gap:1.4cqmin">${P(p,ROW_SIZE[p])}<span class="tag">${NAME[p]}</span></div>`).join('')}
+  </div>`});
+S.push({ch:'u1', lines:["Now let's zoom out, far, far away.","A galaxy is a giant family of stars and solar systems, with lots of empty space in between.","Our galaxy is called the Milky Way. Earth lives in the Milky Way!","Scientists think there may be tens of billions of solar systems in our galaxy. Wow!"], html:() => `
+  ${head('Zoom out','The Galaxy')}
+  <div class="bd split"><div style="position:relative;height:100%;aspect-ratio:1;max-width:100%;display:grid;place-items:center"><div class="galaxy"></div><span class="here pop d4" style="left:58%;top:58%">You are here!</span></div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:46%"><div class="card pop d1">A <span style="color:var(--violet)">galaxy</span> is a family of stars and solar systems.</div><div class="card pop d4">Our galaxy: the <span style="color:var(--sky)">Milky Way</span></div><div class="card pop d7">Tens of billions of solar systems!</div></div></div>`});
+
+/* Unit 2 */
+S.push(unitCard('u2','Unit 2','Earth, Moon and Stars',"Unit two. Earth, Moon and Stars!"));
+S.push({ch:'u2', interactive:true, lines:["What is the name of our planet?","That's right, Earth!","Earth is the third planet from the Sun. One, two, three!","Tap the Earth to find our home."], html:() => `
+  ${head('Our home','Find planet Earth')}
+  <div class="bd" style="flex-wrap:wrap;align-content:center;gap:3cqmin">${P('sun','12cqmin')}
+    ${ORDER.map(p=>P(p,ROW_SIZE[p],'button')).join('')}</div>`,
+  mount(root, api){
+    $$('button.pl',root).forEach(b=>b.addEventListener('click',()=>{
+      if(b.dataset.p==='earth'){api.say('You found Earth! The third planet from the Sun.');api.done(b);}
+      else{b.classList.remove('wob');void b.offsetWidth;b.classList.add('wob');api.say(`That's ${NAME[b.dataset.p]}. Try again!`);}
+    }));
+  }});
+S.push({ch:'u2', interactive:true, lines:["Earth is shaped like a ball. This shape is called a sphere. A globe is a model of Earth.","Earth spins around and around on a pretend line called its axis. It spins once every day.","When our side of Earth faces the Sun, it is daytime in Pakistan.","When our side turns away from the Sun, it gets darker and darker. It is night time!","Tap the Earth to spin it, and see day and night!"], html:() => `
+  ${head('Day and night','Why do we have day and night?')}
+  <div class="bd"><div class="dn"><div class="dn-sun"></div>
+    <button class="dn-earth" id="dnEarth" aria-label="Spin the Earth"><div class="dn-spin" id="dnSpin"><div class="land"></div><span class="pin"></span></div><div class="dn-shade"></div></button>
+    <div class="dn-card day" id="dnCard"></div></div></div>`,
+  mount(root, api){
+    let deg=0, seen=new Set(['day']);
+    const card=$('#dnCard',root);
+    const show=()=>{const day=((deg/180)%2)===0;card.className='dn-card '+(day?'day':'night');
+      card.innerHTML=day?`<h3>Day</h3>Pakistan faces the Sun.<ul><li>Go to school</li><li>Play in the park</li><li>See the Sun and clouds</li></ul>`:`<h3>Night</h3>Pakistan faces away from the Sun.<ul><li>Go to sleep</li><li>See the Moon</li><li>See twinkling stars</li></ul>`;return day;};
+    show();
+    $('#dnEarth',root).addEventListener('click',e=>{deg+=180;$('#dnSpin',root).style.transform=`rotate(${deg}deg)`;
+      setTimeout(()=>{const day=show();seen.add(day?'day':'night');api.say(day?'Daytime! Our side faces the Sun.':'Night time! Our side turned away from the Sun.');if(seen.size===2)api.done(e.target);},900);});
+  }});
+S.push({ch:'u2', lines:["At night we can see the Moon and the stars.","The Moon has mountains, valleys, old volcanoes, and lots of dusty craters.","We can see the Moon with just our eyes. With a telescope, we can see it even closer!"], html:() => `
+  ${head('Night sky','The Moon')}
+  <div class="bd split"><div class="float">${P('moon','36cqmin')}</div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:48%"><div class="cards" style="grid-template-columns:1fr 1fr">${['Mountains','Valleys','Old volcanoes','Dusty craters'].map((t,i)=>`<div class="card pop d${i+2}" style="justify-content:center;text-align:center;font-size:var(--t-s)">${t}</div>`).join('')}</div>
+    <div class="card pop d7" style="display:flex;align-items:center;gap:2cqmin"><span style="width:12cqmin;flex:none">${telescopeSvg}</span>A telescope helps us see it closer!</div></div></div>`});
+S.push({ch:'u2', interactive:true, lines:["Have you noticed that the Moon seems to change its shape?","The Moon travels around the Earth. This path is called its orbit.","The Moon does not make its own light. It reflects light from the Sun.","As it moves, we see different parts lit up. These are called the Moon's phases.","Slide to change the Moon, all the way to a full Moon!"], html:() => `
+  ${head('Moon phases','Why does the Moon change shape?')}
+  <div class="bd split"><div class="moonbox">${P('moon','100%')}<div class="shadow" id="mshadow"></div></div>
+    <div style="display:flex;flex-direction:column;gap:2.4cqmin;align-items:center;max-width:50%;min-width:0">
+      <div class="big" id="mname" style="font-size:var(--t-l)">New Moon</div>
+      <input class="range" id="mrange" type="range" min="0" max="4" step="1" value="0" aria-label="Moon phase">
+      <div class="card" style="font-size:var(--t-s)">The Moon <span style="color:var(--sun)">reflects</span> the Sun's light as it <span style="color:var(--sky)">orbits</span> the Earth.</div></div></div>`,
+  mount(root, api){
+    const names=['New Moon','Crescent Moon','Half Moon','Gibbous Moon','Full Moon'];
+    const r=$('#mrange',root),sh=$('#mshadow',root),nm=$('#mname',root);
+    const upd=()=>{const v=+r.value;sh.style.transform=`translateX(${-v*26}%)`;nm.textContent=names[v];};
+    upd();
+    r.addEventListener('input',()=>{upd();if(+r.value===4){api.say('A full Moon! The whole side facing us is lit by the Sun.');api.done(nm);}});
+  }});
+S.push({ch:'u2', lines:["A long time ago, in 1969, a man named Neil Armstrong flew all the way to the Moon.","He was the first person to walk on the Moon and explore it!","He took one small step, and left his footprint in the Moon dust."], html:() => `
+  ${head('A true story','Neil Armstrong walks on the Moon')}
+  <div class="bd split"><div style="position:relative;width:52cqmin;height:100%;max-width:100%;display:flex;align-items:flex-end;justify-content:center">
+    <div style="position:absolute;left:0;right:0;bottom:0;height:30%;border-radius:50% 50% 0 0/40% 40% 0 0;background:radial-gradient(circle at 30% 40%,#a9a39a 0 5%,transparent 6%),radial-gradient(circle at 70% 60%,#a9a39a 0 7%,transparent 8%),linear-gradient(#d8d3ca,#9f998f)"></div>
+    <div style="position:absolute;right:6%;top:6%">${P('earth','10cqmin')}</div>
+    <div class="float" style="position:relative;height:72%;z-index:1">${astronautSvg(false)}</div>
+    <svg viewBox="0 0 40 60" style="position:absolute;left:12%;bottom:22%;width:8cqmin;z-index:1"><path d="M4 4v56" stroke="#ddd" stroke-width="3"/><path d="M5 5h32v20H5z" fill="var(--pink)"/><path d="${STAR_PATH}" transform="translate(13 7) scale(.16)" fill="#fff"/></svg></div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:44%"><div class="card pop d1"><span style="color:var(--sun)">1969</span>: Neil Armstrong went to the Moon</div><div class="card pop d4">The first person to walk on the Moon and <span style="color:var(--mint)">explore</span> it</div></div></div>`});
+S.push({ch:'u2', interactive:true, lines:["Look at the night sky! The stars look like glitter sprinkled across the sky.","Can we touch the stars? No! Stars are super hot balls of gas, very, very far away.","Some groups of stars make pictures in the sky. These are called constellations.","Tap the glowing star, then the next one, to draw a constellation!"], html:() => `
+  ${head('Stars','Make a constellation')}
+  <div class="bd"><div class="const" id="const"><svg viewBox="0 0 100 100" preserveAspectRatio="none" id="clines"></svg></div></div>`,
+  mount(root, api){
+    const pts=[[12,30],[27,24],[41,32],[53,42],[56,70],[78,76],[82,48],[53,42]];
+    const box=$('#const',root),svg=$('#clines',root);let k=0;
+    const uniq=pts.slice(0,7);
+    uniq.forEach(([x,y],i)=>{const b=document.createElement('button');b.className='cst'+(i===0?' next':'');b.style.left=x+'%';b.style.top=y+'%';b.setAttribute('aria-label','Star '+(i+1));b.innerHTML=starSvg('#fff');b.dataset.i=i;box.appendChild(b);});
+    const btns=$$('.cst',box);
+    btns.forEach(b=>b.addEventListener('click',()=>{
+      const want=k<7?k:3; if(+b.dataset.i!==want)return;
+      b.classList.add('lit');
+      if(k>0){const [x1,y1]=pts[k-1],[x2,y2]=pts[k];svg.insertAdjacentHTML('beforeend',`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ffe46b" stroke-width="3" vector-effect="non-scaling-stroke" stroke-linecap="round"/>`);}
+      k++; btns.forEach(x=>x.classList.remove('next'));
+      if(k<pts.length){btns[k<7?k:3].classList.add('next');}
+      else{api.say('You made the Big Dipper! It looks like a giant spoon in the sky.');api.done(b);}
+    }));
+  }});
+S.push({ch:'u2', lines:["Here is a secret. The stars are always in the sky, even in the daytime!","During the day, the Sun is so bright that we cannot see them.","When the Sun goes down, the dark night lets the stars shine through.","And a shooting star? It is a tiny space rock zooming through our sky. If one lands on Earth, we call it a meteorite!"], html:() => `
+  ${head('Star secret','Where do stars go in the day?')}
+  <div class="bd split"><div style="display:flex;gap:0;width:62%;height:100%;max-width:100%;border-radius:3cqmin;overflow:hidden;position:relative">
+    <div style="flex:1;background:linear-gradient(#6cc8ff,#c7eeff);position:relative"><div style="position:absolute;left:12%;top:12%">${P('sun','12cqmin')}</div>${[[30,55],[60,30],[70,70]].map(([x,y])=>`<span style="position:absolute;left:${x}%;top:${y}%;width:4cqmin;opacity:.18">${starSvg('#fff')}</span>`).join('')}<span class="tag" style="position:absolute;bottom:4%;left:6%;background:#fff;color:#123a5c;border-color:#fff">Day</span></div>
+    <div style="flex:1;background:linear-gradient(#0a0830,#24206a);position:relative"><div style="position:absolute;right:12%;top:12%">${P('moon','9cqmin')}</div>${[[20,30],[50,55],[30,70],[70,40],[45,20]].map(([x,y],i)=>`<span class="pop d${i+1}" style="position:absolute;left:${x}%;top:${y}%;width:4cqmin">${starSvg('#ffe46b')}</span>`).join('')}<span class="shoot"></span><span class="tag" style="position:absolute;bottom:4%;left:6%">Night</span></div></div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:34%"><div class="card pop d2" style="font-size:var(--t-s)">Stars are always there. The Sun is just brighter!</div><div class="card pop d6" style="font-size:var(--t-s)">Shooting star = a space rock. If it lands, it's a <span style="color:var(--sun)">meteorite</span>.</div></div></div>`});
+S.push({ch:'u2', lines:["On a dark, clear night, you may see a dusty white band of stars across the sky.","That is the Milky Way! It is made of stars, dust, and clouds of gas.","The Milky Way has hundreds of billions of stars. And it is just one of billions of galaxies in the universe!"], html:() => `
+  <div class="mw"></div><div class="hills"></div>
+  ${head('Look up','The Milky Way')}
+  <div class="bd" style="align-items:flex-end;justify-content:flex-end;z-index:2"><div class="card pop d3" style="max-width:min(100%,60cqmin)">Hundreds of <span style="color:var(--sun)">billions</span> of stars, dust and clouds of gas. One of billions of galaxies!</div></div>`});
+
+/* Unit 3 */
+S.push(unitCard('u3','Unit 3','Astronomers and Astronauts',"Unit three. Astronomers and Astronauts!"));
+S.push({ch:'u3', lines:["Astronomy is the science of studying outer space.","It looks at the Sun, the Moon, stars, comets, planets and galaxies.","People who study space are called astronomers.","Astronomers have been looking up at the sky for thousands of years!"], html:() => `
+  ${head('Space science','What is astronomy?')}
+  <div class="bd split"><div style="width:36cqmin;flex:none" class="pop">${telescopeSvg}</div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:52%"><div class="card pop d1"><span style="color:var(--pink)">Astronomy</span> = the science of outer space</div>
+    <div class="row pop d3">${['Sun','Moon','Stars','Comets','Planets','Galaxies'].map((t,i)=>`<span class="tag" style="background:${COLORS[i]};color:var(--ink);border-color:transparent">${t}</span>`).join('')}</div>
+    <div class="card pop d6"><span style="color:var(--pink)">Astronomers</span> study space</div></div></div>`});
+S.push({ch:'u3', lines:["Let's meet three famous astronomers!","Galileo Galilei built telescopes, and used them to look at the night sky.","Isaac Newton discovered gravity. Gravity is the pull that keeps our feet on the ground.","Edwin Hubble was a famous astronomer. The Hubble Space Telescope is named after him!"], html:() => `
+  ${head('Famous astronomers','Space heroes')}
+  <div class="bd"><div class="scientists">
+    <div class="card pop d2"><span class="avatar" style="background:var(--sky)">${telescopeSvg}</span><div><b>Galileo Galilei</b><br>Built telescopes to see the night sky</div></div>
+    <div class="card pop d5"><span class="avatar" style="background:var(--mint)">${ICONS.apple}</span><div><b>Isaac Newton</b><br>Discovered gravity, the pull of the Universe</div></div>
+    <div class="card pop d8"><span class="avatar" style="background:var(--violet)">${ICONS.hubble}</span><div><b>Edwin Hubble</b><br>The Hubble Space Telescope is named after him</div></div>
+  </div></div>`});
+S.push({ch:'u3', lines:["Astronauts are people who travel into space!","They fly to space to collect information for scientists and astronomers to study.","Astronauts also fix spaceships while they are in space."], html:() => `
+  ${head('Space explorers','What do astronauts do?')}
+  <div class="bd split"><div class="drift art">${astronautSvg(false)}</div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:52%"><div class="card pop d1">Travel into space in a rocket</div><div class="card pop d3">Collect information for scientists</div><div class="card pop d5">Fix space shuttles and spaceships</div></div></div>`});
+S.push({ch:'u3', interactive:true, lines:["Let's pretend we are astronauts at the space station!","Before launch, astronauts check everything carefully.","Tap each item on the launch checklist. Then we will count down together!"], html:() => `
+  ${head('Space station','Launch checklist')}
+  <div class="bd split"><div class="check" id="check">${['Oxygen ready','Weather check','Engines ready','Doors secure','Go for launch!'].map((t,i)=>`<button type="button" data-i="${i}"><i></i>${t}</button>`).join('')}</div>
+    <div class="pad">${rocketSvg('rocket')}</div></div><div class="count" id="count"></div>`,
+  mount(root, api){
+    const items=$$('#check button',root);let n=0;
+    items.forEach(b=>b.addEventListener('click',()=>{if(b.classList.contains('ok'))return;b.classList.add('ok');n++;api.say(b.textContent+(n<5?'. Check!':''));
+      if(n===5){const rk=$('.rocket',root),ct=$('#count',root);rk.classList.add('burn');let c=5;
+        const tick=()=>{if(!root.isConnected)return;if(c>0){ct.textContent=c;api.say(String(c),true);c--;setTimeout(tick,1000);}else{ct.textContent='';rk.classList.add('go');api.say('Blast off!',true);api.done(rk);}};setTimeout(tick,900);}
+    }));
+  }});
+S.push({ch:'u3', interactive:true, lines:["Living in space is very different from living on Earth.","On Earth we have air all around us. In space, there is no air!","So astronauts wear a special space suit. Let's dress our astronaut!","Tap each part to put it on."], html:() => `
+  ${head('The space suit','Dress the astronaut')}
+  <div class="bd split"><div class="art">${astronautSvg(true)}</div>
+    <div class="parts">${[['suit','Space suit'],['helmet','Helmet'],['pack','Air backpack'],['boots','Space boots']].map(([k,t])=>`<button class="btn ghost" data-k="${k}" type="button">${t}</button>`).join('')}</div></div>`,
+  mount(root, api){
+    const msg={suit:'The space suit is thick and bulky. It keeps the astronaut safe from the Sun\'s heat and the freezing cold.',helmet:'The helmet has a dark visor, like sunglasses, to block the Sun\'s glare.',pack:'The backpack holds oxygen, the air astronauts need to breathe.',boots:'Heavy space boots help astronauts walk on the Moon.'};
+    const on=new Set();
+    $$('.parts .btn',root).forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.k;$('.L-'+k,root).classList.add('on');b.classList.add('on');api.say(msg[k]);on.add(k);if(on.size===4)setTimeout(()=>api.done(b),400);}));
+  }});
+S.push({ch:'u3', lines:["In space, everything floats, because nothing has weight!","Astronauts sleep in sleeping bags tied to the wall, so they don't float away.","You cannot drink from a cup. The water would float away in wobbly bubbles! Astronauts drink through a straw from a pouch.","Space food is often freeze dried, like a powder in a pouch. Astronauts add water, then suck it out. Yum!","Some space food is sticky, so it stays on the plate."], html:() => `
+  ${head('Living in space','Everything floats!')}
+  <div class="bd split"><div style="position:relative;width:50cqmin;height:100%;max-width:100%">
+    <div class="drift" style="position:absolute;left:4%;top:8%;height:70%">${astronautSvg(false)}</div>
+    <div class="blob" style="position:absolute;right:10%;top:12%;width:9cqmin;height:8cqmin;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8fbff,#5cc8ff)"></div>
+    <div class="blob" style="position:absolute;right:28%;top:40%;width:5cqmin;height:5cqmin;border-radius:50%;background:radial-gradient(circle at 35% 35%,#e8fbff,#5cc8ff);animation-delay:1s"></div>
+    <svg class="drift" viewBox="0 0 40 60" style="position:absolute;right:8%;bottom:6%;width:10cqmin;animation-delay:2s"><path d="M24 2v16" stroke="#ff5fa2" stroke-width="3"/><rect x="6" y="16" width="28" height="40" rx="5" fill="#d9dcf5"/><rect x="10" y="28" width="20" height="12" rx="2" fill="#ff9f43"/></svg></div>
+    <div style="display:flex;flex-direction:column;gap:1.6cqmin;max-width:48%;font-size:var(--t-s)">${['Sleep in sleeping bags tied down','Drink through a straw from a pouch','Food is freeze dried: just add water','Sticky food stays on the plate'].map((t,i)=>`<div class="card pop d${i*2+1}" style="font-size:var(--t-s)">${t}</div>`).join('')}</div></div>`});
+
+/* Unit 4 */
+S.push(unitCard('u4','Unit 4','What Do We See in Outer Space?',"Unit four. What do we see in outer space?"));
+S.push({ch:'u4', lines:["Satellites are machines that we send into space.","They collect information and radio it back to Earth.","Satellites help send TV shows and messages all around the world!"], html:() => `
+  ${head('Up in space','Satellites')}
+  <div class="bd split"><div style="position:relative;width:56cqmin;height:100%;max-width:100%;display:grid;place-items:center">${P('earth','26cqmin','div','class="spin"')}
+    <div class="sat"><svg viewBox="0 0 100 60"><rect x="38" y="18" width="24" height="24" rx="4" fill="#d9dcf5"/><rect x="2" y="22" width="32" height="16" fill="#5cc8ff"/><rect x="66" y="22" width="32" height="16" fill="#5cc8ff"/><path d="M50 18V6" stroke="#ffc93c" stroke-width="3"/><circle cx="50" cy="5" r="4" fill="#ffc93c"/></svg></div>
+    ${[0,.5,1].map(d=>`<span class="wave" style="width:16cqmin;height:16cqmin;left:56%;top:4%;animation-delay:${d}s"></span>`).join('')}</div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:44%"><div class="card pop d1">Collect information from space</div><div class="card pop d3">Radio it back to Earth</div><div class="card pop d5">Send TV shows around the world</div></div></div>`});
+S.push({ch:'u4', lines:["Rockets carry astronauts and things into space.","Rockets are the only engines strong and fast enough to get a spaceship to space.","Fuel burns, and rushes out of the bottom. That pushes the rocket up!","It's just like when you blow a wrapper off a straw. Whoosh!"], html:() => `
+  ${head('Whoosh!','Rockets')}
+  <div class="bd split"><div class="pad" style="width:24cqmin"><div class="float">${rocketSvg('rocket burn')}</div></div>
+    <div style="display:flex;flex-direction:column;gap:2.4cqmin;max-width:56%;align-items:flex-start"><div class="card pop d1">Hot gas rushes down, the rocket goes up!</div>
+    <div class="card pop d5" style="width:100%"><div style="margin-bottom:1.4cqmin">Like blowing a wrapper off a straw</div><div class="straw"><div class="tube"></div><div class="wrap"></div></div></div></div></div>`});
+S.push({ch:'u4', lines:["The space shuttle could lift off into space just like a rocket.","Then it came back to Earth, gliding down like a huge glider plane.","Coming back through the air around Earth made the shuttle very, very hot!"], html:() => `
+  ${head('Up and back','The space shuttle')}
+  <div class="bd split"><div style="width:44cqmin;flex:none" class="float">${ICONS.shuttle}</div>
+    <div style="display:flex;flex-direction:column;gap:2cqmin;max-width:48%"><div class="card pop d1">Lifts off like a rocket</div><div class="card pop d3">Glides back like a huge glider</div><div class="card pop d5">Gets very hot coming home</div></div></div>`});
+S.push({ch:'u4', lines:["We have one Moon. But there are many other moons in the Solar System.","In 2009, scientists counted 336 moons! And they keep finding more."], html:() => `
+  ${head('So many moons','Moons everywhere')}
+  <div class="bd split"><div style="position:relative;width:40cqmin;height:40cqmin;display:grid;place-items:center">${P('jupiter','20cqmin')}
+    ${[0,1,2,3].map(i=>`<div class="orbit" style="--r:${60+i*12}%;--d:${5+i*3}s;--o:-${i*2}s;border-color:rgba(195,189,242,.2)">${P('moon','3.4cqmin')}</div>`).join('')}</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1cqmin"><div class="counter" id="moonCount">0</div><div class="lead">moons counted in 2009</div></div></div>`,
+  mount(root){let n=0;const el=$('#moonCount',root);const t=setInterval(()=>{if(!root.isConnected)return clearInterval(t);n=Math.min(336,n+7);el.textContent=n;if(n>=336)clearInterval(t);},40);}});
+S.push({ch:'u4', lines:["Now, let's meet each planet, one by one, starting closest to the Sun!"], html:() => `
+  ${head('Planet parade','Meet the planets!')}
+  <div class="bd" style="gap:2cqmin;flex-wrap:wrap;align-content:center">${P('sun','14cqmin')}${ORDER.map((p,i)=>`<div class="dance" style="animation-delay:${i*.1}s">${P(p,ROW_SIZE[p])}</div>`).join('')}</div>`});
+ORDER.forEach((p,i)=>S.push({ch:'u4', lines:FACTS[p].lines, html:() => `
+  ${head(`Planet ${i+1} from the Sun`,NAME[p])}
+  <div class="bd split"><div class="pop" style="display:grid;place-items:center;width:44cqmin;height:44cqmin;flex:none">${P(p,p==='saturn'?'26cqmin':'38cqmin')}</div>
+    <ul class="factlist" style="max-width:48%">${FACTS[p].short.map((f,k)=>`<li class="card pop d${k*2+2}">${f}</li>`).join('')}</ul></div>`}));
+S.push({ch:'u4', lines:["There are also little planets called dwarf planets.","Their names are Ceres, Pluto, Haumea, Makemake, and Eris."], html:() => `
+  ${head('Tiny worlds','Dwarf planets')}
+  <div class="bd" style="flex-wrap:wrap;align-content:center;gap:4cqmin">${['Ceres','Pluto','Haumea','Makemake','Eris'].map((n,i)=>`<div class="pop d${i+2}" style="display:flex;flex-direction:column;align-items:center;gap:1.4cqmin">${P('dwarf',['6cqmin','8cqmin','7cqmin','7cqmin','7.5cqmin'][i])}<span class="tag">${n}</span></div>`).join('')}</div>`});
+S.push({ch:'u4', lines:["Meteorites are space rocks. They fall from the sky and land on Earth.","Comets are balls of ice, frozen gas and dust. They travel around the Sun on a long, stretched path.","When a comet comes close to the Sun, it heats up. It grows a glowing cloud and a long, shiny tail!"], html:() => `
+  ${head('Space travellers','Meteorites and comets')}
+  <div class="bd col" style="gap:3cqmin"><div class="comet"><div class="tail"></div><div class="head"></div></div>
+    <div class="cards"><div class="card pop d1" style="font-size:var(--t-s)"><span class="rock" style="width:10cqmin;flex:none">${ICONS.asteroid}</span><span><span style="color:var(--sun)">Meteorite:</span> a space rock that lands on Earth</span></div>
+    <div class="card pop d3" style="font-size:var(--t-s)"><span style="color:var(--sky)">Comet:</span> ice, frozen gas and dust. Near the Sun it grows a shiny tail!</div></div></div>`});
+
+/* Games */
+S.push(unitCard('games','Your turn','Space Games!',"Space games! Let's play and learn."));
+S.push({ch:'games', interactive:true, lines:["Planet riddles! Listen to the clue, then tap the right planet."], html:() => `
+  ${head('Planet riddle','Who am I?')}<div class="bd col" id="rid" style="gap:2.6cqmin"></div>`,
+  mount(root, api){
+    const Q=[['I am farthest from the Sun.','neptune'],['I have got the ocean.','earth'],['I am the largest planet.','jupiter'],['I have big, beautiful rings around me.','saturn'],['I am the hottest planet.','venus'],['I rotate sideways.','uranus'],['I am the red planet.','mars'],['I am the smallest planet.','mercury']];
+    const box=$('#rid',root);let k=0;
+    const render=()=>{const [clue,ans]=Q[k];const opts=[ans,...ORDER.filter(p=>p!==ans).sort(()=>Math.random()-.5).slice(0,2)].sort(()=>Math.random()-.5);
+      box.innerHTML=`<span class="tag">Riddle ${k+1} of ${Q.length}</span><div class="row" style="gap:3cqmin;justify-content:center;flex-wrap:nowrap"><div class="pl mystery pop" style="--s:13cqmin">?</div><p class="clue">${clue}</p></div>
+      <div class="choices">${opts.map(o=>`<button class="choice" type="button" data-p="${o}">${P(o,'9cqmin')}${NAME[o]}</button>`).join('')}</div>`;
+      $$('.choice',box).forEach(b=>b.addEventListener('click',()=>{if(b.dataset.p===ans){b.classList.add('right');api.say(`Yes! I am ${NAME[ans]}!`);api.burst(b);k++;setTimeout(()=>{if(!root.isConnected)return;if(k<Q.length)render();else{box.innerHTML=`<p class="big pop">All 8 riddles solved!</p>${mascot()}`;api.done();}},1500);}else{b.classList.remove('wob');void b.offsetWidth;b.classList.add('wob');api.say(`Not ${NAME[b.dataset.p]}. Try again!`);}}));};
+    render();
+    api.onLinesDone=()=>api.say(Q[k][0],true);
+  }});
+S.push({ch:'games', interactive:true, lines:["Can you put the planets in order?","Start with the planet closest to the Sun. Tap the planets one by one!"], html:() => `
+  ${head('The Solar System','Planets in order')}
+  <div class="bd col" style="gap:3cqmin"><div class="slots" id="slots">${P('sun','8cqmin')}${ORDER.map((p,i)=>`<span class="slot">${i+1}</span>`).join('')}</div>
+    <div class="tray" id="tray">${[...ORDER].sort(()=>Math.random()-.5).map(p=>P(p,'10cqmin','button')).join('')}</div></div>`,
+  mount(root, api){
+    let k=0;const slots=$$('.slot',root);
+    $$('#tray button',root).forEach(b=>b.addEventListener('click',()=>{const p=b.dataset.p;
+      if(p===ORDER[k]){slots[k].innerHTML=P(p,'8cqmin');slots[k].style.borderStyle='solid';b.classList.add('used');api.say(`${NAME[p]}!`);k++;if(k===8){api.say('Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune. Perfect order!');api.done(slots[7]);}}
+      else{b.classList.remove('wob');void b.offsetWidth;b.classList.add('wob');api.say(`Hmm, not ${NAME[p]} yet. Which planet comes number ${k+1}?`);}
+    }));
+  }});
+S.push({ch:'games', interactive:true, lines:["My space words! Look at the picture, and tap the word that matches."], html:() => `
+  ${head('My space words','Match the word')}<div class="bd split" id="wbox"></div>`,
+  mount(root, api){
+    const W=[['sun','Sun'],['astronaut','Astronaut'],['moon','Moon'],['shuttle','Shuttle'],['stars','Stars'],['rover','Space rover'],['planet','Planet'],['asteroid','Asteroid']];
+    const box=$('#wbox',root);let k=0;
+    const render=()=>{const [ic,word]=W[k];const opts=[word,...W.map(w=>w[1]).filter(w=>w!==word).sort(()=>Math.random()-.5).slice(0,2)].sort(()=>Math.random()-.5);
+      box.innerHTML=`<div class="pic pop">${ICONS[ic]}</div><div class="wordbtns"><span class="tag" style="align-self:flex-start">Word ${k+1} of ${W.length}</span>${opts.map(o=>`<button class="btn ghost" type="button">${o}</button>`).join('')}</div>`;
+      $$('.wordbtns .btn',box).forEach(b=>b.addEventListener('click',()=>{if(b.textContent===word){b.classList.add('on');api.say(word+'!');api.burst(b);k++;setTimeout(()=>{if(!root.isConnected)return;if(k<W.length)render();else{box.innerHTML=`<p class="big pop">You know all your space words!</p>`;api.done();}},1200);}else{b.classList.remove('wob');void b.offsetWidth;b.classList.add('wob');api.say('Try again!');}}));};
+    render();
+  }});
+S.push({ch:'games', interactive:true, lines:["If you were an alien, what would you be like?","Pick a color and eyes, give your alien a name, choose where it lives and what it eats.","Then tap Meet my alien!"], html:() => `
+  ${head('Imagine','If I were an alien')}
+  <div class="bd split" style="align-items:stretch"><div style="display:grid;place-items:center;flex:none" id="alienBox"></div>
+    <div class="maker">
+      <span class="lbl">Color</span><div class="row" id="acol">${['#7be36a','#ff7ac0','#b18cff','#ffab4a','#5cc8ff'].map((c,i)=>`<button class="sw${i?'':' sel'}" style="background:${c}" data-c="${c}" aria-label="Color ${i+1}" type="button"></button>`).join('')}</div>
+      <span class="lbl">Eyes</span><div class="row" id="aeye">${[1,2,3].map(n=>`<button class="chip${n===3?' sel':''}" data-n="${n}" type="button">${n}</button>`).join('')}</div>
+      <label for="aname">My name would be</label><input class="inp" id="aname" value="Zib Zob" maxlength="16">
+      <span class="lbl">I would live on</span><div class="row" id="aplace">${['Mars','Saturn','Neptune','the Moon'].map((n,i)=>`<button class="chip${i?'':' sel'}" type="button">${n}</button>`).join('')}</div>
+      <span class="lbl">I would eat</span><div class="row" id="afood">${['moon cheese','star cookies','comet noodles','space jelly'].map((n,i)=>`<button class="chip${i?'':' sel'}" type="button">${n}</button>`).join('')}</div>
+      <button class="btn" id="ameet" type="button" style="align-self:flex-start">Meet my alien!</button></div></div>`,
+  mount(root, api){
+    let color='#7be36a',eyes=3;const ab=$('#alienBox',root);
+    const draw=()=>{ab.innerHTML=alienSvg(color,eyes);};draw();
+    const pick=(sel,cb)=>$$(sel+' button',root).forEach(b=>b.addEventListener('click',()=>{$$(sel+' button',root).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');cb&&cb(b);}));
+    pick('#acol',b=>{color=b.dataset.c;draw();});pick('#aeye',b=>{eyes=+b.dataset.n;draw();});pick('#aplace');pick('#afood');
+    $('#ameet',root).addEventListener('click',e=>{const name=($('#aname',root).value.trim()||'Zib Zob');const place=$('#aplace .sel',root).textContent;const food=$('#afood .sel',root).textContent;
+      api.say(`Hello! My name is ${name}. I live on ${place}, and I love to eat ${food}. If you saw me, you would wave hello!`);api.done(e.target);});
+  }});
+S.push({ch:'games', interactive:true, lines:["Do you want to be an astronaut? Let's fill in your astronaut application!","Type your name, pick your age, and tell us why you want to go to space."], html:() => `
+  ${head('Join the crew','Astronaut application')}
+  <div class="bd split" id="appBox"><div class="art">${astronautSvg(false)}</div>
+    <div class="maker">
+      <label for="cname">Name</label><input class="inp" id="cname" placeholder="Your name" maxlength="18">
+      <span class="lbl">Age</span><div class="row" id="cage">${[3,4,5,6].map((n,i)=>`<button class="chip${i===1?' sel':''}" type="button">${n}</button>`).join('')}</div>
+      <span class="lbl">I want to be an astronaut because I want to</span><div class="row" id="cwhy">${['float in space','walk on the Moon','see the planets','help scientists'].map((n,i)=>`<button class="chip${i?'':' sel'}" type="button">${n}</button>`).join('')}</div>
+      <button class="btn" id="csend" type="button" style="align-self:flex-start">Send my application</button></div></div>`,
+  mount(root, api){
+    const pick=sel=>$$(sel+' button',root).forEach(b=>b.addEventListener('click',()=>{$$(sel+' button',root).forEach(x=>x.classList.remove('sel'));b.classList.add('sel');}));
+    pick('#cage');pick('#cwhy');
+    $('#csend',root).addEventListener('click',()=>{const name=$('#cname',root).value.trim()||'Space Explorer';const why=$('#cwhy .sel',root).textContent;
+      const box=$('#appBox',root);box.innerHTML=`<div class="badge pop"><span class="hole"></span><span style="width:18cqmin;flex:none">${mascot().replace('class="mascot ','class="')}</span><div style="min-width:0"><h3>Astronaut in training</h3><b></b><small>Security clearance level 1<br>Dream: to ${why}</small></div><span class="stamp">Approved!</span></div>`;
+      $('.badge b',box).textContent=name;
+      api.say(`Congratulations, ${name}! You are now an astronaut in training!`);api.done($('.badge',box));});
+  }});
+
+/* Party */
+S.push({ch:'party', lines:["Hooray! It's Solar System Day!","Dress up as a planet, a star, or the Sun, and tell your friends a fact about yourself.","Then sing and dance to the Solar System Song!"], html:() => `
+  ${head('Celebrate','Solar System Day!')}
+  <div class="bd col" style="gap:3cqmin"><div class="row" style="justify-content:center;gap:2cqmin">${['sun',...ORDER].map((p,i)=>`<div class="dance" style="animation-delay:${i*.12}s">${P(p,p==='sun'?'12cqmin':ROW_SIZE[p])}</div>`).join('')}</div>
+    <div class="card pop d2" style="text-align:center">Dress up as a planet and share a fact about yourself!</div>
+    <div class="links pop d4"><a href="https://www.youtube.com/watch?v=F2prtmPEjOc" target="_blank" rel="noopener">Play: The Solar System Song</a><a href="https://www.youtube.com/watch?v=Vb2ZXRh74WU" target="_blank" rel="noopener">Play: StoryBots Outer Space</a></div></div>`});
+S.push({ch:'party', lines:["Here are all of our space words. Tap any word to hear it!"], html:() => `
+  ${head('Word wall','Our space words')}
+  <div class="bd"><div class="vocab">${VOCAB.map((w,i)=>`<button type="button" style="background:${COLORS[i%COLORS.length]}">${w}</button>`).join('')}</div></div>`,
+  mount(root, api){$$('.vocab button',root).forEach(b=>b.addEventListener('click',()=>{api.say(b.textContent,true);api.burst(b);}));}});
+S.push({ch:'party', lines:["Great job, space explorers!","You learned about the Sun, the planets, the Moon, the stars, and astronauts.","Keep looking up at the sky. See you next time! Bye bye!"], html:() => `
+  <div class="bd col">${mascot().replace('<svg','<svg style="--m:30cqmin"')}<h2 class="big pop d1">Mission complete!</h2><p class="lead pop d2">Keep looking up at the sky, space explorer.</p></div>`});
+
+/* ---------------- Player ---------------- */
+const stage = $('#stage'), host = $('#sceneHost'), capEl = $('#caption');
+const st = {i:0, playing:false, line:0, linesDone:false, sceneDone:true, token:0, voice:true, timer:null};
+try { st.voice = localStorage.getItem('osa-voice') !== 'off'; } catch(e) {}
+const hasTTS = 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+let voicePick = null;
+const chooseVoice = () => {
+  if (!hasTTS) return;
+  const vs = speechSynthesis.getVoices().filter(v => /^en/i.test(v.lang));
+  const pref = [/Google UK English Female/i,/Samantha/i,/Google US English/i,/Female/i,/Karen|Moira|Tessa|Serena/i,/en-GB/i];
+  for (const re of pref) { const v = vs.find(v => re.test(v.name) || re.test(v.lang)); if (v) { voicePick = v; return; } }
+  voicePick = vs[0] || null;
+};
+if (hasTTS) { chooseVoice(); speechSynthesis.onvoiceschanged = chooseVoice; }
+
+function speakRaw(text, cb){
+  const t = st.token, words = text.split(/\s+/).length;
+  if (st.voice && hasTTS) {
+    const u = new SpeechSynthesisUtterance(text);
+    if (voicePick) u.voice = voicePick;
+    u.rate = .92; u.pitch = 1.15;
+    let fired = false;
+    const fin = () => { if (fired) return; fired = true; clearTimeout(fb); if (cb && t === st.token) setTimeout(() => t === st.token && cb(), 380); };
+    const fb = setTimeout(fin, words * 650 + 4000);
+    u.onend = fin; u.onerror = fin;
+    speechSynthesis.speak(u);
+  } else if (cb) {
+    st.timer = setTimeout(() => t === st.token && cb(), words * 400 + 1400);
+  }
+}
+function stopSpeech(){ st.token++; clearTimeout(st.timer); if (hasTTS) speechSynthesis.cancel(); }
+
+function setCaption(t){ capEl.textContent = t; }
+function bubble(text){
+  const g = $('.guide', stage); if (!g) return;
+  const old = $('.bubble', g); if (old) old.remove();
+  const b = document.createElement('div'); b.className = 'bubble'; b.textContent = text; g.appendChild(b);
+  clearTimeout(bubble.t); bubble.t = setTimeout(() => b.remove(), 4200);
+}
+function burst(el){
+  const r = stage.getBoundingClientRect(); let x = r.width/2, y = r.height/2;
+  if (el && el.getBoundingClientRect) { const e = el.getBoundingClientRect(); x = e.left - r.left + e.width/2; y = e.top - r.top + e.height/2; }
+  const cols = ['#ffc93c','#ff5fa2','#3ee6c1','#5cc8ff','#b18cff'];
+  for (let k = 0; k < 16; k++) {
+    const s = document.createElement('span'); s.className = 'burst';
+    const a = (k/16) * Math.PI * 2, d = 60 + Math.random() * 90;
+    s.style.left = x + 'px'; s.style.top = y + 'px';
+    s.style.setProperty('--x', Math.cos(a) * d + 'px'); s.style.setProperty('--y', Math.sin(a) * d + 'px');
+    s.innerHTML = starSvg(cols[k % cols.length]);
+    stage.appendChild(s); setTimeout(() => s.remove(), 1200);
+  }
+}
+
+let api = null;
+function mount(i){
+  const sc = S[i];
+  stage.className = 'stage chc-' + sc.ch;
+  host.innerHTML = `<div class="scene ${sc.cls || ''}">${sc.html()}</div><div class="guide">${sc.ch==='intro'&&i===0||i===S.length-1 ? '' : mascot()}</div>`;
+  const root = $('.scene', host);
+  st.sceneDone = !sc.interactive; st.line = 0; st.linesDone = false;
+  api = {
+    stage, onLinesDone:null,
+    say(text, urgent){ bubble(text); if (st.voice && hasTTS) { if (urgent || !st.playing || st.linesDone) { speechSynthesis.cancel(); } speakRaw(text); } },
+    burst,
+    done(el){ if (st.sceneDone) return; st.sceneDone = true; burst(el); const y = $('.yourturn', stage); if (y) y.remove(); maybeAdvance(); }
+  };
+  if (sc.mount) sc.mount(root, api);
+  renderChrome();
+}
+function goTo(i){
+  if (i < 0 || i >= S.length) return;
+  stopSpeech(); st.i = i; mount(i);
+  setCaption(S[i].lines[0]);
+  if (st.playing) playLines();
+}
+function playLines(){
+  const sc = S[st.i];
+  if (st.line >= sc.lines.length) { linesFinished(); return; }
+  setCaption(sc.lines[st.line]);
+  speakRaw(sc.lines[st.line], () => { st.line++; playLines(); });
+}
+function linesFinished(){
+  st.linesDone = true;
+  if (api && api.onLinesDone) { const f = api.onLinesDone; api.onLinesDone = null; f(); }
+  if (!st.sceneDone && !$('.yourturn', stage)) { const y = document.createElement('div'); y.className = 'yourturn'; y.textContent = 'Your turn!'; stage.appendChild(y); }
+  maybeAdvance();
+}
+function maybeAdvance(){
+  if (!st.playing || !st.linesDone || !st.sceneDone) return;
+  const t = st.token, wait = S[st.i].interactive ? 3200 : 1100;
+  if (st.i >= S.length - 1) { setPlaying(false); return; }
+  setTimeout(() => { if (t === st.token && st.playing && !(hasTTS && speechSynthesis.speaking && st.voice)) goTo(st.i + 1); else if (t === st.token && st.playing) setTimeout(() => t === st.token && st.playing && goTo(st.i + 1), 2500); }, wait);
+}
+function setPlaying(on){
+  st.playing = on;
+  $('#play').setAttribute('aria-label', on ? 'Pause' : 'Play');
+  $('#playIcon').innerHTML = on ? '<path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z" fill="currentColor"/>' : '<path d="M7 4v16l13-8z" fill="currentColor"/>';
+}
+function togglePlay(){
+  const s = $('#start'); if (s) s.remove();
+  if (st.playing) { setPlaying(false); stopSpeech(); }
+  else { setPlaying(true); if (st.linesDone) maybeAdvance(); else playLines(); }
+}
+
+/* Chrome */
+const prog = $('#progress'), chapNav = $('#chapters');
+S.forEach((sc, i) => { const b = document.createElement('button'); b.style.setProperty('--c', CH[sc.ch].c); b.setAttribute('aria-label', `Scene ${i+1}: ${CH[sc.ch].name}`); b.addEventListener('click', () => { const s = $('#start'); if (s) s.remove(); goTo(i); }); prog.appendChild(b); });
+Object.entries(CH).forEach(([k, c]) => { const b = document.createElement('button'); b.style.setProperty('--c', c.c); b.dataset.ch = k; b.innerHTML = `<i></i>${c.name}`; b.addEventListener('click', () => { const s = $('#start'); if (s) s.remove(); goTo(S.findIndex(x => x.ch === k)); }); chapNav.appendChild(b); });
+const seen = new Set();
+function renderChrome(){
+  seen.add(st.i);
+  $$('button', prog).forEach((b, i) => { b.classList.toggle('cur', i === st.i); b.classList.toggle('seen', seen.has(i)); });
+  $$('button', chapNav).forEach(b => b.classList.toggle('cur', b.dataset.ch === S[st.i].ch));
+  $('#where').textContent = `${CH[S[st.i].ch].name} · ${st.i + 1} / ${S.length}`;
+  $('#voice').setAttribute('aria-pressed', String(st.voice));
+}
+$('#start').addEventListener('click', togglePlay);
+$('#play').addEventListener('click', togglePlay);
+$('#prev').addEventListener('click', () => goTo(st.i - 1));
+$('#next').addEventListener('click', () => goTo(st.i + 1));
+$('#voice').addEventListener('click', () => {
+  st.voice = !st.voice; try { localStorage.setItem('osa-voice', st.voice ? 'on' : 'off'); } catch(e) {}
+  renderChrome(); if (st.playing && !st.linesDone) { stopSpeech(); playLines(); } else if (!st.voice && hasTTS) speechSynthesis.cancel();
+});
+document.addEventListener('keydown', e => {
+  if (/input|textarea/i.test(e.target.tagName)) return;
+  if (e.code === 'Space' && !/button/i.test(e.target.tagName)) { e.preventDefault(); togglePlay(); }
+  if (e.key === 'ArrowRight') goTo(st.i + 1);
+  if (e.key === 'ArrowLeft') goTo(st.i - 1);
+});
+
+/* Starfield */
+const cv = $('#starfield'), cx = cv.getContext('2d'); let stars = [];
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sizeCanvas(){
+  const r = stage.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+  cv.width = r.width * d; cv.height = r.height * d; cx.setTransform(d, 0, 0, d, 0, 0);
+  stars = Array.from({length: Math.round(r.width * r.height / 2600)}, () => ({x: Math.random() * r.width, y: Math.random() * r.height, r: Math.random() * 1.4 + .3, p: Math.random() * 6.28, s: Math.random() * .03 + .01}));
+}
+function drawStars(){
+  const w = cv.width, h = cv.height; cx.clearRect(0, 0, w, h);
+  for (const s of stars) { s.p += reduce ? 0 : s.s; cx.globalAlpha = .45 + .55 * Math.abs(Math.sin(s.p)); cx.fillStyle = '#fff'; cx.beginPath(); cx.arc(s.x, s.y, s.r, 0, 6.283); cx.fill(); }
+  requestAnimationFrame(drawStars);
+}
+new ResizeObserver(sizeCanvas).observe(stage); sizeCanvas(); drawStars();
+
+mount(0);
+})();
+</script>
