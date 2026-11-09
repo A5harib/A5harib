@@ -184,7 +184,7 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-o
 .badge h3{margin:0;font-family:var(--display);font-weight:800;font-size:72px;color:#fff;text-shadow:0 6px 0 rgba(0,0,0,.3)}
 .badge p{margin:0;font-size:40px;color:var(--sun);font-weight:700}
 
-.word{position:absolute;left:36px;top:30px;z-index:70;background:#fff;border-radius:26px;padding:14px 26px 16px;max-width:620px;box-shadow:0 10px 0 rgba(0,0,0,.12);border:6px solid var(--sun);display:flex;gap:18px;align-items:center;transform:translateY(-160%);transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
+.word{position:absolute;left:36px;top:30px;z-index:70;background:#fff;border-radius:26px;padding:14px 26px 16px;max-width:620px;box-shadow:0 10px 0 rgba(0,0,0,.12);border:6px solid var(--sun);display:flex;gap:18px;align-items:center;transform:translateY(calc(-100% - 80px));transition:transform .5s cubic-bezier(.3,1.4,.5,1)}
 .word.on{transform:none}
 .word svg{width:90px;height:90px;flex:none}
 .word small{display:block;font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:2px;color:#9a6a00;text-transform:uppercase}
@@ -303,6 +303,31 @@ table.cov th{font-family:var(--display);font-size:15px;background:var(--paper2)}
 .sb-lines .opt-l{display:block}
 @media (max-width:560px){.sb-lines li{grid-template-columns:1fr;gap:2px}}
 
+/* render mode (MP4 export): 1920x1080 frame, stage on top, captions below */
+body.render{padding:0;overflow:hidden;background:radial-gradient(circle at 50% 30%,#2c2878 0%,#15133a 80%)}
+body.render .top,body.render .controls,body.render .start{display:none!important}
+body.render .app{max-width:none}
+body.render .player{position:fixed;left:0;top:0;width:1920px;height:1080px;border-radius:0;padding:16px 256px;gap:14px;box-shadow:none;background:transparent}
+body.render .stage{width:1408px;height:792px;flex:none;border-radius:22px;box-shadow:0 0 0 6px rgba(255,255,255,.08)}
+body.render .panel{flex:1;position:relative;padding:14px 26px;gap:12px;border-radius:22px;justify-content:flex-start}
+body.render .who{font-size:22px;padding:4px 16px}
+body.render #captext{font-size:33px;line-height:1.28;padding-right:170px}
+body.render .qhead .qtag{display:none}
+body.render .timer{position:absolute;right:22px;top:12px;font-size:24px}
+body.render .timer svg{width:52px;height:52px}
+body.render .opt{font-size:29px;min-height:74px;padding:8px 16px}
+body.render .opt svg{width:56px;height:56px}
+body.render .opts{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+body.render .answer{font-size:29px;padding:8px 16px}
+body.render .saynow{font-size:24px}
+body.render .brandv{display:flex}
+.brandv{display:none;position:fixed;left:0;top:0;width:256px;height:1080px;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#cfc9ff;font-family:var(--display);font-weight:800;text-align:center;font-size:24px;line-height:1.1}
+.brandv svg{width:96px}
+.brandv b{display:block;font-size:30px}
+.brandv .s{color:#ff7b86}.brandv .t{color:var(--sun)}.brandv .a{color:#5ff0b5}
+.chapv{display:none;position:fixed;right:0;top:0;width:256px;height:1080px;align-items:center;justify-content:center;padding:0 22px;color:#cfc9ff;font-family:var(--display);font-weight:700;font-size:24px;text-align:center;line-height:1.2}
+body.render .chapv{display:flex}
+
 /* keyframes */
 @keyframes bob{to{transform:translateY(-7px)}}
 @keyframes float{from{transform:translateY(0)}to{transform:translateY(-18px)}}
@@ -402,6 +427,8 @@ table.cov th{font-family:var(--display);font-size:15px;background:var(--paper2)}
   </section>
 
   <section id="view-board" hidden></section>
+  <div class="brandv" aria-hidden="true"><svg viewBox="0 0 60 100"><rect x="6" y="4" width="48" height="92" rx="20" fill="#2e2a5c" stroke="#fff" stroke-width="4"/><circle cx="30" cy="26" r="11" fill="#ff5d6c"/><circle cx="30" cy="50" r="11" fill="#ffc531"/><circle cx="30" cy="74" r="11" fill="#35d699"/></svg><div>The Magic of<b class="s">STOP,</b><b class="t">THINK</b><b class="a">&amp; ACT!</b></div></div>
+  <div class="chapv" id="chapv" aria-hidden="true"></div>
 </div>
 
 <!-- ======================= LESSON SCRIPT (pure data) ======================= -->
@@ -1256,6 +1283,9 @@ const alive=id=>id===runId;
 const synth=("speechSynthesis" in window)?window.speechSynthesis:null;
 if(!synth) opts.voice=false;
 const score={right:0,total:0,seen:{}};
+const RENDER=!!window.__RENDER;window.__EV=window.__EV||[];
+const logEv=e=>{if(RENDER)window.__EV.push(Object.assign({t:Date.now()/1000},e));};
+if(RENDER){document.body.classList.add("render");opts.mode="class";opts.voice=false;}
 
 /* scale */
 function fit(){canvasEl.style.transform=`scale(${stage.clientWidth/1600})`;}
@@ -1271,10 +1301,11 @@ function tone(m,t,d,type,g,dest,slideTo){const o=AC.createOscillator(),v=AC.crea
 function noise(t,d,f,q,g,sweep){const len=Math.floor(AC.sampleRate*d),b=AC.createBuffer(1,len,AC.sampleRate),a=b.getChannelData(0);for(let i=0;i<len;i++)a[i]=Math.random()*2-1;const s=AC.createBufferSource();s.buffer=b;const fl=AC.createBiquadFilter();fl.type="bandpass";fl.frequency.setValueAtTime(f,t);if(sweep)fl.frequency.exponentialRampToValueAtTime(sweep,t+d);fl.Q.value=q||1;const v=AC.createGain();v.gain.setValueAtTime(g,t);v.gain.exponentialRampToValueAtTime(.001,t+d);s.connect(fl);fl.connect(v);v.connect(master);s.start(t);}
 const CHORDS=[[60,64,67],[67,71,74],[69,72,76],[65,69,72]];
 function sched(){const spb=60/108/2;while(nextT<AC.currentTime+.35){const bar=Math.floor(beat/8)%4,ch=CHORDS[bar],i=beat%8,pat=[0,1,2,1,0,2,1,2];tone(ch[pat[i]]+12,nextT,.32,"triangle",.42,musicGain);if(i===0)tone(ch[0]-12,nextT,1.7,"sine",.55,musicGain);if(i===4)tone(ch[2]-12,nextT,1,"sine",.3,musicGain);if(i%4===2)tone(ch[(beat>>2)%3]+24,nextT,.22,"sine",.16,musicGain);nextT+=spb;beat++;}}
-function startMusic(){if(!opts.music||!ac()||musicTimer)return;nextT=AC.currentTime+.08;musicTimer=setInterval(sched,90);}
-function stopMusic(){clearInterval(musicTimer);musicTimer=null;}
+let musicOnLog=false;
+function startMusic(){if(RENDER){if(!musicOnLog){musicOnLog=true;logEv({k:"music",on:1});}return;}if(!opts.music||!ac()||musicTimer)return;nextT=AC.currentTime+.08;musicTimer=setInterval(sched,90);}
+function stopMusic(){if(RENDER){if(musicOnLog){musicOnLog=false;logEv({k:"music",on:0});}return;}clearInterval(musicTimer);musicTimer=null;}
 function musicLevel(v){if(AC&&musicGain)musicGain.gain.setTargetAtTime(v,AC.currentTime,.2);}
-function sfx(n){if(SPEED()>1||!ac())return;const t=AC.currentTime;switch(n){
+function sfx(n){if(RENDER){logEv({k:"sfx",n});return;}if(SPEED()>1||!ac())return;const t=AC.currentTime;switch(n){
   case"ding":tone(84,t,.35,"sine",.3);tone(88,t+.11,.5,"sine",.3);break;
   case"bloop":tone(64,t,.35,"sine",.25,null,52);break;
   case"uhoh":tone(72,t,.22,"triangle",.25);tone(67,t+.22,.4,"triangle",.25);break;
@@ -1322,7 +1353,8 @@ async function say(who,text,id){
   const talkers=who==="all"?KIDS:[who];
   talkers.forEach(k=>actors[k]&&actors[k].el.classList.add("talking"));
   musicLevel(musicBase*.45);
-  if(opts.voice&&synth&&SPEED()===1) await speakNow(who,text,id); else await sleep(readMs(text),id);
+  if(RENDER){logEv({k:"say",who,text});const d=(window.__CLIPS||{})[who+"|"+text];await sleep(d?d*1000+120:readMs(text),id);}
+  else if(opts.voice&&synth&&SPEED()===1) await speakNow(who,text,id); else await sleep(readMs(text),id);
   talkers.forEach(k=>actors[k]&&actors[k].el.classList.remove("talking"));
   musicLevel(musicBase);
   if(alive(id)) await sleep(260,id);
@@ -1403,7 +1435,7 @@ async function widget(w,id){
   if(["title","cq","tools","breathe","review","score"].includes(w.type)){widgetState(w,false);return;}
   if(w.type==="badge"){const d=document.createElement("div");d.className="badge";d.innerHTML=`<svg viewBox="0 0 200 200"><path d="M70 120 L40 196 L70 180 L86 200 L100 130Z" fill="#ff5d6c"/><path d="M130 120 L160 196 L130 180 L114 200 L100 130Z" fill="#4da3ff"/><circle cx="100" cy="90" r="76" fill="#ffc531" stroke="#e08e00" stroke-width="8"/><circle cx="100" cy="90" r="58" fill="#fff3c4"/><g transform="translate(62 52) scale(.76)">${IC[w.icon]||IC.star}</g></svg><h3>${esc(w.name)}</h3><p>${esc(w.sub)}</p>`;ovl.appendChild(d);fx("confetti");await say("thinky",`You earned the ${w.name} badge! ${w.sub}`,id);await sleep(900,id);d.remove();return;}
   if(w.type==="count5"){const d=document.createElement("div");d.className="bigclock";d.innerHTML=`<div style="position:absolute;inset:0">${PROPS.clock({})}</div><div class="num"></div>`;d.querySelector(".spin60")&&d.querySelector(".spin60").classList.remove("spin60");ovl.appendChild(d);const hand=d.querySelector("rect[fill='#ff3b3b']");if(hand){hand.style.transformBox="fill-box";hand.style.transformOrigin="50% 100%";hand.style.transition="transform .25s cubic-bezier(.3,1.8,.5,1)";}
-    for(let i=1;i<=5&&alive(id);i++){await sleep(1000,id);if(!alive(id))break;if(hand)hand.style.transform=`rotate(${i*6*5}deg)`;sfx("tick");const n=d.querySelector(".num");n.textContent=i;n.style.animation="none";void n.offsetWidth;n.style.animation="";caption("n",["One","Two","Three","Four","Five"][i-1]+"!");if(opts.voice&&synth&&SPEED()===1){const u=new SpeechSynthesisUtterance(["one","two","three","four","five"][i-1]);if(VOICE)u.voice=VOICE;u.rate=1.1;u.pitch=1.1;synth.cancel();synth.speak(u);}}
+    for(let i=1;i<=5&&alive(id);i++){await sleep(1000,id);if(!alive(id))break;if(hand)hand.style.transform=`rotate(${i*6*5}deg)`;sfx("tick");const n=d.querySelector(".num");n.textContent=i;n.style.animation="none";void n.offsetWidth;n.style.animation="";caption("n",["One","Two","Three","Four","Five"][i-1]+"!");logEv({k:"say",who:"n",text:["One!","Two!","Three!","Four!","Five!"][i-1]});if(opts.voice&&synth&&SPEED()===1){const u=new SpeechSynthesisUtterance(["one","two","three","four","five"][i-1]);if(VOICE)u.voice=VOICE;u.rate=1.1;u.pitch=1.1;synth.cancel();synth.speak(u);}}
     await sleep(900,id);d.remove();return;}
   if(w.type==="stopwatch"){const set=v=>{const el=props.stopwatch&&props.stopwatch.el.querySelector(".swnum");if(el)el.textContent=v;};set("0.0");caption("n","Press START!");sfx("beep");if(w.hop&&actors[w.hop])setActor(w.hop,{act:"hop"});const t0=performance.now();
     await new Promise(res=>{const iv=setInterval(()=>{const s=(performance.now()-t0)*SPEED()/1000;set(Math.min(s,w.secs).toFixed(1));if(s>=w.secs||!alive(id)){clearInterval(iv);res();}},50);});
@@ -1518,7 +1550,7 @@ async function play(){
     const f=$("#fade");f.classList.add("on");sfx("whoosh");await sleep(320,id);if(!alive(id)){f.classList.remove("on");return;}
     cur.sc++;cur.st=0;enterScene(cur.sc);f.classList.remove("on");await sleep(250,id);
   }
-  if(alive(id)){playing=false;setPlayIcon();stopMusic();caption("n","The end! Press play to watch again, or pick an adventure from the menu.");cur={sc:0,st:0};started=false;}
+  if(alive(id)){window.__DONE=true;playing=false;setPlayIcon();stopMusic();caption("n","The end! Press play to watch again, or pick an adventure from the menu.");cur={sc:0,st:0};started=false;}
 }
 function pause(){runId++;playing=false;if(synth)synth.cancel();stopMusic();setPlayIcon();$("#qbox").hidden=true;$("#qbox").innerHTML="";const ttl=ovl.querySelector(".minute");if(ttl)ttl.remove();}
 function jump(sc){const was=playing||!started;pause();cur={sc:Math.max(0,Math.min(SCENES.length-1,sc)),st:0};restoreTo(cur.sc,0);if(was){started=true;$("#start").hidden=true;play();}}
@@ -1533,7 +1565,7 @@ const tl=$("#timeline");
 CHAPTERS.forEach(c=>{const secs=SCENES.reduce((a,s,i)=>a+(s.ch===c.id?EST[i]:0),0);const b=document.createElement("button");b.type="button";b.className="seg";b.style.flex=String(secs);b.title=c.name;b.setAttribute("aria-label","Jump to "+c.name);b.innerHTML="<i></i>";b.dataset.ch=c.id;b.onclick=()=>jump(chapFirst[c.id]);tl.appendChild(b);});
 $("#chap").innerHTML=`<option value="">Jump to…</option>`+CHAPTERS.map(c=>`<optgroup label="${esc(c.name)}">${SCENES.map((s,i)=>s.ch===c.id?`<option value="${i}">${esc(s.title)}</option>`:"").join("")}</optgroup>`).join("");
 $("#chap").onchange=e=>{if(e.target.value!=="")jump(+e.target.value);e.target.value="";};
-function updateWhere(){const sc=SCENES[cur.sc];const ch=CHAPTERS.find(c=>c.id===sc.ch);$("#where").innerHTML=`${esc(ch.name)}<small>Scene ${cur.sc+1} of ${SCENES.length} · ${esc(sc.title)}</small>`;
+function updateWhere(){const sc=SCENES[cur.sc];const ch=CHAPTERS.find(c=>c.id===sc.ch);const cv=document.getElementById("chapv");if(cv)cv.textContent=ch.name;$("#where").innerHTML=`${esc(ch.name)}<small>Scene ${cur.sc+1} of ${SCENES.length} · ${esc(sc.title)}</small>`;
   [...tl.children].forEach(b=>{const cid=b.dataset.ch;const idxs=SCENES.map((s,i)=>s.ch===cid?i:-1).filter(i=>i>=0);const tot=idxs.reduce((a,i)=>a+EST[i],0);let done=0;idxs.forEach(i=>{if(i<cur.sc)done+=EST[i];else if(i===cur.sc)done+=EST[i]*(cur.st/Math.max(1,SCENES[i].steps.length));});b.querySelector("i").style.width=(tot?done/tot*100:0)+"%";});}
 
 $("#go").onclick=()=>{ac();play();};
