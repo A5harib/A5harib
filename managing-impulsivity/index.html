@@ -36,6 +36,7 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-o
 .stage{position:relative;width:100%;aspect-ratio:16/9;max-width:100%;border-radius:14px;overflow:hidden;background:#9fd3ff}
 .canvas{position:absolute;left:0;top:0;width:1600px;height:900px;transform-origin:0 0;overflow:hidden}
 .canvas.instant *{transition:none!important}
+.cam{position:absolute;inset:0;transform-origin:0 0;transition:transform 1.5s cubic-bezier(.45,0,.2,1)}
 .bg,.bg svg{position:absolute;inset:0;width:100%;height:100%}
 .world{position:absolute;inset:0}
 .scenefade{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:95;transition:opacity .28s}
@@ -55,6 +56,9 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--sun);outline-o
 .actor.talking .mouth-emo{display:none}
 .actor.talking .mouth-talk{display:block;transform-box:fill-box;transform-origin:center;animation:talk .19s ease-in-out infinite alternate}
 .actor .arm{transition:transform .3s}
+.actor.talking .art{animation:talkbob .32s ease-in-out infinite alternate}
+.world.cheer .actor:not(.thinky) .bob{animation:hop .5s ease-in-out 3}
+.world.cheer .actor.thinky .bob{animation:hop .6s ease-in-out 2}
 .actor[data-act=wave] .arm-r{animation:wave .5s ease-in-out infinite alternate}
 .actor[data-act=wave].thinky .arm-r{animation:wave2 .5s ease-in-out infinite alternate}
 .actor[data-act=clap] .arm-l{animation:clapL .3s ease-in-out infinite alternate}
@@ -303,33 +307,41 @@ table.cov th{font-family:var(--display);font-size:15px;background:var(--paper2)}
 .sb-lines .opt-l{display:block}
 @media (max-width:560px){.sb-lines li{grid-template-columns:1fr;gap:2px}}
 
-/* render mode (MP4 export): 1920x1080 frame, stage on top, captions below */
-body.render{padding:0;overflow:hidden;background:radial-gradient(circle at 50% 30%,#2c2878 0%,#15133a 80%)}
+/* render mode (MP4 export): full-frame 1920x1080 cartoon, TV subtitles, pop-up answer cards */
+body.render{padding:0;overflow:hidden;background:#000}
 body.render .top,body.render .controls,body.render .start{display:none!important}
 body.render .app{max-width:none}
-body.render .player{position:fixed;left:0;top:0;width:1920px;height:1080px;border-radius:0;padding:16px 256px;gap:14px;box-shadow:none;background:transparent}
-body.render .stage{width:1408px;height:792px;flex:none;border-radius:22px;box-shadow:0 0 0 6px rgba(255,255,255,.08)}
-body.render .panel{flex:1;position:relative;padding:14px 26px;gap:12px;border-radius:22px;justify-content:flex-start}
-body.render .who{font-size:22px;padding:4px 16px}
-body.render #captext{font-size:33px;line-height:1.28;padding-right:170px}
-body.render .qhead .qtag{display:none}
-body.render .timer{position:absolute;right:22px;top:12px;font-size:24px}
-body.render .timer svg{width:52px;height:52px}
-body.render .opt{font-size:29px;min-height:74px;padding:8px 16px}
-body.render .opt svg{width:56px;height:56px}
-body.render .opts{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
-body.render .answer{font-size:29px;padding:8px 16px}
-body.render .saynow{font-size:24px}
-body.render .brandv{display:flex}
-.brandv{display:none;position:fixed;left:0;top:0;width:256px;height:1080px;flex-direction:column;align-items:center;justify-content:center;gap:18px;color:#cfc9ff;font-family:var(--display);font-weight:800;text-align:center;font-size:24px;line-height:1.1}
-.brandv svg{width:96px}
-.brandv b{display:block;font-size:30px}
-.brandv .s{color:#ff7b86}.brandv .t{color:var(--sun)}.brandv .a{color:#5ff0b5}
-.chapv{display:none;position:fixed;right:0;top:0;width:256px;height:1080px;align-items:center;justify-content:center;padding:0 22px;color:#cfc9ff;font-family:var(--display);font-weight:700;font-size:24px;text-align:center;line-height:1.2}
-body.render .chapv{display:flex}
+body.render .player{position:fixed;left:0;top:0;width:1920px;height:1080px;padding:0;border-radius:0;background:#000;box-shadow:none;display:block}
+body.render .stage{position:absolute;left:0;top:0;width:1920px;height:1080px;border-radius:0}
+body.render .canvas::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:94;background:radial-gradient(ellipse at 50% 42%,transparent 58%,rgba(30,14,80,.30) 100%)}
+body.render .scenefade{opacity:1;background:radial-gradient(circle at 50% 50%,#ffd84d 0 3%,#ff7aa0 3.4% 6%,#6b3fe0 6.5%);clip-path:circle(0% at 50% 50%);transition:clip-path .5s cubic-bezier(.6,0,.4,1)}
+body.render .scenefade.on{clip-path:circle(80% at 50% 50%)}
+body.render .panel{position:absolute;left:0;right:0;bottom:0;background:none;padding:0 0 30px;min-height:0;display:flex;flex-direction:column;align-items:center;gap:16px;z-index:130;border-radius:0}
+body.render .cap{max-width:1560px;background:rgba(24,16,70,.78);border-radius:30px;padding:14px 32px 16px;align-items:center;gap:18px;box-shadow:0 10px 30px rgba(0,0,0,.28);border:3px solid rgba(255,255,255,.18);animation:cappop .25s ease-out}
+body.render .cap.empty{visibility:hidden}
+body.render #captext{color:#fff;font-size:41px;line-height:1.24;text-shadow:0 2px 0 rgba(0,0,0,.35)}
+body.render #captext em{color:#ffd84d}
+body.render .who{font-size:25px;margin-top:0;padding:5px 18px;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+body.render .qbox{width:1660px;background:rgba(255,250,240,.97);border-radius:38px;padding:22px 26px;box-shadow:0 14px 0 rgba(0,0,0,.16),0 24px 60px rgba(0,0,0,.3);animation:qup .55s cubic-bezier(.3,1.4,.5,1);border:6px solid #ffd84d}
+body.render .qhead{position:fixed;right:70px;top:60px;z-index:140}
+body.render .qtag{display:none}
+body.render .timer{width:230px;height:230px;border-radius:50%;background:#fff;box-shadow:0 12px 0 rgba(0,0,0,.18),0 0 0 10px rgba(255,216,77,.6);flex-direction:column;justify-content:center;gap:4px;font-size:40px;font-family:var(--display);font-weight:800;color:#3a2f8a;text-align:center;line-height:1}
+body.render .timer svg{width:120px;height:120px}
+body.render .timer:empty{display:none}
+body.render .saynow{font-size:30px;padding:0 20px;line-height:1.1}
+body.render .opts{grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:20px}
+body.render .opt{font-size:38px;min-height:118px;padding:12px 22px;border-radius:28px;gap:18px;box-shadow:0 8px 0 rgba(35,31,79,.2)}
+body.render .opt svg{width:84px;height:84px;border-radius:20px;padding:6px}
+body.render .opt.right{box-shadow:0 0 0 8px #fff,0 0 60px 10px rgba(61,220,132,.9);transform:scale(1.05)}
+body.render .answer{font-size:38px;padding:14px 22px;border-radius:24px}
+body.render .answer svg{width:64px;height:64px}
+body.render .word{transform-origin:0 0}
 
 /* keyframes */
 @keyframes bob{to{transform:translateY(-7px)}}
+@keyframes talkbob{from{transform:translateY(0) scale(1,1)}to{transform:translateY(-5px) scale(1.012,.99)}}
+@keyframes qup{from{transform:translateY(80px) scale(.9);opacity:0}to{transform:none;opacity:1}}
+@keyframes cappop{from{transform:scale(.96);opacity:.4}to{transform:none;opacity:1}}
 @keyframes float{from{transform:translateY(0)}to{transform:translateY(-18px)}}
 @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.08)}}
 @keyframes talk{from{transform:scaleY(.25)}to{transform:scaleY(1)}}
@@ -380,8 +392,7 @@ body.render .chapv{display:flex}
     <div class="player" id="player">
       <div class="stage" id="stage">
         <div class="canvas" id="canvas">
-          <div class="bg" id="bg"></div>
-          <div class="world" id="world"></div>
+          <div class="cam" id="cam"><div class="bg" id="bg"></div><div class="world" id="world"></div></div>
           <div class="freeze" id="freeze"><div class="frame"></div><div class="tag"><i></i>PAUSE!</div></div>
           <div class="ovl" id="ovl"></div>
           <div class="word" id="word"></div>
@@ -427,8 +438,7 @@ body.render .chapv{display:flex}
   </section>
 
   <section id="view-board" hidden></section>
-  <div class="brandv" aria-hidden="true"><svg viewBox="0 0 60 100"><rect x="6" y="4" width="48" height="92" rx="20" fill="#2e2a5c" stroke="#fff" stroke-width="4"/><circle cx="30" cy="26" r="11" fill="#ff5d6c"/><circle cx="30" cy="50" r="11" fill="#ffc531"/><circle cx="30" cy="74" r="11" fill="#35d699"/></svg><div>The Magic of<b class="s">STOP,</b><b class="t">THINK</b><b class="a">&amp; ACT!</b></div></div>
-  <div class="chapv" id="chapv" aria-hidden="true"></div>
+
 </div>
 
 <!-- ======================= LESSON SCRIPT (pure data) ======================= -->
@@ -810,7 +820,8 @@ S({ch:"a3", title:"Wait and listen", bg:"classroom", src:"Unit 3, Activity 2, si
 
 S({ch:"a3", title:"What to do? Team quiz", bg:"studio", src:"Unit 3, Activity 3: What to do quiz, questions 1–11, in two teams",
   vis:"A small game-show set. The class splits into the Red Team and the Green Team. Each question appears with a 5-second thinking timer, then Thinky reveals the answer.",
-  cast:{thinky:{x:1320, y:330, e:"excited"}},
+  cast:{thinky:{x:705, y:360, e:"excited"}, omar:{x:200, y:150, e:"happy"}, zara:{x:450, y:150, e:"happy"}, mia:{x:1010, y:150, e:"happy", f:-1}, leo:{x:1260, y:150, e:"happy", f:-1}},
+  props:{p1:{type:"podium", x:190, y:740, w:220, z:20, col:"#ff5d6c", col2:"#c93a4a", label:"RED TEAM"}, p2:{type:"podium", x:440, y:740, w:220, z:20, col:"#ff5d6c", col2:"#c93a4a", label:"RED TEAM"}, p3:{type:"podium", x:1000, y:740, w:220, z:20, col:"#22b573", col2:"#168a55", label:"GREEN TEAM"}, p4:{type:"podium", x:1250, y:740, w:220, z:20, col:"#22b573", col2:"#168a55", label:"GREEN TEAM"}},
   steps:[
   {s:"thinky", t:"Quiz time! Let's make two teams: the Red Team and the Green Team. Talk with your team, then choose one friend to answer!"}
 ].concat(WHATTODO.map((w, i) => ({q:{rapid:true, team:(i % 2 ? "Green Team" : "Red Team"), q:w.q, ans:w.a, note:w.note}}))).concat([
@@ -936,7 +947,8 @@ const GRAND = [
 
 S({ch:"quiz", title:"Thinky's Grand Challenge", bg:"studio", src:"Assessment covering Units 1–4",
   vis:"A game-show stage with spotlights and a glowing sign. Fifteen questions, each with a 5-second thinking timer. Every right answer earns a gold star. A certificate appears at the end.",
-  cast:{thinky:{x:1330, y:330, e:"excited"}},
+  cast:{thinky:{x:705, y:360, e:"excited"}, omar:{x:200, y:150, e:"excited"}, zara:{x:450, y:150, e:"excited"}, mia:{x:1010, y:150, e:"excited", f:-1}, leo:{x:1260, y:150, e:"excited", f:-1}},
+  props:{p1:{type:"podium", x:190, y:740, w:220, z:20, col:"#ff5d6c", col2:"#c93a4a", label:""}, p2:{type:"podium", x:440, y:740, w:220, z:20, col:"#ff5d6c", col2:"#c93a4a", label:""}, p3:{type:"podium", x:1000, y:740, w:220, z:20, col:"#22b573", col2:"#168a55", label:""}, p4:{type:"podium", x:1250, y:740, w:220, z:20, col:"#22b573", col2:"#168a55", label:""}},
   steps:[
   {w:{type:"title", eyebrow:"It's time for", title:"THINKY'S GRAND CHALLENGE!", sub:"15 questions · earn a star for each one", icon:"star"}, sfx:"fanfare", hold:3},
   {w:{type:"title", hide:true}, s:"thinky", t:"Welcome to my Grand Challenge! Listen carefully, think for five seconds, and then answer. Let's go!", fx:"resetscore"}
@@ -1198,6 +1210,7 @@ const PROPS={
   drawing:o=>`<svg viewBox="0 0 150 120"><rect x="4" y="4" width="142" height="112" rx="8" fill="#fff" stroke="#e1d8c6" stroke-width="4" transform="rotate(-4 75 60)"/><circle cx="110" cy="32" r="16" fill="#ffc531"/><path d="M14 104 q30 -50 60 -12 q24 -30 62 12z" fill="#3ddc84"/><rect x="40" y="60" width="34" height="30" fill="#ff5d6c"/><path d="M34 62 l23 -22 23 22z" fill="#8e6bff"/></svg>`,
   poster:o=>`<svg viewBox="0 0 330 430"><rect x="6" y="6" width="318" height="418" rx="18" fill="#fff" stroke="#e7dccb" stroke-width="6"/><text x="165" y="58" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="34" fill="#e2383f">Managing</text><text x="165" y="94" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="34" fill="#231f4f">Impulsivity</text><rect x="75" y="116" width="180" height="200" rx="18" fill="#e94b3c"/><path d="M75 140 l40 30 -40 14 M255 140 l-40 30 40 14" fill="#fff" opacity=".9"/><rect x="128" y="130" width="74" height="172" rx="20" fill="#222"/><circle cx="165" cy="164" r="20" fill="#ffb3b3"/><circle cx="165" cy="216" r="20" fill="#ffe14d"/><circle cx="165" cy="268" r="20" fill="#b9f5c8"/><text x="165" y="358" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-style="italic" font-size="34" fill="#231f4f">Take your time!</text><text x="165" y="392" text-anchor="middle" font-family="Andika,sans-serif" font-size="17" fill="#5a5690">Think before acting. Stay calm,</text><text x="165" y="412" text-anchor="middle" font-family="Andika,sans-serif" font-size="17" fill="#5a5690">thoughtful and deliberate.</text></svg>`,
   goodbad:o=>`<svg viewBox="0 0 470 560"><rect x="6" y="6" width="458" height="548" rx="26" fill="#fff" stroke="#e7dccb" stroke-width="6"/><path d="M62 30 h66 l46 46 v66 l-46 46 h-66 l-46 -46 v-66z" fill="#e2383f" stroke="#fff" stroke-width="5"/><text x="95" y="128" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="48" fill="#fff">STOP</text><text x="200" y="124" font-family="Baloo 2,sans-serif" font-weight="800" font-size="56" fill="#231f4f">and think</text><text x="60" y="290" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="#231f4f">Good</text><text x="60" y="336" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="#231f4f">Choice</text><g transform="translate(250 220) scale(1.5)">${IC.faceHappy}</g><text x="215" y="400" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="34" fill="#14a85a">or</text><text x="60" y="468" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="#231f4f">Bad</text><text x="60" y="514" font-family="Baloo 2,sans-serif" font-weight="800" font-size="46" fill="#231f4f">Choice</text><g transform="translate(250 400) scale(1.5)">${IC.faceAngry.replace("#ff6b6b","#ff5d6c")}</g></svg>`,
+  podium:o=>`<svg viewBox="0 0 240 190"><path d="M18 30 h204 l-16 160 h-172z" fill="${o.col||"#ff5d6c"}"/><path d="M18 30 h204 l-4 30 h-196z" fill="#fff" opacity=".35"/><rect x="6" y="14" width="228" height="24" rx="12" fill="${o.col2||"#c93a4a"}"/><path d="M120 74 l11 23 25 3 -18 17 5 25 -23 -12 -23 12 5 -25 -18 -17 25 -3z" fill="#ffd84d"/><text x="120" y="176" text-anchor="middle" font-family="Baloo 2,sans-serif" font-weight="800" font-size="24" fill="#fff">${o.label||""}</text></svg>`,
   stopsign:o=>icon("stop"),
   thinkcloud:o=>icon("think"),
   gocheck:o=>icon("check"),
@@ -1205,7 +1218,7 @@ const PROPS={
   seq:o=>`<div class="seq">${[["#ff4d5e","STOP"],["#ffd23f","THINK"],["#3ddc84","ACT"],["#b18cff","REFLECT"]].map((s,i)=>`<div class="${o.on===i?"on":(o.on>i?"done":"")}"><b style="background:${s[0]}"></b>${s[1]}</div>`).join("")}</div>`,
   filter:o=>{const L=(o.lamps||"...").split("");return `<div class="filterm"><svg viewBox="0 0 760 800" style="position:absolute;inset:0;width:100%;height:100%"><path d="M60 300 h640 l-230 260 v170 l-80 40 v-210z" fill="#9be15d" stroke="#5aa62a" stroke-width="10" stroke-linejoin="round"/><path d="M110 320 h540" stroke="#d8ffb8" stroke-width="10" stroke-linecap="round"/>${[0,1,2,3,4,5,6,7].map(i=>`<circle cx="${130+i*72}" cy="${282-(i%2)*16}" r="14" fill="#56b9ff" opacity=".8"/>`).join("")}</svg><div class="bubble">${o.bubble||""}</div><div class="lamps">${["HELPFUL?","KIND?","TRUE?"].map((n,i)=>`<div class="lamp ${L[i]==="y"?"yes":(L[i]==="n"?"no":"")}"><i><svg class="y" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg><svg class="n" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="#fff" stroke-width="4" stroke-linecap="round"/></svg></i>${n}</div>`).join("")}</div><div class="result ${o.res==="y"?"on yes":(o.res==="n"?"on no":"")}">${o.res==="y"?"SAY IT!":(o.res==="n"?"FILTERED OUT!":"")}</div></div>`;}
 };
-const PROPW={truck:150,blocks:150,blocksDown:280,clock:240,watch:150,stopwatch:200,sandtimer:140,apples:110,bread:110,juice:70,counter:500,car:330,ball:80,drawing:150,poster:330,goodbad:470,stopsign:130,thinkcloud:150,gocheck:120,seq:600,filter:760};
+const PROPW={podium:220,truck:150,blocks:150,blocksDown:280,clock:240,watch:150,stopwatch:200,sandtimer:140,apples:110,bread:110,juice:70,counter:500,car:330,ball:80,drawing:150,poster:330,goodbad:470,stopsign:130,thinkcloud:150,gocheck:120,seq:600,filter:760};
 
 /* ---------- backgrounds ---------- */
 function clouds(list){return list.map(c=>`<g class="cloud" opacity="${c[3]||.95}"><ellipse cx="${c[0]}" cy="${c[1]}" rx="${c[2]}" ry="${c[2]*.45}" fill="#fff"/><circle cx="${c[0]-c[2]*.35}" cy="${c[1]-c[2]*.25}" r="${c[2]*.42}" fill="#fff"/><circle cx="${c[0]+c[2]*.2}" cy="${c[1]-c[2]*.35}" r="${c[2]*.5}" fill="#fff"/></g>`).join("");}
@@ -1346,10 +1359,10 @@ function speakNow(who,text,id){return new Promise(res=>{let done=false;const fin
   synth.cancel();synth.speak(u);});}
 
 /* ---------- caption ---------- */
-function caption(who,text){const sp=SPEAKERS[who]||SPEAKERS.n;const w=$("#who");w.textContent=sp.name;w.style.background=sp.col;$("#captext").innerHTML=esc(text).replace(/\b([A-Z]{2,}(?:\s[A-Z]{2,})*)\b/g,"<em>$1</em>");}
+function caption(who,text){const sp=SPEAKERS[who]||SPEAKERS.n;const cp=document.querySelector(".cap");if(cp&&RENDER){cp.style.animation="none";void cp.offsetWidth;cp.style.animation="";}const w=$("#who");w.textContent=sp.name;w.style.background=sp.col;$("#captext").innerHTML=esc(text).replace(/\b([A-Z]{2,}(?:\s[A-Z]{2,})*)\b/g,"<em>$1</em>");}
 const esc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 async function say(who,text,id){
-  caption(who,text);
+  setCam(who);caption(who,text);if(RENDER)$(".cap").classList.remove("empty");
   const talkers=who==="all"?KIDS:[who];
   talkers.forEach(k=>actors[k]&&actors[k].el.classList.add("talking"));
   musicLevel(musicBase*.45);
@@ -1378,6 +1391,14 @@ function setActor(id,o,instant){
   if(fresh||prevE!==s.e||prevM!==s.mask){el.querySelector(".art").innerHTML=id==="thinky"?thinkySVG(s.e):person(id,s.e,s.mask);}
   if(fresh){void el.offsetWidth;el.style.transition="";}
 }
+const BOARDS=["rules","seq","filter","goodbad","poster"];
+function setCam(who){if(!RENDER)return;const cam=document.getElementById("cam");if(!cam)return;let sc=1,tx=0,ty=0;
+  const busy=ovl.children.length>0||BOARDS.some(k=>props[k])||$("#freeze").classList.contains("on")||!$("#qbox").hidden;
+  const a=actors[who];
+  if(!busy&&a&&who!=="thinky"){sc=1.16;const k=a.s.sc||1;const cx=a.s.x+100*k,cy=900-a.s.y-((PEOPLE[who]&&PEOPLE[who].adult)?300:210)*k;tx=Math.min(0,Math.max(1600-1600*sc,800-cx*sc));ty=Math.min(0,Math.max(900-900*sc,470-cy*sc));}
+  else if(!busy&&(who==="n"||who==="thinky")){sc=1.05;tx=who==="thinky"&&a?Math.min(0,Math.max(-80,800-(a.s.x+95)*1.05)):-40;ty=-22;}
+  cam.style.transform=`translate(${tx}px,${ty}px) scale(${sc})`;}
+function cheer(){const w=world;w.classList.remove("cheer");void w.offsetWidth;w.classList.add("cheer");setTimeout(()=>w.classList.remove("cheer"),1700);}
 function setLight(l){if(actors.thinky)actors.thinky.el.dataset.light=l||"";}
 
 /* ---------- props ---------- */
@@ -1465,31 +1486,31 @@ async function runFilter(f,id){
 /* ---------- questions ---------- */
 const PRAISE=["Super thinking!","Well done!","Brilliant!","You got it!","Fantastic!"];
 function ringSVG(frac){const C=2*Math.PI*16;return `<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" stroke="#e7e1d2" stroke-width="5" fill="none"/><circle class="fg" cx="20" cy="20" r="16" stroke="#ff8a3d" stroke-width="5" fill="none" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-frac)}" transform="rotate(-90 20 20)"/></svg>`;}
-async function countdown(box,secs,id){const t=box.querySelector(".timer");for(let s=secs;s>0&&alive(id);s--){t.innerHTML=`${ringSVG(s/secs)}<span>Think… ${s}</span>`;if(t.dataset.stop)return;await sleep(1000,id);}if(alive(id))t.innerHTML=`${ringSVG(0)}<span>Time to answer!</span>`;}
+async function countdown(box,secs,id){const t=box.querySelector(".timer");for(let s=secs;s>0&&alive(id);s--){t.innerHTML=RENDER?`${ringSVG(s/secs)}<span>Think! ${s}</span>`:`${ringSVG(s/secs)}<span>Think… ${s}</span>`;if(RENDER)sfx(s%2?"tick":"tock");if(t.dataset.stop)return;await sleep(1000,id);}if(alive(id))t.innerHTML=`${ringSVG(0)}<span>Time to answer!</span>`;}
 async function ask(q,id){
   const box=$("#qbox");box.hidden=false;
   if(q.rapid){
-    box.innerHTML=`<div class="qhead"><span class="qtag">${esc(q.team)}</span><div class="timer"></div></div>`;
+    box.innerHTML=`<div class="qhead"><span class="qtag">${esc(q.team)}</span><div class="timer"></div></div><div class="answer" style="background:${q.team.startsWith("Red")?"#ffe1e3":"#ddf7e8"};border-color:${q.team.startsWith("Red")?"#ff5d6c":"#35d699"}">${icon(q.team.startsWith("Red")?"faceHappy":"star")}<span>${esc(q.team)}: talk with your team!</span></div>`;sfx("question");
     await say("thinky",q.q,id);if(!alive(id))return;
     await countdown(box,4,id);if(!alive(id))return;
-    box.insertAdjacentHTML("beforeend",`<div class="answer">${icon("check")}<span>${esc(q.ans)}</span></div>`);sfx("ding");
+    const ta=box.querySelector(".answer");if(ta)ta.remove();box.insertAdjacentHTML("beforeend",`<div class="answer">${icon("check")}<span>${esc(q.ans)}</span></div>`);sfx("correct");cheer();
     await say("thinky",q.ans,id);await sleep(400,id);box.hidden=true;box.innerHTML="";return;}
   const tag=q.grand?`Question ${q.num} of 15 · ${q.kind}`:"Your turn!";
   box.innerHTML=`<div class="qhead"><span class="qtag">${esc(tag)}</span><div class="timer"></div></div><div class="opts">${q.o.map((o,i)=>`<button type="button" class="opt c${i}" data-i="${i}">${o.ic?icon(o.ic):""}<span>${esc(o.t)}</span></button>`).join("")}</div>`;
-  const btns=[...box.querySelectorAll(".opt")];const right=q.o.findIndex(o=>o.ok);
+  const btns=[...box.querySelectorAll(".opt")];const right=q.o.findIndex(o=>o.ok);sfx("question");
   let picked=null,resolveP;const pickP=new Promise(r=>resolveP=r);
   btns.forEach(b=>b.addEventListener("click",()=>{if(picked!==null)return;picked=+b.dataset.i;resolveP(picked);}));
   await say("thinky",q.q,id);if(!alive(id))return;
   const think=countdown(box,5,id);
   const auto=(async()=>{await think;if(!alive(id))return;
-    if(opts.mode==="class"){if(picked===null){box.querySelector(".timer").innerHTML=`<span class="saynow">Say your answer out loud!</span>`;await sleep(2500,id);if(picked===null&&alive(id))resolveP(-1);}}
+    if(opts.mode==="class"){if(picked===null){box.querySelector(".timer").innerHTML=`<span class="saynow">Say your answer!</span>`;await sleep(2500,id);if(picked===null&&alive(id))resolveP(-1);}}
     else{await sleep(9000,id);if(picked===null&&alive(id)){await say("thinky","Tap the answer you think is right!",id);}}})();
   const res=await Promise.race([pickP,new Promise(r=>{const iv=setInterval(()=>{if(!alive(id)){clearInterval(iv);r("abort");}},80);})]);
   if(res==="abort"||!alive(id))return;
   box.querySelector(".timer").dataset.stop=1;
   btns.forEach(b=>b.disabled=true);
   const key=cur.sc+":"+cur.st;
-  if(res===-1){btns[right].classList.add("right");btns.forEach((b,i)=>{if(i!==right)b.classList.add("dim");});sfx("ding");await say("thinky",q.fb,id);}
+  if(res===-1){btns[right].classList.add("right");btns.forEach((b,i)=>{if(i!==right)b.classList.add("dim");});sfx("correct");cheer();if(RENDER)fx("confetti");await say("thinky",q.fb,id);}
   else if(res===right){btns[right].classList.add("right");btns.forEach((b,i)=>{if(i!==right)b.classList.add("dim");});sfx("ding");if(q.grand&&!score.seen[key]){score.seen[key]=1;score.right++;score.total++;}
     await say("thinky",PRAISE[Math.floor(Math.random()*PRAISE.length)]+" "+q.fb,id);}
   else{btns[res].classList.add("wrong");sfx("bloop");if(q.grand&&!score.seen[key]){score.seen[key]=1;score.total++;}await sleep(500,id);btns[right].classList.add("right");btns.forEach((b,i)=>{if(i!==right&&i!==res)b.classList.add("dim");});await say("thinky","Good try! "+q.fb,id);}
@@ -1528,7 +1549,8 @@ async function perform(st,id){
 function enterScene(i){
   const sc=SCENES[i];
   world.innerHTML="";actors={};props={};clearOvl();setWord(null,true);$("#freeze").classList.remove("on");
-  bgEl.innerHTML=BG[sc.bg]();
+  bgEl.innerHTML=BG[sc.bg]();logEv({k:"scene",ch:sc.ch,bg:sc.bg,title:sc.title});const cm=document.getElementById("cam");if(cm)cm.style.transform="";
+  if(RENDER){$("#who").textContent="";$("#captext").textContent="";$(".cap").classList.add("empty");}
   canvasEl.classList.add("instant");
   for(const k in (sc.props||{}))setProp(k,Object.assign({},sc.props[k]),true);
   for(const k in (sc.cast||{}))setActor(k,Object.assign({},sc.cast[k]),true);
@@ -1547,8 +1569,8 @@ async function play(){
     while(cur.st<sc.steps.length&&alive(id)){await perform(sc.steps[cur.st],id);if(!alive(id))return;cur.st++;updateWhere();}
     if(!alive(id))return;
     if(cur.sc+1>=SCENES.length)break;
-    const f=$("#fade");f.classList.add("on");sfx("whoosh");await sleep(320,id);if(!alive(id)){f.classList.remove("on");return;}
-    cur.sc++;cur.st=0;enterScene(cur.sc);f.classList.remove("on");await sleep(250,id);
+    const f=$("#fade");f.classList.add("on");sfx("whoosh");await sleep(RENDER?560:320,id);if(!alive(id)){f.classList.remove("on");return;}
+    cur.sc++;cur.st=0;enterScene(cur.sc);f.classList.remove("on");await sleep(RENDER?600:250,id);
   }
   if(alive(id)){window.__DONE=true;playing=false;setPlayIcon();stopMusic();caption("n","The end! Press play to watch again, or pick an adventure from the menu.");cur={sc:0,st:0};started=false;}
 }
